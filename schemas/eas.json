@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/eas.json",
+    "title": "EAS",
+    "description": "Electronic Agnostic Structure — Universal container for any electronic component. A valid MAS document is a valid EAS. A valid CAS, SAS, or RAS document is also a valid EAS.",
+    "type": "object",
+    "properties": {
+        "inputs": {
+            "description": "Design requirements and operating points for this component",
+            "type": "object"
+        },
+        "outputs": {
+            "description": "Computed results (losses, thermal, impedance, etc.)",
+            "type": ["object", "array"]
+        }
+    },
+    "required": ["inputs", "outputs"],
+    "oneOf": [
+        {
+            "description": "Magnetic component (inductor, transformer, choke) — defined by MAS",
+            "properties": {
+                "magnetic": { "$ref": "http://openmagnetics.com/schemas/magnetic.json" }
+            },
+            "required": ["magnetic"]
+        },
+        {
+            "description": "Capacitor — defined by CAS",
+            "properties": {
+                "capacitor": { "$ref": "./capacitor.json" }
+            },
+            "required": ["capacitor"]
+        },
+        {
+            "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS",
+            "properties": {
+                "semiconductor": { "$ref": "./semiconductor.json" }
+            },
+            "required": ["semiconductor"]
+        },
+        {
+            "description": "Resistor — defined by RAS",
+            "properties": {
+                "resistor": { "$ref": "./resistor.json" }
+            },
+            "required": ["resistor"]
+        }
+    ]
+}

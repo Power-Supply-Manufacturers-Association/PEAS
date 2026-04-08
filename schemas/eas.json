@@ -6,7 +6,7 @@
     "type": "object",
     "properties": {
         "inputs": {
-            "description": "Design requirements and operating points for this component",
+            "description": "Design requirements and operating points for this component.",
             "type": "object"
         },
         "outputs": {
@@ -14,33 +14,32 @@
             "type": ["object", "array"]
         }
     },
-    "required": ["inputs", "outputs"],
     "oneOf": [
         {
-            "description": "Magnetic component (inductor, transformer, choke) — defined by MAS",
+            "description": "Magnetic component (inductor, transformer, choke) — defined by MAS.",
             "properties": {
                 "magnetic": { "$ref": "http://openmagnetics.com/schemas/magnetic.json" }
             },
             "required": ["magnetic"]
         },
         {
-            "description": "Capacitor — defined by CAS",
+            "description": "Capacitor — defined by CAS.",
             "properties": {
-                "capacitor": { "$ref": "./capacitor.json" }
+                "capacitor": { "$ref": "../../CAS/schemas/capacitor.json" }
             },
             "required": ["capacitor"]
         },
         {
-            "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS",
+            "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS.",
             "properties": {
-                "semiconductor": { "$ref": "./semiconductor.json" }
+                "semiconductor": { "$ref": "../../SAS/schemas/semiconductor.json" }
             },
             "required": ["semiconductor"]
         },
         {
-            "description": "Resistor — defined by RAS",
+            "description": "Resistor — defined by RAS.",
             "properties": {
-                "resistor": { "$ref": "./resistor.json" }
+                "resistor": { "$ref": "../../RAS/schemas/resistor.json" }
             },
             "required": ["resistor"]
         }

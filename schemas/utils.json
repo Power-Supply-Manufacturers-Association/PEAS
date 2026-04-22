@@ -23,9 +23,21 @@
                 }
             },
             "anyOf": [
-                {"required": ["minimum"]},
-                {"required": ["nominal"]},
-                {"required": ["maximum"]}
+                {
+                    "required": [
+                        "minimum"
+                    ]
+                },
+                {
+                    "required": [
+                        "nominal"
+                    ]
+                },
+                {
+                    "required": [
+                        "maximum"
+                    ]
+                }
             ]
         },
         "curve": {
@@ -53,40 +65,116 @@
         "connectionType": {
             "description": "PCB / terminal connection type.",
             "type": "string",
-            "enum": ["Pin", "Screw", "SMT", "Flying Lead", "THT", "Chassis"]
+            "enum": [
+                "Pin",
+                "Screw",
+                "SMT",
+                "Flying Lead",
+                "THT",
+                "Chassis"
+            ]
         },
         "distributorInfo": {
             "description": "Where to buy this component.",
             "type": "object",
             "properties": {
-                "name": { "type": "string", "description": "Distributor name (e.g. Digi-Key, Mouser)." },
-                "reference": { "type": ["string", "null"], "description": "Distributor part number." },
-                "link": { "type": ["string", "null"], "format": "uri", "description": "Product page URL." },
-                "cost": { "type": ["number", "null"], "description": "Unit cost in USD." },
-                "stock": { "type": ["integer", "null"], "description": "Available stock quantity." },
-                "country": { "type": ["string", "null"], "description": "Country of distribution." }
+                "name": {
+                    "type": "string",
+                    "description": "Distributor name (e.g. Digi-Key, Mouser)."
+                },
+                "reference": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Distributor part number."
+                },
+                "link": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "format": "uri",
+                    "description": "Product page URL."
+                },
+                "cost": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "Unit cost in USD."
+                },
+                "stock": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Available stock quantity."
+                },
+                "country": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Country of distribution."
+                }
             },
-            "required": ["name"]
+            "required": [
+                "name"
+            ]
         },
         "substituteInfo": {
             "description": "A substitute or equivalent component that can replace this one.",
             "type": "object",
             "properties": {
-                "partNumber": { "type": "string", "description": "Part number of the substitute." },
-                "manufacturer": { "type": ["string", "null"], "description": "Manufacturer of the substitute." },
+                "partNumber": {
+                    "type": "string",
+                    "description": "Part number of the substitute."
+                },
+                "manufacturer": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Manufacturer of the substitute."
+                },
                 "type": {
                     "type": "string",
                     "description": "Type of substitution.",
-                    "enum": ["drop-in", "near-equivalent", "functional", "upgrade", "downgrade", "successor"]
+                    "enum": [
+                        "drop-in",
+                        "near-equivalent",
+                        "functional",
+                        "upgrade",
+                        "downgrade",
+                        "successor"
+                    ]
                 },
-                "notes": { "type": ["string", "null"], "description": "Differences or caveats." },
+                "notes": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Differences or caveats."
+                },
                 "source": {
-                    "type": ["string", "null"],
+                    "type": [
+                        "string",
+                        "null"
+                    ],
                     "description": "Where this substitution was identified.",
-                    "enum": ["manufacturer", "distributor", "cross-reference", "engineering", null]
+                    "enum": [
+                        "manufacturer",
+                        "distributor",
+                        "cross-reference",
+                        "engineering",
+                        null
+                    ]
                 }
             },
-            "required": ["partNumber"]
+            "required": [
+                "partNumber"
+            ]
         },
         "datasheetInfoThermal": {
             "description": "Shared thermal section for datasheetInfo: operating temperature as dimensionWithTolerance (minimum = min operating, maximum = max operating).",
@@ -128,13 +216,85 @@
             "description": "Shared business / supply-chain section for datasheetInfo.",
             "type": "object",
             "properties": {
-                "packaging": { "type": ["string", "null"], "description": "Packaging format (e.g. Tape & Reel, Bulk, Tray)." },
-                "vpe": { "type": ["integer", "null"], "description": "Units per package / reel." },
-                "moq": { "type": ["integer", "null"], "description": "Minimum order quantity." },
-                "leadTime": { "type": ["number", "null"], "description": "Lead time in weeks." },
-                "stock": { "type": ["integer", "null"], "description": "Available stock quantity." },
-                "cost": { "type": ["number", "null"], "description": "Unit cost." }
+                "packaging": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Packaging format (e.g. Tape & Reel, Bulk, Tray)."
+                },
+                "vpe": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Units per package / reel."
+                },
+                "moq": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Minimum order quantity."
+                },
+                "leadTime": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "Lead time in weeks."
+                },
+                "stock": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Available stock quantity."
+                },
+                "cost": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "Unit cost."
+                }
             }
+        },
+        "manufacturerInfo": {
+            "description": "Shared manufacturer information container. Each component type extends this via allOf to supply its own datasheetInfo schema.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Manufacturer name"
+                },
+                "reference": {
+                    "type": "string",
+                    "description": "Manufacturer part number"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "production",
+                        "nrnd",
+                        "obsolete",
+                        "preview"
+                    ],
+                    "description": "Production status"
+                },
+                "datasheetUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to manufacturer datasheet"
+                },
+                "spiceModel": {
+                    "type": "object",
+                    "description": "SPICE simulation model for this component"
+                }
+            },
+            "required": [
+                "name"
+            ]
         }
     }
 }

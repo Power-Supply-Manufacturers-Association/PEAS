@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/inputs/twoTerminalOperatingPoint.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "twoTerminalOperatingPoint",
+    "description": "Operating point template for two-terminal components (capacitors, resistors, two-terminal diodes). One excitation (single voltage and current waveform) plus the shared operatingConditions. Multi-port components (transformers, three-terminal switches) use multiPortOperatingPoint.json instead.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Name describing this operating point",
+            "type": "string"
+        },
+        "conditions": {
+            "title": "operatingConditions",
+            "$ref": "./operatingConditions.json"
+        },
+        "excitation": {
+            "title": "operatingPointExcitation",
+            "description": "Voltage and current waveforms across the two terminals. Uses the standard operatingPointExcitation type (mirror of MAS). For two-terminal components the magnetic-field properties are not used; the (frequency + current + voltage) branch of the anyOf applies.",
+            "$ref": "./operatingPointExcitation.json"
+        }
+    },
+    "required": [
+        "conditions",
+        "excitation"
+    ],
+    "$defs": {}
+}

@@ -1,0 +1,145 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/inputs/operatingConditions.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "operatingConditions",
+    "description": "The description of operating conditions (ambient + cooling). REFERENCE COPY of MAS schemas/inputs/operatingConditions.json (https://schemas.psma.com/mas/inputs/operatingConditions.json) — the source of truth is MAS, which is the IEC standard candidate. Mirrored into EAS so CAS / SAS / RAS can share the same convention without taking a runtime dependency on MAS. Two structural deviations from MAS, both because the MAS utils types are not mirrored here yet: (1) forcedConvectionCooling.velocity is inlined as {x,y,z} instead of $ref to MAS utils velocity; (2) the optional 'dimensions' field on heatsinkCooling and coldPlateCooling is omitted. Re-sync if the MAS utils types are mirrored into EAS later.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "A label that identifies this Operating Conditions",
+            "type": "string"
+        },
+        "ambientTemperature": {
+            "description": "Temperature of the ambient where the component will operate",
+            "type": "number",
+            "minimum": -273.15
+        },
+        "ambientRelativeHumidity": {
+            "description": "Relative Humidity of the ambient where the component will operate",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+        },
+        "cooling": {
+            "description": "Cooling method for the component",
+            "title": "cooling",
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/naturalConvectionCooling"
+                },
+                {
+                    "$ref": "#/$defs/forcedConvectionCooling"
+                },
+                {
+                    "$ref": "#/$defs/heatsinkCooling"
+                },
+                {
+                    "$ref": "#/$defs/coldPlateCooling"
+                }
+            ]
+        }
+    },
+    "required": [
+        "ambientTemperature"
+    ],
+    "$defs": {
+        "naturalConvectionCooling": {
+            "description": "Data describing a natural convection cooling",
+            "type": "object",
+            "title": "naturalConvectionCooling",
+            "properties": {
+                "temperature": {
+                    "description": "Temperature of the fluid, in Celsius. If absent, ambient temperature is assumed.",
+                    "type": "number"
+                },
+                "fluid": {
+                    "description": "Name of the fluid used",
+                    "type": "string",
+                    "default": "air"
+                }
+            },
+            "required": []
+        },
+        "forcedConvectionCooling": {
+            "description": "Data describing a forced convection cooling",
+            "type": "object",
+            "title": "forcedConvectionCooling",
+            "properties": {
+                "velocity": {
+                    "description": "Velocity of the fluid",
+                    "type": "object",
+                    "properties": {
+                        "x": { "type": "number" },
+                        "y": { "type": "number" },
+                        "z": { "type": "number" }
+                    }
+                },
+                "flowDiameter": {
+                    "description": "Diameter of the fluid flow, normally defined as a fan diameter",
+                    "type": "number"
+                },
+                "temperature": {
+                    "description": "Temperature of the fluid. To be used only if different from ambient temperature",
+                    "type": "number"
+                },
+                "fluid": {
+                    "description": "Name of the fluid used",
+                    "type": "string",
+                    "default": "air"
+                }
+            },
+            "required": [
+                "velocity"
+            ]
+        },
+        "heatsinkCooling": {
+            "description": "Data describing a heatsink cooling",
+            "type": "object",
+            "title": "heatsinkCooling",
+            "properties": {
+                "thermalResistance": {
+                    "description": "Bulk thermal resistance of the heat sink. Unit: K/W.",
+                    "type": "number"
+                },
+                "interfaceThermalResistance": {
+                    "description": "Thermal resistance of the thermal interface used to connect the device to the heatsink. Unit: K/W.",
+                    "type": "number"
+                },
+                "interfaceThickness": {
+                    "description": "Thickness of the thermal interface used to connect the device to the heatsink, in m",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "thermalResistance"
+            ]
+        },
+        "coldPlateCooling": {
+            "description": "Data describing a cold plate cooling",
+            "type": "object",
+            "title": "coldPlateCooling",
+            "properties": {
+                "thermalResistance": {
+                    "description": "Bulk thermal resistance of the cold plate. Unit: K/W.",
+                    "type": "number"
+                },
+                "maximumTemperature": {
+                    "description": "Maximum temperature of the cold plate. Unit: Celsius.",
+                    "type": "number"
+                },
+                "interfaceThermalResistance": {
+                    "description": "Thermal resistance of the thermal interface used to connect the device to the cold plate. Unit: K/W.",
+                    "type": "number"
+                },
+                "interfaceThickness": {
+                    "description": "Thickness of the thermal interface used to connect the device to the cold plate, in m",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "maximumTemperature"
+            ]
+        }
+    }
+}

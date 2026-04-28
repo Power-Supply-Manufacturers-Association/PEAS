@@ -63,15 +63,17 @@
             }
         },
         "connectionType": {
-            "description": "PCB / terminal connection type.",
+            "description": "PCB / terminal connection type. Superset of MAS schemas/utils.json#/$defs/connectionType: includes every MAS value (pin, screw, smt, flyingLead, tht, pcbPad) plus EAS-only additions (chassis). Case-style aligned to MAS (lowerCamelCase) since MAS is the IEC standard candidate.",
             "type": "string",
+            "title": "connectionType",
             "enum": [
-                "Pin",
-                "Screw",
-                "SMT",
-                "Flying Lead",
-                "THT",
-                "Chassis"
+                "pin",
+                "screw",
+                "smt",
+                "flyingLead",
+                "tht",
+                "pcbPad",
+                "chassis"
             ]
         },
         "distributorInfo": {
@@ -294,6 +296,247 @@
             },
             "required": [
                 "name"
+            ]
+        },
+        "topology": {
+            "description": "Power-electronics converter topology. Reference list mirrored from MAS schemas/inputs/designRequirements.json (which is the IEC standard candidate). Keep value-aligned with MAS; update here whenever MAS updates.",
+            "type": "string",
+            "title": "topology",
+            "enum": [
+                "buckConverter",
+                "boostConverter",
+                "invertingBuckBoostConverter",
+                "SEPIC",
+                "cukConverter",
+                "zetaConverter",
+                "flybackConverter",
+                "activeClampForwardConverter",
+                "singleSwitchForwardConverter",
+                "twoSwitchForwardConverter",
+                "pushPullConverter",
+                "weinbergConverter",
+                "halfBridgeConverter",
+                "fullBridgeConverter",
+                "phaseShiftedFullBridgeConverter",
+                "phaseShiftedHalfBridgeConverter",
+                "currentTransformer",
+                "isolatedBuckConverter",
+                "isolatedBuckBoostConverter",
+                "dualActiveBridgeConverter",
+                "llcResonantConverter",
+                "cllcResonantConverter",
+                "commonModeChoke",
+                "differentialModeChoke",
+                "powerFactorCorrection"
+            ]
+        },
+        "market": {
+            "description": "Target market segment for the component. Common to MAS / CAS / RAS / SAS.",
+            "type": "string",
+            "title": "market",
+            "enum": [
+                "medical",
+                "commercial",
+                "industrial",
+                "automotive",
+                "military",
+                "space"
+            ]
+        },
+        "maximumDimensions": {
+            "description": "Maximum allowed bounding-box dimensions for the component, in metres.",
+            "type": "object",
+            "title": "maximumDimensions",
+            "properties": {
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "depth": {
+                    "type": "number"
+                }
+            }
+        },
+        "componentPort": {
+            "description": "Identifier of one electrical port / terminal / winding of a component. Free-form string so each family can use its own vocabulary (e.g. 'gate'/'drain'/'source' for MOSFETs, 'anode'/'cathode' for diodes, 'primary'/'secondary1' for transformer windings, 'a'/'b' for capacitors and resistors).",
+            "type": "string"
+        },
+        "designRequirementsBase": {
+            "description": "Family-agnostic outer shell of designRequirements. Each family schema does allOf [designRequirementsBase, family-specific]; the family layer adds its required primary specs (capacitance/resistance/inductance/voltage), narrows 'role' and 'allowedTechnologies' to per-family enums, and adds family-specific optional fields (lifetime, ESR, TCR, gate-charge, etc.).",
+            "type": "object",
+            "title": "designRequirementsBase",
+            "properties": {
+                "name": {
+                    "description": "A label that identifies these Design Requirements",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "The role this component plays in the converter. The family schema overrides this with a per-family enum; this base layer leaves it as a string for extensibility.",
+                    "type": "string"
+                },
+                "allowedTechnologies": {
+                    "description": "Subset of technologies acceptable for this design. Each family schema overrides 'items' with a per-family enum.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+                "market": {
+                    "$ref": "#/$defs/market"
+                },
+                "topology": {
+                    "$ref": "#/$defs/topology"
+                },
+                "operatingTemperature": {
+                    "description": "Required values for the temperature that the component can reach under operation, in Celsius",
+                    "$ref": "#/$defs/dimensionWithTolerance"
+                },
+                "terminalType": {
+                    "description": "Type of terminal that must be used",
+                    "$ref": "#/$defs/connectionType"
+                },
+                "maximumWeight": {
+                    "description": "Maximum weight for the designed component, in Kg",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "maximumDimensions": {
+                    "$ref": "#/$defs/maximumDimensions"
+                },
+                "application": {
+                    "description": "Broad application category. Family schemas override this property with a per-family enum ($ref to magneticApplication / capacitorApplication / resistorApplication / semiconductorApplication).",
+                    "type": "string"
+                },
+                "subApplication": {
+                    "description": "Narrower sub-application within the chosen application. Family schemas override this property with a per-family enum.",
+                    "type": "string"
+                }
+            }
+        },
+        "magneticApplication": {
+            "description": "Magnetic component application. Mirror of MAS schemas/utils.json#/$defs/application — kept in EAS so MAS stays the IEC source of truth without other families taking a runtime dependency on MAS. Update here whenever MAS updates.",
+            "type": "string",
+            "title": "magneticApplication",
+            "enum": [
+                "power",
+                "signalProcessing",
+                "interferenceSuppression"
+            ]
+        },
+        "magneticSubApplication": {
+            "description": "Magnetic component sub-application. Mirror of MAS schemas/utils.json#/$defs/subApplication.",
+            "type": "string",
+            "title": "magneticSubApplication",
+            "enum": [
+                "powerFiltering",
+                "transforming",
+                "isolation",
+                "commonModeNoiseFiltering",
+                "differentialModeNoiseFiltering"
+            ]
+        },
+        "capacitorApplication": {
+            "description": "Capacitor application category. Aligned with the IEC 60384 sectional-specification structure: power (DC link, line filter, hold-up), signal (decoupling, coupling, timing), safetyEmcSuppression (IEC 60384-14 X/Y classes), motorRunStart (AC across-the-line, IEC 60252).",
+            "type": "string",
+            "title": "capacitorApplication",
+            "enum": [
+                "power",
+                "signal",
+                "safetyEmcSuppression",
+                "motorRunStart"
+            ]
+        },
+        "capacitorSubApplication": {
+            "description": "Capacitor sub-application. The X1/X2/X3/Y1/Y2/Y4 values are the IEC 60384-14 safety/EMC classes (across-the-line vs. line-to-ground, with surge-voltage tiers). Other values further specialize 'power' and 'signal'.",
+            "type": "string",
+            "title": "capacitorSubApplication",
+            "enum": [
+                "dcLink",
+                "lineFilter",
+                "holdUp",
+                "decoupling",
+                "coupling",
+                "timing",
+                "snubber",
+                "resonant",
+                "X1",
+                "X2",
+                "X3",
+                "Y1",
+                "Y2",
+                "Y4",
+                "motorRun",
+                "motorStart"
+            ]
+        },
+        "resistorApplication": {
+            "description": "Resistor application category. Aligned with IEC 60115 sectional specifications and common datasheet usage groupings: power (high dissipation), precision (low TCR / low drift, instrumentation, audio), currentSense (low-ohm shunts, Kelvin connection), pulseHandling (surge/inrush), general (catch-all for standard fixed resistors).",
+            "type": "string",
+            "title": "resistorApplication",
+            "enum": [
+                "power",
+                "precision",
+                "currentSense",
+                "pulseHandling",
+                "general"
+            ]
+        },
+        "resistorSubApplication": {
+            "description": "Resistor sub-application narrowing.",
+            "type": "string",
+            "title": "resistorSubApplication",
+            "enum": [
+                "snubber",
+                "gateDrive",
+                "bleed",
+                "preCharge",
+                "inrush",
+                "divider",
+                "feedback",
+                "termination",
+                "pullUpDown",
+                "fusible",
+                "shunt",
+                "audio",
+                "instrumentation",
+                "highVoltage"
+            ]
+        },
+        "semiconductorApplication": {
+            "description": "Semiconductor application category. Aligned with JEDEC device classifications and common power-electronics roles: powerSwitching (MOSFET/IGBT used for switching), powerRectification (diodes used as rectifiers, freewheeling, synchronous), protection (TVS/ESD per IEC 61000-4-2/-4-5), signalProcessing (small-signal switching/amplification), referenceClamp (Zener references and clamps).",
+            "type": "string",
+            "title": "semiconductorApplication",
+            "enum": [
+                "powerSwitching",
+                "powerRectification",
+                "protection",
+                "signalProcessing",
+                "referenceClamp"
+            ]
+        },
+        "semiconductorSubApplication": {
+            "description": "Semiconductor sub-application narrowing.",
+            "type": "string",
+            "title": "semiconductorSubApplication",
+            "enum": [
+                "highSideSwitch",
+                "lowSideSwitch",
+                "synchronousRectifier",
+                "freewheelingDiode",
+                "clampDiode",
+                "bootstrapDiode",
+                "lineRectifier",
+                "bridgeRectifier",
+                "tvs",
+                "esdProtection",
+                "zenerReference",
+                "smallSignal",
+                "bodyDiode",
+                "inrushLimiter"
             ]
         }
     }

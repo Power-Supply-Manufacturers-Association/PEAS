@@ -1,0 +1,51 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/inputs/multiPortOperatingPoint.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "multiPortOperatingPoint",
+    "description": "Operating point template for multi-port components: components with three or more terminals or multiple windings, where each port carries its own voltage and current waveforms (e.g. MOSFETs, IGBTs, BJTs, transformers when described component-side). Structurally analogous to MAS's operatingPoint with excitationsPerWinding[], but uses a generic 'port' label rather than 'winding'. MAS keeps its own native shape for backward compatibility with the IEC standard candidate.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Name describing this operating point",
+            "type": "string"
+        },
+        "conditions": {
+            "title": "operatingConditions",
+            "$ref": "./operatingConditions.json"
+        },
+        "excitationsPerPort": {
+            "description": "List of per-port excitations. Each item ties a port label (e.g. 'gate', 'drain', 'source', 'anode', 'cathode', 'primary') to a full operatingPointExcitation.",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/portExcitation"
+            },
+            "minItems": 1
+        }
+    },
+    "required": [
+        "conditions",
+        "excitationsPerPort"
+    ],
+    "$defs": {
+        "portExcitation": {
+            "description": "Excitation applied to one named port of a multi-port component.",
+            "title": "portExcitation",
+            "type": "object",
+            "properties": {
+                "port": {
+                    "description": "Identifier of the port this excitation refers to.",
+                    "$ref": "../utils.json#/$defs/componentPort"
+                },
+                "excitation": {
+                    "description": "Voltage and current waveforms at this port.",
+                    "$ref": "./operatingPointExcitation.json"
+                }
+            },
+            "required": [
+                "port",
+                "excitation"
+            ]
+        }
+    }
+}

@@ -298,6 +298,27 @@
                 "name"
             ]
         },
+        "resultOrigin": {
+            "description": "Origin of the value of an output result. Mirror of MAS schemas/outputs.json#/$defs/resultOrigin.",
+            "type": "string",
+            "title": "resultOrigin",
+            "enum": [
+                "manufacturer",
+                "measurement",
+                "simulation"
+            ]
+        },
+        "twoDimensionalMatrix": {
+            "description": "Generic two-dimensional numeric matrix (array of arrays of numbers). Mirror of MAS schemas/utils.json#/$defs/twoDimensionalMatrix.",
+            "type": "array",
+            "title": "twoDimensionalMatrix",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
         "topology": {
             "description": "Power-electronics converter topology. Reference list mirrored from MAS schemas/inputs/designRequirements.json (which is the IEC standard candidate). Keep value-aligned with MAS; update here whenever MAS updates.",
             "type": "string",

@@ -1,0 +1,35 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/outputs/measurementCondition.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "measurementCondition",
+    "description": "Operating point at which an output value was measured or computed. All fields optional; absence implies the conventional default for the family (e.g. small-signal at 0 A DC bias, ambient temperature). Promoted to EAS from the inline measurementCondition under MAS magnetizingInductance so any family's outputs can use it.",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "frequency": {
+            "description": "Test frequency. Unit: Hz.",
+            "type": "number",
+            "exclusiveMinimum": 0
+        },
+        "voltageRms": {
+            "description": "RMS test voltage applied across the component (small-signal characterisation). Unit: V.",
+            "type": "number",
+            "exclusiveMinimum": 0
+        },
+        "currentRms": {
+            "description": "RMS test current through the component. Unit: A.",
+            "type": "number",
+            "minimum": 0
+        },
+        "dcBias": {
+            "description": "DC bias at which the value was measured. For caps and inductors this is the DC voltage / current at the terminals; for semiconductors it is the steady-state operating point of the relevant electrode.",
+            "type": "number"
+        },
+        "temperature": {
+            "description": "Temperature at which the value was measured. Unit: Celsius.",
+            "type": "number"
+        }
+    },
+    "$defs": {}
+}

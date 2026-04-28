@@ -1,0 +1,22 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/outputs/scalarMatrixAtFrequency.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "scalarMatrixAtFrequency",
+    "description": "A scalar (real-valued) matrix tagged with the frequency at which it applies. Used to express e.g. resistance vs. frequency, inductance vs. frequency. Mirror of MAS schemas/outputs.json#/$defs/scalarMatrixAtFrequency.",
+    "type": "object",
+    "properties": {
+        "magnitude": {
+            "$ref": "../utils.json#/$defs/twoDimensionalMatrix"
+        },
+        "frequency": {
+            "description": "Frequency of the matrix, in Hz",
+            "type": "number"
+        }
+    },
+    "required": [
+        "magnitude",
+        "frequency"
+    ],
+    "$defs": {}
+}

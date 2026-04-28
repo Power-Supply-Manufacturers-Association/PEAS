@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/outputs/insulationCoordination.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "insulationCoordination",
+    "description": "Required clearance / creepage / distance-through-insulation and withstand-voltage figures for a component. Mirror of MAS schemas/outputs.json#/$defs/insulationCoordination so safety / EMC capacitors and isolated semiconductors can use the same shape.",
+    "type": "object",
+    "properties": {
+        "creepageDistance": {
+            "description": "Creepage distance required for this component, in m",
+            "type": "number",
+            "minimum": 0
+        },
+        "clearance": {
+            "description": "Clearance required for this component, in m",
+            "type": "number",
+            "minimum": 0
+        },
+        "distanceThroughInsulation": {
+            "description": "Distance through insulation required for this component, in m",
+            "type": "number",
+            "minimum": 0
+        },
+        "withstandVoltage": {
+            "description": "Voltage that the component withstands, in V",
+            "type": "number"
+        },
+        "withstandVoltageType": {
+            "description": "Type of the voltage.",
+            "type": "string",
+            "enum": [
+                "AC",
+                "DC"
+            ]
+        },
+        "withstandVoltageDuration": {
+            "description": "Duration of the voltage test, in s. Absent if the test specification does not require a fixed duration.",
+            "type": "number"
+        }
+    },
+    "required": [
+        "creepageDistance",
+        "clearance",
+        "distanceThroughInsulation",
+        "withstandVoltage"
+    ],
+    "$defs": {}
+}

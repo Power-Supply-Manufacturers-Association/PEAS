@@ -1,0 +1,22 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/EAS/outputs/outputBase.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "outputBase",
+    "description": "Provenance shell that wraps every output result block in MAS / CAS / RAS / SAS. Each per-domain output schema does allOf [outputBase, domain-specific] so every result records where its value came from (manufacturer datasheet, lab measurement, or simulation) and which model or method produced it. Mirrors the implicit {origin, methodUsed} pattern present on every output $def in MAS schemas/outputs.json.",
+    "type": "object",
+    "properties": {
+        "origin": {
+            "$ref": "../utils.json#/$defs/resultOrigin"
+        },
+        "methodUsed": {
+            "description": "Model name used to compute the result (in case of simulation), or the test method used to measure it (in case of measurement), or the datasheet section it was extracted from (in case of manufacturer).",
+            "type": "string"
+        }
+    },
+    "required": [
+        "origin",
+        "methodUsed"
+    ],
+    "$defs": {}
+}

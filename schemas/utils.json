@@ -7,6 +7,7 @@
     "$defs": {
         "dimensionWithTolerance": {
             "description": "A dimension with minimum, nominal, and maximum values.",
+            "title": "dimensionWithTolerance",
             "type": "object",
             "properties": {
                 "minimum": {

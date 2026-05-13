@@ -8,13 +8,13 @@ This document describes the full architecture of the OpenConverters component sc
 
 The OpenConverters ecosystem defines a family of JSON schemas for describing electronic components and power converter designs. The architecture follows an object-oriented pattern:
 
-- **EAS** is the abstract base class
+- **PEAS** is the abstract base class
 - **MAS, SAS, CAS, RAS** are the concrete implementations (one per component family)
 - **TAS** is the composite that assembles components into complete designs
 
 ```mermaid
 classDiagram
-    class EAS {
+    class PEAS {
         <<abstract>>
         +inputs
         +outputs
@@ -42,10 +42,10 @@ classDiagram
         +outputs
         whole converter
     }
-    EAS <|-- MAS
-    EAS <|-- SAS
-    EAS <|-- CAS
-    EAS <|-- RAS
+    PEAS <|-- MAS
+    PEAS <|-- SAS
+    PEAS <|-- CAS
+    PEAS <|-- RAS
     MAS --o TAS
     SAS --o TAS
     CAS --o TAS
@@ -60,7 +60,7 @@ flowchart TB
     end
 
     subgraph OpenConverters
-        EAS_REPO["EAS<br/>Electronic Agnostic Structure<br/>(abstract base)"]
+        EAS_REPO["PEAS<br/>Power Electronics Agnostic Structure<br/>(abstract base)"]
         SAS_REPO["SAS<br/>Semiconductor"]
         CAS_REPO["CAS<br/>Capacitor"]
         RAS_REPO["RAS<br/>Resistor"]
@@ -87,7 +87,7 @@ sequenceDiagram
 
     CL->>DS: Search for component datasheets
     DS-->>CL: Datasheet PDF / product page
-    CL->>CL: Extract parameters per EAS/SAS/CAS/RAS schema
+    CL->>CL: Extract parameters per PEAS/SAS/CAS/RAS schema
     CL->>TAS: Write NDJSON entry (mosfets, diodes, caps, etc.)
     CD->>TAS: Query for components matching requirements
     TAS-->>CD: Matching components with full specs
@@ -98,20 +98,20 @@ sequenceDiagram
 
 ## Schema Descriptions
 
-### EAS -- Electronic Agnostic Structure
+### PEAS -- Power Electronics Agnostic Structure
 
-**Repository**: `OpenConverters/EAS/`
-**Schema**: `schemas/eas.json`
+**Repository**: `Power-Supply-Manufacturers-Association/PEAS/`
+**Schema**: `schemas/peas.json`
 **Role**: Abstract base type for all electronic components
 
-EAS defines the universal contract:
+PEAS defines the universal contract:
 - Every component has `inputs` (design requirements, operating conditions)
 - Every component has `outputs` (computed results)
 - Exactly one of four component-type keys must be present: `magnetic`, `semiconductor`, `capacitor`, or `resistor`
 
-The `oneOf` discriminator pattern allows polymorphic references: any code or schema that accepts an EAS document can handle any component type without knowing which one it is in advance.
+The `oneOf` discriminator pattern allows polymorphic references: any code or schema that accepts an PEAS document can handle any component type without knowing which one it is in advance.
 
-**Schema ID**: `http://openconverters.com/schemas/EAS/eas.json`
+**Schema ID**: `http://openconverters.com/schemas/PEAS/peas.json`
 
 ---
 
@@ -133,7 +133,7 @@ MAS includes extensive databases of standard components (500+ core shapes, 50+ f
 The three-section pattern (`inputs` + `magnetic` + `outputs`) that MAS established became the template for all other component schemas.
 
 **Schema ID**: `http://openmagnetics.com/schemas/MAS.json`
-**Component key in EAS**: `magnetic`
+**Component key in PEAS**: `magnetic`
 
 ---
 
@@ -151,7 +151,7 @@ SAS describes semiconductor devices used in power converters:
 - SPICE model parameters
 
 **Schema ID**: `http://openconverters.com/schemas/SAS/SAS.json`
-**Component key in EAS**: `semiconductor`
+**Component key in PEAS**: `semiconductor`
 
 ---
 
@@ -169,7 +169,7 @@ CAS describes capacitor components:
 - Ripple current ratings and lifetime models
 
 **Schema ID**: `http://openconverters.com/schemas/CAS/CAS.json`
-**Component key in EAS**: `capacitor`
+**Component key in PEAS**: `capacitor`
 
 ---
 
@@ -187,7 +187,7 @@ RAS describes resistor components:
 - Mechanical dimensions and assembly type
 
 **Schema ID**: `http://openconverters.com/schemas/RAS/RAS.json`
-**Component key in EAS**: `resistor`
+**Component key in PEAS**: `resistor`
 
 ---
 
@@ -200,13 +200,13 @@ RAS describes resistor components:
 TAS is the top-level schema that assembles individual components into a complete converter design:
 
 - **inputs**: Converter-level requirements (input voltage range, output voltage/current, efficiency targets, topology selection, switching frequency)
-- **components**: A list of EAS-typed components with circuit roles and a netlist defining how they connect
+- **components**: A list of PEAS-typed components with circuit roles and a netlist defining how they connect
 - **outputs**: Converter-level results (efficiency, loss breakdown, waveforms, thermal map)
 
 Each component in the `componentList` has:
 - `name`: Reference designator (e.g., "T1", "Q1", "C1", "R1")
 - `role`: Circuit function (e.g., `mainTransformer`, `highSideSwitch`, `outputCapacitor`, `currentSenseResistor`)
-- `data`: Either a full EAS document inline, or a string path/URI to an external EAS file
+- `data`: Either a full PEAS document inline, or a string path/URI to an external PEAS file
 
 The `netlist` section defines circuit topology by listing nodes and connecting component pins to those nodes.
 
@@ -296,24 +296,24 @@ This pattern originates from MAS, where core shapes and materials can be specifi
 ```mermaid
 flowchart TD
     MAS["OpenMagnetics/MAS"]
-    EAS["OpenConverters/EAS"]
+    PEAS["Power-Supply-Manufacturers-Association/PEAS"]
     SAS["SAS (local ref)"]
     CAS["CAS (local ref)"]
     RAS["RAS (local ref)"]
-    TAS["TAS (references EAS)"]
+    TAS["TAS (references PEAS)"]
     Proteus["Proteus (uses TAS + all schemas)"]
 
-    MAS -->|"external URI"| EAS
-    SAS -->|"./semiconductor.json"| EAS
-    CAS -->|"./capacitor.json"| EAS
-    RAS -->|"./resistor.json"| EAS
-    EAS -->|"URI ref"| TAS
+    MAS -->|"external URI"| PEAS
+    SAS -->|"./semiconductor.json"| PEAS
+    CAS -->|"./capacitor.json"| PEAS
+    RAS -->|"./resistor.json"| PEAS
+    PEAS -->|"URI ref"| TAS
     TAS --> Proteus
 ```
 
-- EAS references MAS via its external URI (`http://openmagnetics.com/schemas/magnetic.json`)
-- EAS references SAS, CAS, and RAS via local relative paths (`./semiconductor.json`, `./capacitor.json`, `./resistor.json`)
-- TAS references EAS via its URI (`http://openconverters.com/schemas/EAS/eas.json`)
+- PEAS references MAS via its external URI (`http://openmagnetics.com/schemas/magnetic.json`)
+- PEAS references SAS, CAS, and RAS via local relative paths (`./semiconductor.json`, `./capacitor.json`, `./resistor.json`)
+- TAS references PEAS via its URI (`http://openconverters.com/schemas/PEAS/peas.json`)
 - Proteus (the AI design system) orchestrates the entire ecosystem, using all schemas and computation libraries to produce complete converter designs
 
 ---
@@ -324,7 +324,7 @@ To add a new component type (e.g., a connector or sensor schema):
 
 1. Create a new repository under OpenConverters (e.g., `XAS/`)
 2. Define the component schema following the `inputs` + `<type>` + `outputs` pattern
-3. Add a new branch to the `oneOf` discriminator in `EAS/schemas/eas.json`
+3. Add a new branch to the `oneOf` discriminator in `PEAS/schemas/peas.json`
 4. Add corresponding roles in `TAS/schemas/components.json`
 
-The EAS abstraction means that TAS and all higher-level tools automatically support the new type once EAS is updated.
+The PEAS abstraction means that TAS and all higher-level tools automatically support the new type once PEAS is updated.

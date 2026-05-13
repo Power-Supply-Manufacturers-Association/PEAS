@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/EAS/outputs/lossElementPerHarmonic.json",
+    "$id": "http://openconverters.com/schemas/PEAS/outputs/lossElementPerHarmonic.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "lossElementPerHarmonic",
     "description": "Loss spectrum: a list of losses paired with the harmonic frequencies that produced them. Useful when the loss mechanism is frequency-selective (skin effect, proximity effect, dielectric loss, ESR vs. frequency). Generalisation of MAS schemas/outputs.json#/$defs/windingLossElementPerHarmonic — same shape but family-agnostic name.",

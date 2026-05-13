@@ -1,4 +1,4 @@
-<h1 align="center">EAS - Electronic Agnostic Structure</h1>
+<h1 align="center">PEAS - Power Electronics Agnostic Structure</h1>
 
 <p align="center">
   <em>The abstract base for all electronic component schemas in the OpenConverters ecosystem</em>
@@ -11,17 +11,17 @@
 
 ---
 
-## What is EAS?
+## What is PEAS?
 
-**EAS is the abstract base type (virtual class) for all electronic components** in the OpenConverters ecosystem. It defines the universal contract that every component -- whether a magnetic, semiconductor, capacitor, or resistor -- must satisfy: an `inputs` section, an `outputs` section, and exactly one component-type-specific payload.
+**PEAS is the abstract base type (virtual class) for all electronic components** in the OpenConverters ecosystem. It defines the universal contract that every component -- whether a magnetic, semiconductor, capacitor, or resistor -- must satisfy: an `inputs` section, an `outputs` section, and exactly one component-type-specific payload.
 
-EAS itself is never instantiated directly. Instead, it acts as a polymorphic container: any valid MAS, SAS, CAS, or RAS document is automatically a valid EAS document. This allows higher-level schemas like TAS (Topology Agnostic Structure) to reference "any component" without knowing its specific type.
+PEAS itself is never instantiated directly. Instead, it acts as a polymorphic container: any valid MAS, SAS, CAS, or RAS document is automatically a valid PEAS document. This allows higher-level schemas like TAS (Topology Agnostic Structure) to reference "any component" without knowing its specific type.
 
-### The Role of EAS
+### The Role of PEAS
 
 ```mermaid
 classDiagram
-    class EAS {
+    class PEAS {
         <<abstract>>
         +inputs
         +outputs
@@ -47,27 +47,27 @@ classDiagram
         +components
         complete converter design
     }
-    EAS <|-- MAS : magnetic components
-    EAS <|-- SAS : semiconductors
-    EAS <|-- CAS : capacitors
-    EAS <|-- RAS : resistors
+    PEAS <|-- MAS : magnetic components
+    PEAS <|-- SAS : semiconductors
+    PEAS <|-- CAS : capacitors
+    PEAS <|-- RAS : resistors
     MAS --o TAS : assembled into
     SAS --o TAS : assembled into
     CAS --o TAS : assembled into
     RAS --o TAS : assembled into
 ```
 
-### Why EAS Exists
+### Why PEAS Exists
 
-Without EAS, the TAS schema would need separate fields for each component type (`magnetic`, `semiconductor`, `capacitor`, `resistor`) and would break every time a new component type is added. Instead, TAS references EAS documents, and the `oneOf` discriminator in EAS determines the actual type at validation time.
+Without PEAS, the TAS schema would need separate fields for each component type (`magnetic`, `semiconductor`, `capacitor`, `resistor`) and would break every time a new component type is added. Instead, TAS references PEAS documents, and the `oneOf` discriminator in PEAS determines the actual type at validation time.
 
-This is the same pattern as a virtual base class in object-oriented programming: EAS defines the interface, and MAS/SAS/CAS/RAS provide the concrete implementations.
+This is the same pattern as a virtual base class in object-oriented programming: PEAS defines the interface, and MAS/SAS/CAS/RAS provide the concrete implementations.
 
 ---
 
 ## The oneOf Discriminator
 
-EAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component type is present. The discriminator is the presence of a type-specific property key:
+PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component type is present. The discriminator is the presence of a type-specific property key:
 
 | Property Key | Schema | Component Type |
 |-------------|--------|----------------|
@@ -76,9 +76,9 @@ EAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component typ
 | `capacitor` | CAS (`./capacitor.json`) | Ceramic, electrolytic, film capacitors |
 | `resistor` | RAS (`./resistor.json`) | Thin film, thick film, shunt, wirewound resistors |
 
-A valid EAS document must contain `inputs`, `outputs`, and **exactly one** of the four component keys above.
+A valid PEAS document must contain `inputs`, `outputs`, and **exactly one** of the four component keys above.
 
-### Example: A Resistor as an EAS Document
+### Example: A Resistor as an PEAS Document
 
 ```json
 {
@@ -106,15 +106,15 @@ A valid EAS document must contain `inputs`, `outputs`, and **exactly one** of th
 }
 ```
 
-This document is simultaneously a valid RAS document and a valid EAS document.
+This document is simultaneously a valid RAS document and a valid PEAS document.
 
 ---
 
-## How TAS References EAS Documents
+## How TAS References PEAS Documents
 
-TAS (Topology Agnostic Structure) describes complete power converter designs. Its `components.componentList` contains entries where each component's `data` field is an EAS document -- either inline or by reference:
+TAS (Topology Agnostic Structure) describes complete power converter designs. Its `components.componentList` contains entries where each component's `data` field is an PEAS document -- either inline or by reference:
 
-### Inline (full EAS document embedded)
+### Inline (full PEAS document embedded)
 
 ```json
 {
@@ -157,14 +157,14 @@ TAS defines typed roles for each component category:
 
 MAS (Magnetic Agnostic Structure) was the first component schema, developed under the [OpenMagnetics](https://github.com/OpenMagnetics) organization. It defines the data format for inductors, transformers, and chokes, and is backed by computation libraries (PyOpenMagnetics, MKF).
 
-EAS was created to generalize the MAS pattern to all electronic component types. Key design decisions inherited from MAS:
+PEAS was created to generalize the MAS pattern to all electronic component types. Key design decisions inherited from MAS:
 
 - **Three-section structure**: `inputs` + component + `outputs`
 - **Reference support**: component data can be inline or referenced by path/URI
 - **SI units throughout**: Ohms, Watts, Volts, meters, Celsius
 - **JSON Schema 2020-12**: machine-validatable, self-documenting
 
-MAS lives in its own repository (`OpenMagnetics/MAS`) and is referenced by EAS via the URI `http://openmagnetics.com/schemas/magnetic.json`. The other component schemas (SAS, CAS, RAS) live under `OpenConverters/`.
+MAS lives in its own repository (`OpenMagnetics/MAS`) and is referenced by PEAS via the URI `http://openmagnetics.com/schemas/magnetic.json`. The other component schemas (SAS, CAS, RAS) live under `OpenConverters/`.
 
 ---
 
@@ -176,7 +176,7 @@ OpenMagnetics/
   +-- PyOpenMagnetics/        # Python computation library for magnetics
 
 OpenConverters/
-  +-- EAS/                    # Electronic Agnostic Structure (this repo -- abstract base)
+  +-- PEAS/                    # Power Electronics Agnostic Structure (this repo -- abstract base)
   +-- SAS/                    # Semiconductor Agnostic Structure
   +-- CAS/                    # Capacitor Agnostic Structure
   +-- RAS/                    # Resistor Agnostic Structure
@@ -190,7 +190,7 @@ OpenConverters/
 | **SAS** | Semiconductors | GaN FET, SiC MOSFET, Schottky diode, IGBT |
 | **CAS** | Capacitors | MLCC, aluminum electrolytic, film capacitor |
 | **RAS** | Resistors | Thick film chip, current sense shunt, precision foil |
-| **EAS** | Abstract base | Any of the above, used by TAS for polymorphic references |
+| **PEAS** | Abstract base | Any of the above, used by TAS for polymorphic references |
 | **TAS** | Complete converters | 65W USB-C charger, 300W LLC converter, 1kW PFC + LLC |
 
 ### Data Flow
@@ -221,21 +221,21 @@ flowchart LR
 
 1. Component data (MAS, SAS, CAS, RAS documents) is created from datasheets
 2. A converter design tool (e.g., Proteus) selects components for a given specification
-3. The selected components are assembled into a TAS document, referencing EAS-typed data
+3. The selected components are assembled into a TAS document, referencing PEAS-typed data
 4. Computation libraries (PyOpenMagnetics, etc.) process the TAS to calculate losses, thermal performance, and efficiency
 
 ---
 
 ## Schema Definition
 
-The complete EAS schema (`schemas/eas.json`):
+The complete PEAS schema (`schemas/peas.json`):
 
 ```json
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/EAS/eas.json",
-    "title": "EAS",
-    "description": "Electronic Agnostic Structure -- Universal container for any electronic component.",
+    "$id": "http://openconverters.com/schemas/PEAS/peas.json",
+    "title": "PEAS",
+    "description": "Power Electronics Agnostic Structure -- Universal container for any electronic component.",
     "type": "object",
     "properties": {
         "inputs": {
@@ -262,12 +262,12 @@ The complete EAS schema (`schemas/eas.json`):
 ## File Organization
 
 ```
-EAS/
+PEAS/
 +-- schemas/
-      +-- eas.json          # The EAS schema (abstract base)
+      +-- peas.json          # The PEAS schema (abstract base)
 ```
 
-EAS is intentionally minimal: it contains only the abstract schema. The concrete component schemas live in their respective repositories (MAS, SAS, CAS, RAS), and TAS references EAS for its component list.
+PEAS is intentionally minimal: it contains only the abstract schema. The concrete component schemas live in their respective repositories (MAS, SAS, CAS, RAS), and TAS references PEAS for its component list.
 
 ---
 

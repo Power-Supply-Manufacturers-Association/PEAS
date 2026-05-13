@@ -1,8 +1,8 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/EAS/eas.json",
-    "title": "EAS",
-    "description": "Electronic Agnostic Structure — Universal container for any electronic component. A valid MAS document is a valid EAS. A valid CAS, SAS, or RAS document is also a valid EAS.",
+    "$id": "http://openconverters.com/schemas/PEAS/peas.json",
+    "title": "PEAS",
+    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS document is a valid PEAS. A valid CAS, SAS, or RAS document is also a valid PEAS.",
     "type": "object",
     "properties": {
         "inputs": {

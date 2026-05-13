@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/EAS/outputs/complexMatrixAtFrequency.json",
+    "$id": "http://openconverters.com/schemas/PEAS/outputs/complexMatrixAtFrequency.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "complexMatrixAtFrequency",
     "description": "A complex-valued matrix tagged with the frequency at which it applies, expressed as separate magnitude and phase matrices. Used to express e.g. impedance vs. frequency. Mirror of MAS schemas/outputs.json#/$defs/complexMatrixAtFrequency.",

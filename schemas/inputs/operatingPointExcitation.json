@@ -1,9 +1,9 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/EAS/inputs/operatingPointExcitation.json",
+    "$id": "http://openconverters.com/schemas/PEAS/inputs/operatingPointExcitation.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "operatingPointExcitation",
-    "description": "The description of an operating point excitation (waveform set). REFERENCE COPY of MAS schemas/inputs/operatingPointExcitation.json (https://schemas.psma.com/mas/inputs/operatingPointExcitation.json) — the source of truth is MAS, which is the IEC standard candidate. Mirrored into EAS so CAS / SAS / RAS can share the same waveform and signal-descriptor conventions without taking a runtime dependency on MAS. Keep byte-aligned with MAS apart from $id and this description; update here whenever MAS updates.",
+    "description": "The description of an operating point excitation (waveform set). REFERENCE COPY of MAS schemas/inputs/operatingPointExcitation.json (https://schemas.psma.com/mas/inputs/operatingPointExcitation.json) — the source of truth is MAS, which is the IEC standard candidate. Mirrored into PEAS so CAS / SAS / RAS can share the same waveform and signal-descriptor conventions without taking a runtime dependency on MAS. Keep byte-aligned with MAS apart from $id and this description; update here whenever MAS updates.",
     "type": "object",
     "properties": {
         "name": {

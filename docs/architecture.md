@@ -60,7 +60,7 @@ flowchart TB
     end
 
     subgraph OpenConverters
-        EAS_REPO["PEAS<br/>Power Electronics Agnostic Structure<br/>(abstract base)"]
+        PEAS_REPO["PEAS<br/>Power Electronics Agnostic Structure<br/>(abstract base)"]
         SAS_REPO["SAS<br/>Semiconductor"]
         CAS_REPO["CAS<br/>Capacitor"]
         RAS_REPO["RAS<br/>Resistor"]
@@ -68,11 +68,11 @@ flowchart TB
         Proteus["Proteus<br/>AI-powered design system"]
     end
 
-    MAS_REPO -->|"referenced by"| EAS_REPO
-    SAS_REPO -->|"local ref"| EAS_REPO
-    CAS_REPO -->|"local ref"| EAS_REPO
-    RAS_REPO -->|"local ref"| EAS_REPO
-    EAS_REPO -->|"referenced by"| TAS_REPO
+    MAS_REPO -->|"referenced by"| PEAS_REPO
+    SAS_REPO -->|"local ref"| PEAS_REPO
+    CAS_REPO -->|"local ref"| PEAS_REPO
+    RAS_REPO -->|"local ref"| PEAS_REPO
+    PEAS_REPO -->|"referenced by"| TAS_REPO
     TAS_REPO -->|"used by"| Proteus
     PyOM -->|"used by"| Proteus
     MAS_REPO -->|"backed by"| PyOM

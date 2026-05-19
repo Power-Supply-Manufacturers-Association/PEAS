@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/terminal.json",
+    "$id": "https://psma.com/peas/terminal.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "terminal",
     "description": "External board terminal: screw terminal, solder pad, header pin, edge-card finger, board-to-wire / board-to-board connector. A real BOM line item with measurable electrical (contact resistance, current rating) and thermal properties. Terminals exist so that every connection.endpoints in TAS carries two real component pins — the external port label alone is not a substitute for the conductor that actually crosses the board boundary. A terminal PEAS document MUST carry either designRequirements (pre-librarian seed) or manufacturerInfo (resolved real part); both may be present after the librarian binds a seed to a part.",

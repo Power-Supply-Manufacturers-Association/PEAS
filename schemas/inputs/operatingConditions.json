@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/inputs/operatingConditions.json",
+    "$id": "https://psma.com/peas/inputs/operatingConditions.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "operatingConditions",
     "description": "The description of operating conditions (ambient + cooling). REFERENCE COPY of MAS schemas/inputs/operatingConditions.json (https://schemas.psma.com/mas/inputs/operatingConditions.json) — the source of truth is MAS, which is the IEC standard candidate. Mirrored into PEAS so CAS / SAS / RAS can share the same convention without taking a runtime dependency on MAS. Two structural deviations from MAS, both because the MAS utils types are not mirrored here yet: (1) forcedConvectionCooling.velocity is inlined as {x,y,z} instead of $ref to MAS utils velocity; (2) the optional 'dimensions' field on heatsinkCooling and coldPlateCooling is omitted. Re-sync if the MAS utils types are mirrored into PEAS later.",

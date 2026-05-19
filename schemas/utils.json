@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/utils.json",
+    "$id": "https://psma.com/peas/utils.json",
     "title": "PEAS utils",
     "description": "Shared primitives and datasheetInfo building blocks for CAS, RAS, and SAS. MAS remains self-contained and does not reference this file.",
     "type": "object",

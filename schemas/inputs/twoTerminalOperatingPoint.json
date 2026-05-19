@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/inputs/twoTerminalOperatingPoint.json",
+    "$id": "https://psma.com/peas/inputs/twoTerminalOperatingPoint.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "twoTerminalOperatingPoint",
     "description": "Operating point template for two-terminal components (capacitors, resistors, two-terminal diodes). One excitation (single voltage and current waveform) plus the shared operatingConditions. Multi-port components (transformers, three-terminal switches) use multiPortOperatingPoint.json instead.",

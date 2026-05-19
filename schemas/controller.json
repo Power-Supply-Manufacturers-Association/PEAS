@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/controller.json",
+    "$id": "https://psma.com/peas/controller.json",
     "$comment": "SPDX-License-Identifier: Apache-2.0",
     "title": "controller",
     "description": "Control IC: PWM / LLC / PFC controllers, gate drivers, digital (PMBus) controllers, voltage references, current-sense amplifiers, optocoupler feedback, hot-swap controllers, isolated amplifiers. Shape and field list derived from the published datasheet sections of mainstream parts (TI UC384x / UCC256xx / UCC28xxx / TPS40xxx; Analog Devices ADP1051 / LTC family; Onsemi NCP162x; Infineon ICE5xx; Renesas ZSPM family). A controller PEAS document MUST carry either designRequirements (pre-librarian seed) or manufacturerInfo (resolved real part); both may be present after the librarian binds a seed to a part.",

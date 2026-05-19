@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/peas.json",
+    "$id": "https://psma.com/peas/peas.json",
     "title": "PEAS",
     "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller document is also a valid PEAS.",
     "type": "object",
@@ -54,7 +54,7 @@
         {
             "description": "Magnetic component (inductor, transformer, choke) — defined by MAS.",
             "properties": {
-                "magnetic": { "$ref": "http://openmagnetics.com/schemas/magnetic.json" }
+                "magnetic": { "$ref": "https://psma.com/mas/magnetic.json" }
             },
             "required": ["magnetic"]
         },

@@ -15,10 +15,10 @@
                 "designRequirements": {
                     "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal) is populated.",
                     "oneOf": [
-                        { "$ref": "../../MAS/schemas/inputs/designRequirements.json" },
-                        { "$ref": "../../CAS/schemas/inputs/designRequirements.json" },
-                        { "$ref": "../../SAS/schemas/inputs/designRequirements.json" },
-                        { "$ref": "../../RAS/schemas/inputs/designRequirements.json" },
+                        { "$ref": "https://psma.com/mas/inputs/designRequirements.json" },
+                        { "$ref": "https://psma.com/cas/inputs/designRequirements.json" },
+                        { "$ref": "https://psma.com/sas/inputs/designRequirements.json" },
+                        { "$ref": "https://psma.com/ras/inputs/designRequirements.json" },
                         { "$ref": "./controller.json#/$defs/designRequirements" },
                         { "$ref": "./terminal.json#/$defs/designRequirements" }
                     ]
@@ -61,21 +61,21 @@
         {
             "description": "Capacitor — defined by CAS.",
             "properties": {
-                "capacitor": { "$ref": "../../CAS/schemas/capacitor.json" }
+                "capacitor": { "$ref": "https://psma.com/cas/capacitor.json" }
             },
             "required": ["capacitor"]
         },
         {
             "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS.",
             "properties": {
-                "semiconductor": { "$ref": "../../SAS/schemas/SAS.json" }
+                "semiconductor": { "$ref": "https://psma.com/sas/SAS.json" }
             },
             "required": ["semiconductor"]
         },
         {
             "description": "Resistor — defined by RAS.",
             "properties": {
-                "resistor": { "$ref": "../../RAS/schemas/resistor.json" }
+                "resistor": { "$ref": "https://psma.com/ras/resistor.json" }
             },
             "required": ["resistor"]
         },
@@ -98,19 +98,19 @@
         {
             "$comment": "Pin inputs.designRequirements shape to the populated discriminator branch.",
             "if":   { "required": ["magnetic"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../MAS/schemas/inputs/designRequirements.json" } } } } }
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/mas/inputs/designRequirements.json" } } } } }
         },
         {
             "if":   { "required": ["capacitor"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../CAS/schemas/inputs/designRequirements.json" } } } } }
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/cas/inputs/designRequirements.json" } } } } }
         },
         {
             "if":   { "required": ["semiconductor"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../SAS/schemas/inputs/designRequirements.json" } } } } }
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/sas/inputs/designRequirements.json" } } } } }
         },
         {
             "if":   { "required": ["resistor"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../RAS/schemas/inputs/designRequirements.json" } } } } }
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/ras/inputs/designRequirements.json" } } } } }
         },
         {
             "if":   { "required": ["controller"] },

@@ -2,16 +2,44 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "http://openconverters.com/schemas/PEAS/peas.json",
     "title": "PEAS",
-    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS document is a valid PEAS. A valid CAS, SAS, or RAS document is also a valid PEAS.",
+    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller document is also a valid PEAS.",
     "type": "object",
     "properties": {
         "inputs": {
-            "description": "Design requirements and operating points for this component.",
-            "type": "object"
+            "description": "Per-component design requirements and operating points. Each family schema (MAS, CAS, RAS, SAS, controller) defines the concrete shape of its own inputs; this top-level slot exists so a PEAS document can carry a design seed before it is bound to a real part.",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "designRequirements": {
+                    "description": "Free-form design-requirements payload whose concrete shape is fixed by the sibling family schema referenced in the discriminator branch below.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "operatingPoints": {
+                    "description": "Operating points the component must satisfy. Shape is fixed by the sibling family schema (e.g. MAS inputs/operatingPoint).",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
         },
         "outputs": {
-            "description": "Computed results (losses, thermal, impedance, etc.)",
-            "type": ["object", "array"]
+            "description": "Computed results (losses, thermal, impedance, etc.). May be a single object or an array of per-operating-point results; concrete shape is fixed by the sibling family schema.",
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            ]
         }
     },
     "oneOf": [
@@ -32,7 +60,7 @@
         {
             "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS.",
             "properties": {
-                "semiconductor": { "$ref": "../../SAS/schemas/semiconductor.json" }
+                "semiconductor": { "$ref": "../../SAS/schemas/SAS.json" }
             },
             "required": ["semiconductor"]
         },
@@ -42,6 +70,13 @@
                 "resistor": { "$ref": "../../RAS/schemas/resistor.json" }
             },
             "required": ["resistor"]
+        },
+        {
+            "description": "Control IC (PWM / LLC / PFC / digital / gate-driver / voltage-reference / current-sense / opto-feedback / isolated amplifier / hot-swap). Inline PEAS branch today; candidate for extraction to a CtAS sibling repo once the schema has settled.",
+            "properties": {
+                "controller": { "$ref": "./controller.json#/properties/controller" }
+            },
+            "required": ["controller"]
         }
     ]
 }

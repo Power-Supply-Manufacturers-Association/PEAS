@@ -1,0 +1,422 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/PEAS/controller.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "controller",
+    "description": "Control IC: PWM / LLC / PFC controllers, gate drivers, digital (PMBus) controllers, voltage references, current-sense amplifiers, optocoupler feedback, hot-swap controllers, isolated amplifiers. Shape and field list derived from the published datasheet sections of mainstream parts (TI UC384x / UCC256xx / UCC28xxx / TPS40xxx; Analog Devices ADP1051 / LTC family; Onsemi NCP162x; Infineon ICE5xx; Renesas ZSPM family). A controller PEAS document MUST carry either designRequirements (pre-librarian seed) or manufacturerInfo (resolved real part); both may be present after the librarian binds a seed to a part.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["controller"],
+    "properties": {
+        "controller": {
+            "type": "object",
+            "additionalProperties": false,
+            "anyOf": [
+                { "required": ["designRequirements"] },
+                { "required": ["manufacturerInfo"] }
+            ],
+            "properties": {
+                "designRequirements": { "$ref": "#/$defs/designRequirements" },
+                "manufacturerInfo":  { "$ref": "./utils.json#/$defs/manufacturerInfo" },
+                "distributorsInfo": {
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/distributorInfo" }
+                },
+                "substitutesInfo": {
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/substituteInfo" }
+                },
+                "datasheetInfo": { "$ref": "#/$defs/datasheetInfo" }
+            }
+        }
+    },
+
+    "$defs": {
+
+        "designRequirements": {
+            "description": "What the design needs from a controller. The stencil emits this pre-librarian; the librarian uses it as the search constraint to bind a real part.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["category", "intendedTopology"],
+            "properties": {
+                "name":               { "type": "string", "description": "Label for this requirements seed." },
+                "category":           { "$ref": "./utils.json#/$defs/controllerCategory" },
+                "intendedTopology":   { "$ref": "./utils.json#/$defs/topology" },
+                "modulation":         { "$ref": "./utils.json#/$defs/controllerModulation" },
+                "conductionMode":     { "$ref": "./utils.json#/$defs/controllerConductionMode" },
+                "channelCount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Required number of independent PWM / driver channels."
+                },
+                "syncRectification":  { "$ref": "./utils.json#/$defs/controllerSyncRectification" },
+                "isolation":          { "$ref": "./utils.json#/$defs/controllerIsolation" },
+                "supplyVoltageAvailable": {
+                    "description": "Bias-rail voltage range the design can offer the controller's VCC pin, in volts.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "switchingFrequency": {
+                    "description": "Switching-frequency range the design needs the controller to support, in Hz. The chosen part's electrical.switchingFrequency range must contain this interval.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "minimumGateDriveCurrent": {
+                    "description": "Peak gate-drive current the controller must source (and sink) to switch the chosen power device within the required transition time, in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "maximumQuiescentCurrent": {
+                    "description": "Upper bound on the controller's quiescent supply current, in amperes (drives standby and no-load efficiency budget).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "requiredProtections": {
+                    "description": "Protections the controller must implement on-die.",
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/controllerProtectionKind" },
+                    "uniqueItems": true
+                },
+                "digitalInterfaceRequired": {
+                    "description": "Required digital interface, if any.",
+                    "type": "string",
+                    "enum": ["none", "i2c", "pmbus", "smbus", "spi"]
+                },
+                "requiredTelemetry": {
+                    "description": "Telemetry channels the controller must report (only meaningful when digitalInterfaceRequired is not 'none').",
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/telemetryChannel" },
+                    "uniqueItems": true
+                },
+                "operatingTemperature": {
+                    "description": "Required operating junction-temperature envelope, in degrees Celsius.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "market":             { "$ref": "./utils.json#/$defs/market" },
+                "maximumDimensions":  { "$ref": "./utils.json#/$defs/maximumDimensions" },
+                "terminalType":       { "$ref": "./utils.json#/$defs/connectionType" },
+                "aecQGrade": {
+                    "type": "string",
+                    "enum": ["Q100-G0", "Q100-G1", "Q100-G2", "Q100-G3", "Q101"]
+                }
+            }
+        },
+
+        "datasheetInfo": {
+            "description": "Manufacturer-published data for a resolved controller part. Populated by the librarian; absent on pre-librarian seeds.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["function"],
+            "properties": {
+                "function":          { "$ref": "#/$defs/function" },
+                "electrical":        { "$ref": "#/$defs/electrical" },
+                "protections": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/protection" }
+                },
+                "pins": {
+                    "description": "Canonical pin map. Required for stencils to wire the controller into a TAS circuit.",
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/pin" }
+                },
+                "digitalInterface":  { "$ref": "#/$defs/digitalInterface" },
+                "thermal":           { "$ref": "./utils.json#/$defs/datasheetInfoThermal" },
+                "mechanical":        { "$ref": "#/$defs/mechanical" },
+                "business":          { "$ref": "./utils.json#/$defs/datasheetInfoBusiness" }
+            }
+        },
+
+        "function": {
+            "description": "What the controller does. Mirrors the 'Description / Features' page of every controller datasheet.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["category"],
+            "properties": {
+                "category":           { "$ref": "./utils.json#/$defs/controllerCategory" },
+                "intendedTopologies": {
+                    "description": "Topology families this controller is designed for. Empty for non-converter parts (voltage references, current-sense amps).",
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/topology" },
+                    "uniqueItems": true
+                },
+                "modulation":         { "$ref": "./utils.json#/$defs/controllerModulation" },
+                "conductionMode":     { "$ref": "./utils.json#/$defs/controllerConductionMode" },
+                "channelCount":       { "type": "integer", "minimum": 1 },
+                "syncRectification":  { "$ref": "./utils.json#/$defs/controllerSyncRectification" },
+                "isolation":          { "$ref": "./utils.json#/$defs/controllerIsolation" },
+                "frequencyJitterSupported": {
+                    "type": "boolean",
+                    "description": "True if the controller implements frequency dithering for conducted-EMI reduction."
+                }
+            }
+        },
+
+        "electrical": {
+            "description": "Operating electrical characteristics. Mirrors the 'Electrical Characteristics' table of the datasheet.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "supplyVoltage": {
+                    "description": "Operating VCC range, in volts.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "supplyVoltageAbsoluteMax": {
+                    "description": "Absolute-maximum VCC, in volts (from the abs-max table).",
+                    "type": "number"
+                },
+                "quiescentCurrent": {
+                    "description": "Typical operating supply current, in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "startupCurrent": {
+                    "description": "Supply current before UVLO release (start-up current draw on VCC), in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "switchingFrequency": {
+                    "description": "Programmable switching-frequency range, in Hz. Omit for non-switching parts.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "maxDutyCycle": {
+                    "description": "Maximum achievable duty cycle, dimensionless 0..1.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "minOnTime": {
+                    "description": "Minimum controllable on-time, in seconds.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "minOffTime": {
+                    "description": "Minimum controllable off-time, in seconds.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "referenceVoltage": {
+                    "description": "Internal bandgap / feedback reference, in volts.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "referenceTolerance": {
+                    "description": "Initial accuracy of the reference voltage, as a fraction (0.01 = 1%).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "softStartTime": {
+                    "description": "Internal / externally programmed soft-start ramp duration, in seconds.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "leadingEdgeBlanking": {
+                    "description": "Leading-edge blanking time applied to the current-sense input, in seconds.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "slopeCompensation": {
+                    "type": "string",
+                    "enum": ["internal", "external", "notApplicable"]
+                },
+                "errorAmplifier":    { "$ref": "#/$defs/errorAmplifier" },
+                "gateDrive":         { "$ref": "#/$defs/gateDrive" },
+                "deadTime": {
+                    "description": "Dead time between complementary outputs (half-bridge / full-bridge / synchronous), in seconds. Omit for single-ended controllers.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                }
+            }
+        },
+
+        "errorAmplifier": {
+            "description": "Internal error-amplifier characteristics (needed for compensator design).",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["voltage", "transconductance"]
+                },
+                "transconductance": {
+                    "description": "Forward transconductance gm, in siemens (transconductance amplifiers only).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "openLoopGain": {
+                    "description": "DC open-loop gain in dB (voltage amplifiers).",
+                    "type": "number"
+                },
+                "gainBandwidth": {
+                    "description": "Gain-bandwidth product, in Hz.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "outputSourceCurrent": {
+                    "description": "Peak source current of the amplifier output, in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "outputSinkCurrent": {
+                    "description": "Peak sink current of the amplifier output, in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+
+        "gateDrive": {
+            "description": "Gate-driver output characteristics (mirrors the 'Output Stage' / 'Gate Driver' section).",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "sourceCurrentPeak": {
+                    "description": "Peak source current into the gate, in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "sinkCurrentPeak": {
+                    "description": "Peak sink current from the gate, in amperes.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "driveVoltage": {
+                    "description": "Gate-drive output voltage swing (typically tracks VCC or an internal clamp), in volts.",
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "riseTime": {
+                    "description": "10% to 90% rise time into a specified test capacitance, in seconds.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "fallTime": {
+                    "description": "90% to 10% fall time into a specified test capacitance, in seconds.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "propagationDelay": {
+                    "description": "Input-to-output propagation delay, in seconds.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "testCapacitance": {
+                    "description": "Load capacitance at which riseTime / fallTime / propagationDelay are specified, in farads.",
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+
+        "protection": {
+            "description": "One on-die protection event with its threshold, hysteresis, and recovery behaviour.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "mode"],
+            "properties": {
+                "kind":      { "$ref": "./utils.json#/$defs/controllerProtectionKind" },
+                "threshold": {
+                    "description": "Trip threshold in native units of the monitored quantity (V for voltage-class, A for current-class, degrees Celsius for temperature, fraction for duty-class).",
+                    "type": "number"
+                },
+                "hysteresis": {
+                    "description": "Hysteresis in the same units as threshold.",
+                    "type": "number"
+                },
+                "mode":              { "$ref": "./utils.json#/$defs/protectionMode" },
+                "restartDelay": {
+                    "description": "Auto-restart / hiccup delay before re-engagement, in seconds (when mode is autorestart or hiccup).",
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+
+        "pin": {
+            "description": "One pin of the controller. The combination (number, name, function) is canonical and must be unique within a part.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["number", "name", "function"],
+            "properties": {
+                "number":   { "type": "integer", "minimum": 1 },
+                "name":     { "type": "string", "minLength": 1 },
+                "function": { "$ref": "./utils.json#/$defs/controllerPinFunction" },
+                "absMaxVoltage": {
+                    "description": "Absolute-maximum voltage at this pin, in volts.",
+                    "type": "number"
+                },
+                "absMaxCurrentSource": {
+                    "description": "Absolute-maximum source current at this pin, in amperes.",
+                    "type": "number"
+                },
+                "absMaxCurrentSink": {
+                    "description": "Absolute-maximum sink current at this pin, in amperes.",
+                    "type": "number"
+                }
+            }
+        },
+
+        "digitalInterface": {
+            "description": "Digital communication interface, if any. A part with no digital interface omits this object entirely.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "enum": ["i2c", "pmbus", "smbus", "spi"]
+                },
+                "pmbus":     { "$ref": "#/$defs/pmbusInterface" },
+                "i2c":       { "$ref": "#/$defs/i2cInterface" },
+                "spi":       { "$ref": "#/$defs/spiInterface" },
+                "telemetryChannels": {
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/telemetryChannel" },
+                    "uniqueItems": true
+                }
+            }
+        },
+
+        "pmbusInterface": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "revision":         { "type": "string", "description": "PMBus specification revision (e.g. '1.3.1')." },
+                "defaultAddress":   { "type": "integer", "minimum": 0, "maximum": 127 },
+                "addressPinCount":  { "type": "integer", "minimum": 0, "description": "Number of strap pins used to set the address." },
+                "supportedCommands": {
+                    "description": "PMBus command codes implemented by the part, as canonical command names (e.g. 'READ_VOUT', 'READ_IOUT', 'STATUS_WORD').",
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                }
+            }
+        },
+
+        "i2cInterface": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "maxClock":       { "type": "number", "minimum": 0, "description": "Maximum SCL clock frequency, in Hz." },
+                "addressBits":    { "type": "integer", "enum": [7, 10] },
+                "defaultAddress": { "type": "integer", "minimum": 0 }
+            }
+        },
+
+        "spiInterface": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "maxClock":  { "type": "number", "minimum": 0, "description": "Maximum SCK clock frequency, in Hz." },
+                "mode":      { "type": "integer", "enum": [0, 1, 2, 3], "description": "SPI mode (CPOL/CPHA pair encoded 0..3)." },
+                "wordWidth": { "type": "integer", "minimum": 1 }
+            }
+        },
+
+        "mechanical": {
+            "description": "Mechanical package data for the controller. Extends the shared datasheetInfoMechanical with an explicit packageType code.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "packageType": { "$ref": "./utils.json#/$defs/packageType" },
+                "length":      { "$ref": "./utils.json#/$defs/dimensionWithTolerance" },
+                "width":       { "$ref": "./utils.json#/$defs/dimensionWithTolerance" },
+                "height":      { "$ref": "./utils.json#/$defs/dimensionWithTolerance" },
+                "pinCount":    { "type": "integer", "minimum": 2 },
+                "assemblyType":{ "$ref": "./utils.json#/$defs/connectionType" }
+            }
+        }
+    }
+}

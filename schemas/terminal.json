@@ -1,0 +1,139 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://openconverters.com/schemas/PEAS/terminal.json",
+    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "title": "terminal",
+    "description": "External board terminal: screw terminal, solder pad, header pin, edge-card finger, board-to-wire / board-to-board connector. A real BOM line item with measurable electrical (contact resistance, current rating) and thermal properties. Terminals exist so that every connection.endpoints in TAS carries two real component pins — the external port label alone is not a substitute for the conductor that actually crosses the board boundary. A terminal PEAS document MUST carry either designRequirements (pre-librarian seed) or manufacturerInfo (resolved real part); both may be present after the librarian binds a seed to a part.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["terminal"],
+    "properties": {
+        "terminal": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "manufacturerInfo": { "$ref": "./utils.json#/$defs/manufacturerInfo" },
+                "distributorsInfo": {
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/distributorInfo" }
+                },
+                "substitutesInfo": {
+                    "type": "array",
+                    "items": { "$ref": "./utils.json#/$defs/substituteInfo" }
+                },
+                "datasheetInfo": { "$ref": "#/$defs/datasheetInfo" }
+            }
+        }
+    },
+
+    "$defs": {
+
+        "designRequirements": {
+            "description": "What the design needs from a board terminal. Lives at PEAS root inputs.designRequirements (not inside the terminal branch payload). The stencil emits this pre-librarian; the librarian uses it as the search constraint to bind a real part (e.g. Phoenix Contact MKDS, Würth WR-TBL, board headers); it is retained post-binding as the spec the part met.\n\nIdeal-simulation floor: `category` plus `currentRating` are universally required so a behavioural terminal model (contact resistance, thermal cap) can be instantiated from the seed alone. `numPositions` defaults to 1; multi-position connectors must declare it explicitly.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["category", "currentRating"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Label for this requirements seed."
+                },
+                "category": {
+                    "type": "string",
+                    "enum": [
+                        "screwTerminal",
+                        "solderPad",
+                        "header",
+                        "edgeCardFinger",
+                        "boardToWireConnector",
+                        "boardToBoardConnector",
+                        "screwLug",
+                        "bananaJack",
+                        "rfConnector"
+                    ],
+                    "description": "Physical terminal style. Drives contact-resistance and current-rating floors as well as the librarian's distributor search space."
+                },
+                "currentRating": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Continuous current the terminal must carry, in amperes."
+                },
+                "voltageRating": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Working voltage the terminal must withstand, in volts."
+                },
+                "contactResistanceMax": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Maximum acceptable contact + bulk resistance, in ohms. Drives loss budget and thermal rise."
+                },
+                "numPositions": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1,
+                    "description": "Number of independent contacts on the same terminal body. 1 for screw terminals and solder pads; >1 for multi-pin headers / connectors."
+                }
+            }
+        },
+
+        "datasheetInfo": {
+            "description": "Real terminal datasheet payload. Optional pre-librarian (the stencil emits only inputs.designRequirements); required post-librarian.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "enum": [
+                        "screwTerminal",
+                        "solderPad",
+                        "header",
+                        "edgeCardFinger",
+                        "boardToWireConnector",
+                        "boardToBoardConnector",
+                        "screwLug",
+                        "bananaJack",
+                        "rfConnector"
+                    ]
+                },
+                "currentRating": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Continuous current rating, in amperes."
+                },
+                "voltageRating": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Working voltage rating, in volts."
+                },
+                "contactResistance": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Nominal contact + bulk resistance, in ohms."
+                },
+                "numPositions": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "pitch": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Centre-to-centre spacing between positions, in metres."
+                },
+                "wireGaugeRange": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "minimum": { "type": "number", "exclusiveMinimum": 0 },
+                        "maximum": { "type": "number", "exclusiveMinimum": 0 }
+                    },
+                    "description": "Accepted wire cross-section range, in mm^2."
+                },
+                "mountingStyle": {
+                    "type": "string",
+                    "enum": ["throughHole", "surfaceMount", "pressFit", "screwMount"]
+                }
+            }
+        }
+    }
+}

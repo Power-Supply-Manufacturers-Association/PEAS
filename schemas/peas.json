@@ -13,13 +13,14 @@
             "required": ["designRequirements"],
             "properties": {
                 "designRequirements": {
-                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller) is populated.",
+                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal) is populated.",
                     "oneOf": [
                         { "$ref": "../../MAS/schemas/inputs/designRequirements.json" },
                         { "$ref": "../../CAS/schemas/inputs/designRequirements.json" },
                         { "$ref": "../../SAS/schemas/inputs/designRequirements.json" },
                         { "$ref": "../../RAS/schemas/inputs/designRequirements.json" },
-                        { "$ref": "./controller.json#/$defs/designRequirements" }
+                        { "$ref": "./controller.json#/$defs/designRequirements" },
+                        { "$ref": "./terminal.json#/$defs/designRequirements" }
                     ]
                 },
                 "operatingPoints": {
@@ -84,6 +85,13 @@
                 "controller": { "$ref": "./controller.json#/properties/controller" }
             },
             "required": ["controller"]
+        },
+        {
+            "description": "Board terminal (screw terminal, solder pad, header, edge-card finger, connector). Inline PEAS branch today; first-class because every wire that crosses the converter boundary terminates at a real terminal with measurable resistance, current rating, and thermal mass.",
+            "properties": {
+                "terminal": { "$ref": "./terminal.json#/properties/terminal" }
+            },
+            "required": ["terminal"]
         }
     ],
     "allOf": [
@@ -107,6 +115,10 @@
         {
             "if":   { "required": ["controller"] },
             "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "./controller.json#/$defs/designRequirements" } } } } }
+        },
+        {
+            "if":   { "required": ["terminal"] },
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "./terminal.json#/$defs/designRequirements" } } } } }
         }
     ]
 }

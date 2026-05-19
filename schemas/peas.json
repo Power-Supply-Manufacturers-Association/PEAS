@@ -4,16 +4,23 @@
     "title": "PEAS",
     "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller document is also a valid PEAS.",
     "type": "object",
+    "required": ["inputs"],
     "properties": {
         "inputs": {
-            "description": "Per-component design requirements and operating points. Each family schema (MAS, CAS, RAS, SAS, controller) defines the concrete shape of its own inputs; this top-level slot exists so a PEAS document can carry a design seed before it is bound to a real part.",
+            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller) by the if/then clauses at the bottom of this schema.",
             "type": "object",
-            "additionalProperties": true,
+            "additionalProperties": false,
+            "required": ["designRequirements"],
             "properties": {
                 "designRequirements": {
-                    "description": "Free-form design-requirements payload whose concrete shape is fixed by the sibling family schema referenced in the discriminator branch below.",
-                    "type": "object",
-                    "additionalProperties": true
+                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller) is populated.",
+                    "oneOf": [
+                        { "$ref": "../../MAS/schemas/inputs/designRequirements.json" },
+                        { "$ref": "../../CAS/schemas/inputs/designRequirements.json" },
+                        { "$ref": "../../SAS/schemas/inputs/designRequirements.json" },
+                        { "$ref": "../../RAS/schemas/inputs/designRequirements.json" },
+                        { "$ref": "./controller.json#/$defs/designRequirements" }
+                    ]
                 },
                 "operatingPoints": {
                     "description": "Operating points the component must satisfy. Shape is fixed by the sibling family schema (e.g. MAS inputs/operatingPoint).",
@@ -77,6 +84,29 @@
                 "controller": { "$ref": "./controller.json#/properties/controller" }
             },
             "required": ["controller"]
+        }
+    ],
+    "allOf": [
+        {
+            "$comment": "Pin inputs.designRequirements shape to the populated discriminator branch.",
+            "if":   { "required": ["magnetic"] },
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../MAS/schemas/inputs/designRequirements.json" } } } } }
+        },
+        {
+            "if":   { "required": ["capacitor"] },
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../CAS/schemas/inputs/designRequirements.json" } } } } }
+        },
+        {
+            "if":   { "required": ["semiconductor"] },
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../SAS/schemas/inputs/designRequirements.json" } } } } }
+        },
+        {
+            "if":   { "required": ["resistor"] },
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "../../RAS/schemas/inputs/designRequirements.json" } } } } }
+        },
+        {
+            "if":   { "required": ["controller"] },
+            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "./controller.json#/$defs/designRequirements" } } } } }
         }
     ]
 }

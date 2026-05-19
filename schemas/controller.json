@@ -11,12 +11,7 @@
         "controller": {
             "type": "object",
             "additionalProperties": false,
-            "anyOf": [
-                { "required": ["designRequirements"] },
-                { "required": ["manufacturerInfo"] }
-            ],
             "properties": {
-                "designRequirements": { "$ref": "#/$defs/designRequirements" },
                 "manufacturerInfo":  { "$ref": "./utils.json#/$defs/manufacturerInfo" },
                 "distributorsInfo": {
                     "type": "array",
@@ -34,10 +29,33 @@
     "$defs": {
 
         "designRequirements": {
-            "description": "What the design needs from a controller. The stencil emits this pre-librarian; the librarian uses it as the search constraint to bind a real part.",
+            "description": "What the design needs from a controller. Lives at PEAS root inputs.designRequirements (not inside the controller branch payload). The stencil emits this pre-librarian; the librarian uses it as the search constraint to bind a real part; it is retained post-binding as the spec the part met.\n\nIdeal-simulation floor: `category` is universally required. For switching-converter categories (pwmController, llcController, pfcController, dualPwmController, phaseShiftController, syncRectifierController, digitalController) `intendedTopology` and `switchingFrequency` are additionally required so a behavioural switch model can be instantiated from the seed alone. Non-switching categories (gateDriver, voltageReference, currentSenseAmplifier, optocouplerFeedback, isolatedAmplifier, hotSwapController, secondaryFeedbackController) only require `category`.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["category", "intendedTopology"],
+            "required": ["category"],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "category": {
+                                "enum": [
+                                    "pwmController",
+                                    "llcController",
+                                    "pfcController",
+                                    "dualPwmController",
+                                    "phaseShiftController",
+                                    "syncRectifierController",
+                                    "digitalController"
+                                ]
+                            }
+                        },
+                        "required": ["category"]
+                    },
+                    "then": {
+                        "required": ["intendedTopology", "switchingFrequency"]
+                    }
+                }
+            ],
             "properties": {
                 "name":               { "type": "string", "description": "Label for this requirements seed." },
                 "category":           { "$ref": "./utils.json#/$defs/controllerCategory" },
@@ -56,7 +74,7 @@
                     "$ref": "./utils.json#/$defs/dimensionWithTolerance"
                 },
                 "switchingFrequency": {
-                    "description": "Switching-frequency range the design needs the controller to support, in Hz. The chosen part's electrical.switchingFrequency range must contain this interval.",
+                    "description": "Switching-frequency range the design needs the controller to support, in Hz. The chosen part's electrical.switchingFrequency range must contain this interval. Required for switching-converter categories so an ideal behavioural switch can be simulated from the seed.",
                     "$ref": "./utils.json#/$defs/dimensionWithTolerance"
                 },
                 "minimumGateDriveCurrent": {

@@ -540,6 +540,131 @@
                 "referenceClamp"
             ]
         },
+        "currencyAmount": {
+            "description": "Monetary value with explicit ISO 4217 currency code. Mirrors MAS/utils.json#/$defs/cost. Lifted to PEAS so CAS/RAS/SAS/COAS may reference a single canonical definition.",
+            "type": "object",
+            "title": "currencyAmount",
+            "properties": {
+                "value": { "type": "number", "minimum": 0 },
+                "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$",
+                    "description": "ISO 4217 three-letter currency code (EUR, USD, CNY, JPY, ...)."
+                }
+            },
+            "required": ["value", "currency"],
+            "additionalProperties": false
+        },
+        "isolationClass": {
+            "description": "Insulation class per IEC 60664-1 / IEC 62368-1. Mirror of MAS/utils.json#/$defs/insulationType.",
+            "type": "string",
+            "title": "isolationClass",
+            "enum": ["functional", "basic", "supplementary", "double", "reinforced"]
+        },
+        "overvoltageCategory": {
+            "description": "IEC 60664-1 overvoltage category I/II/III/IV.",
+            "type": "string",
+            "title": "overvoltageCategory",
+            "enum": ["I", "II", "III", "IV"]
+        },
+        "pollutionDegree": {
+            "description": "IEC 60664-1 pollution degree 1..4.",
+            "type": "integer",
+            "title": "pollutionDegree",
+            "minimum": 1,
+            "maximum": 4
+        },
+        "mountingStyle": {
+            "description": "Mechanical mounting style at the product (not component) level. Used by COAS for converter form-factor.",
+            "type": "string",
+            "title": "mountingStyle",
+            "enum": [
+                "pcbSmt",
+                "pcbTht",
+                "chassis",
+                "din",
+                "brickFull",
+                "brickHalf",
+                "brickQuarter",
+                "brickEighth",
+                "brickSixteenth",
+                "openFrame",
+                "enclosed",
+                "rackUnit"
+            ]
+        },
+        "coolingMethod": {
+            "description": "Heat-removal method available to the converter. Forced-air requires airflowCFM; baseplate requires baseplateTempMax; liquid requires coolantInletTempMax.",
+            "type": "object",
+            "title": "coolingMethod",
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "enum": ["natural", "forced", "conduction", "baseplate", "liquid"]
+                },
+                "airflowCFM": { "type": "number", "minimum": 0 },
+                "baseplateTempMax": { "type": "number", "description": "Baseplate temperature limit in degrees Celsius." },
+                "coolantInletTempMax": { "type": "number", "description": "Coolant inlet temperature limit in degrees Celsius." }
+            },
+            "required": ["kind"],
+            "additionalProperties": false
+        },
+        "environmentalQualification": {
+            "description": "Environmental qualification envelope a product must satisfy. Common to converter (COAS) and component (MAS/CAS/RAS/SAS) levels.",
+            "type": "object",
+            "title": "environmentalQualification",
+            "properties": {
+                "ambientTemperature": {
+                    "description": "Operating ambient temperature range, in degrees Celsius.",
+                    "$ref": "#/$defs/dimensionWithTolerance"
+                },
+                "storageTemperature": {
+                    "description": "Non-operating storage temperature range, in degrees Celsius.",
+                    "$ref": "#/$defs/dimensionWithTolerance"
+                },
+                "humidity": {
+                    "description": "Relative humidity range, in percent.",
+                    "$ref": "#/$defs/dimensionWithTolerance"
+                },
+                "condensingHumidityAllowed": { "type": "boolean" },
+                "altitudeMax": { "type": "number", "description": "Maximum operating altitude in metres above sea level." },
+                "vibrationStandard": { "type": "string", "description": "e.g. IEC 60068-2-6, MIL-STD-810 Method 514." },
+                "shockStandard": { "type": "string", "description": "e.g. IEC 60068-2-27, MIL-STD-810 Method 516." },
+                "ipRating": {
+                    "type": "string",
+                    "pattern": "^IP[0-6X][0-9X]$",
+                    "description": "IEC 60529 ingress-protection code (IP00..IP69 with X wildcards allowed)."
+                },
+                "conformalCoating": { "type": "boolean" },
+                "saltFogStandard": { "type": "string", "description": "e.g. IEC 60068-2-52, MIL-STD-810 Method 509." }
+            },
+            "additionalProperties": false
+        },
+        "complianceTarget": {
+            "description": "A single compliance target the product must meet. Open vocabulary for `standard` (e.g. IEC 62368-1, CISPR 32, FCC Part 15, IEC 61000-4-5, IEC 61000-3-2). `class` / `level` are standard-specific enumeration tags (e.g. CISPR Class B, surge Level 4).",
+            "type": "object",
+            "title": "complianceTarget",
+            "properties": {
+                "standard": { "type": "string", "minLength": 1 },
+                "edition": { "type": "string" },
+                "class": { "type": "string" },
+                "level": { "type": "string" }
+            },
+            "required": ["standard"],
+            "additionalProperties": false
+        },
+        "protectionMode": {
+            "description": "Recovery mode of a protection (OVP/OCP/OTP/SCP/UVLO/OPP).",
+            "type": "string",
+            "title": "protectionMode",
+            "enum": ["hiccup", "latch", "autorestart", "foldback", "constantCurrent"]
+        },
+        "reliabilityStandard": {
+            "description": "Reliability prediction standard.",
+            "type": "string",
+            "title": "reliabilityStandard",
+            "enum": ["MIL-HDBK-217F", "Telcordia-SR-332", "IEC-62380", "Siemens-SN29500", "FIDES-2009", "RIAC-217Plus"]
+        },
         "semiconductorSubApplication": {
             "description": "Semiconductor sub-application narrowing.",
             "type": "string",

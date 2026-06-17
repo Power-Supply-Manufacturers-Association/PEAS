@@ -2,9 +2,188 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/utils.json",
     "title": "PEAS utils",
-    "description": "Shared primitives and datasheetInfo building blocks for CAS, RAS, and SAS. MAS remains self-contained and does not reference this file.",
+    "description": "Shared primitives and datasheetInfo building blocks for all OpenConverters component families (CAS, RAS, SAS, and MAS). MAS now references this file too (MAS inherits shared types from PEAS rather than duplicating them); magnetics-specific construction/physics types remain in MAS.",
     "type": "object",
     "$defs": {
+        "velocity": {
+            "description": "Velocity vector of a cooling fluid in cartesian 2- or 3-dimensional space, in m/s.",
+            "title": "velocity",
+            "type": "array",
+            "items": {
+                "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 3
+        },
+        "irdi": {
+            "description": "International Registration Data Identifier per ISO/IEC 11179-6 / ISO 29002-5, in the form `RAI#DI#VI` where RAI is the registration-authority identifier (e.g. `0112` for IEC CDD, `0173-1` for ECLASS), DI the data identifier and VI the version identifier. Populate only with values issued by an authoritative registry.",
+            "title": "irdi",
+            "type": "string",
+            "pattern": "^[0-9A-Za-z]{4}(?:-[0-9A-Za-z]+)*#[0-9A-Za-z./-]+#[0-9A-Za-z.-]+$",
+            "examples": [
+                "0112/2///62317#ETD-34-17-11#001",
+                "0112/2///60404#FERRITE-N97#002"
+            ]
+        },
+        "cooling": {
+            "description": "Standardized cooling method for a power-electronic component of ANY family (magnetic, semiconductor, capacitor, resistor). Exactly one of natural convection, forced convection, a heatsink, or a cold plate. Shared across the OpenConverters families so cooling is described identically wherever it appears (operating conditions, thermal design requirements, etc.).",
+            "title": "cooling",
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/naturalConvectionCooling"
+                },
+                {
+                    "$ref": "#/$defs/forcedConvectionCooling"
+                },
+                {
+                    "$ref": "#/$defs/heatsinkCooling"
+                },
+                {
+                    "$ref": "#/$defs/coldPlateCooling"
+                }
+            ]
+        },
+        "naturalConvectionCooling": {
+            "description": "Data describing natural convection cooling.",
+            "type": "object",
+            "title": "naturalConvectionCooling",
+            "properties": {
+                "temperature": {
+                    "description": "Temperature of the fluid, in Celsius. If absent, ambient temperature is assumed.",
+                    "type": "number"
+                },
+                "fluid": {
+                    "description": "Name of the fluid used.",
+                    "type": "string",
+                    "default": "air"
+                }
+            },
+            "required": [],
+            "additionalProperties": false
+        },
+        "forcedConvectionCooling": {
+            "description": "Data describing forced convection cooling.",
+            "type": "object",
+            "title": "forcedConvectionCooling",
+            "properties": {
+                "velocity": {
+                    "$ref": "#/$defs/velocity"
+                },
+                "flowDiameter": {
+                    "description": "Diameter of the fluid flow, normally defined as a fan diameter, in m.",
+                    "type": "number"
+                },
+                "temperature": {
+                    "description": "Temperature of the fluid. To be used only if different from ambient temperature.",
+                    "type": "number"
+                },
+                "fluid": {
+                    "description": "Name of the fluid used.",
+                    "type": "string",
+                    "default": "air"
+                }
+            },
+            "required": [
+                "velocity"
+            ],
+            "additionalProperties": false
+        },
+        "heatsinkCooling": {
+            "description": "Data describing heatsink cooling.",
+            "type": "object",
+            "title": "heatsinkCooling",
+            "properties": {
+                "thermalResistance": {
+                    "description": "Bulk thermal resistance of the heat sink. Unit: K/W.",
+                    "type": "number"
+                },
+                "interfaceThermalResistance": {
+                    "description": "Thermal resistance of the thermal interface connecting the device to the heatsink. Unit: K/W.",
+                    "type": "number"
+                },
+                "interfaceThickness": {
+                    "description": "Thickness of the thermal interface connecting the device to the heatsink, in m.",
+                    "type": "number"
+                },
+                "dimensions": {
+                    "description": "Physical dimensions (width, height, depth) of the heatsink, in m.",
+                    "type": "object",
+                    "properties": {
+                        "width": {
+                            "type": "number"
+                        },
+                        "height": {
+                            "type": "number"
+                        },
+                        "depth": {
+                            "type": "number"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "thermalResistance"
+            ],
+            "additionalProperties": false
+        },
+        "coldPlateCooling": {
+            "description": "Data describing cold plate cooling.",
+            "type": "object",
+            "title": "coldPlateCooling",
+            "properties": {
+                "thermalResistance": {
+                    "description": "Bulk thermal resistance of the cold plate. Unit: K/W.",
+                    "type": "number"
+                },
+                "maximumTemperature": {
+                    "description": "Maximum temperature of the cold plate. Unit: Celsius.",
+                    "type": "number"
+                },
+                "coolant": {
+                    "description": "Name of the liquid coolant flowing through the cold plate (e.g. water, water-glycol, dielectric fluid).",
+                    "type": "string",
+                    "default": "water"
+                },
+                "flowRate": {
+                    "description": "Volumetric flow rate of the coolant through the cold plate, in m^3/s.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "inletTemperature": {
+                    "description": "Coolant supply (inlet) temperature, in Celsius.",
+                    "type": "number"
+                },
+                "interfaceThermalResistance": {
+                    "description": "Thermal resistance of the thermal interface connecting the device to the cold plate. Unit: K/W.",
+                    "type": "number"
+                },
+                "interfaceThickness": {
+                    "description": "Thickness of the thermal interface connecting the device to the cold plate, in m.",
+                    "type": "number"
+                },
+                "dimensions": {
+                    "description": "Physical dimensions (width, height, depth) of the cold plate, in m.",
+                    "type": "object",
+                    "properties": {
+                        "width": {
+                            "type": "number"
+                        },
+                        "height": {
+                            "type": "number"
+                        },
+                        "depth": {
+                            "type": "number"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "maximumTemperature"
+            ],
+            "additionalProperties": false
+        },
         "dimensionWithTolerance": {
             "description": "A dimension with minimum, nominal, and maximum values.",
             "title": "dimensionWithTolerance",
@@ -21,6 +200,20 @@
                 "maximum": {
                     "description": "The maximum value of the dimension.",
                     "type": "number"
+                },
+                "excludeMinimum": {
+                    "description": "True if the minimum value must be excluded from the range",
+                    "type": "boolean",
+                    "default": false
+                },
+                "excludeMaximum": {
+                    "description": "True if the maximum value must be excluded from the range",
+                    "type": "boolean",
+                    "default": false
+                },
+                "unit": {
+                    "description": "Optional SI unit string (e.g. 'H', 'F', 'V', 'A', 'Ohm', 'm', 'kg'). When absent, the unit is implied by the field name.",
+                    "type": "string"
                 }
             },
             "anyOf": [
@@ -43,16 +236,31 @@
         },
         "curve": {
             "type": "object",
-            "description": "X-Y curve data points.",
+            "description": "X-Y curve data points, optionally labelled and annotated with measurement conditions.",
             "additionalProperties": false,
             "properties": {
+                "xLabel": {
+                    "description": "Human-readable label for the X axis, including unit (e.g. 'Frequency [Hz]').",
+                    "type": "string"
+                },
                 "xData": {
                     "description": "X-axis values.",
                     "$ref": "#/$defs/numberArray"
                 },
+                "yLabel": {
+                    "description": "Human-readable label for the Y axis, including unit (e.g. 'ESR [Ω]').",
+                    "type": "string"
+                },
                 "yData": {
                     "description": "Y-axis values.",
                     "$ref": "#/$defs/numberArray"
+                },
+                "conditions": {
+                    "description": "Operating conditions under which this curve was measured (e.g. {\"temperature\": 25, \"voltage\": 5}). Keys are condition names; values are numeric quantities in SI units unless the key name implies otherwise.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": ["number", "string"]
+                    }
                 }
             }
         },
@@ -120,11 +328,68 @@
                         "null"
                     ],
                     "description": "Country of distribution."
+                },
+                "distributedArea": {
+                    "type": "string",
+                    "description": "Geographical area in which the distributor operates."
+                },
+                "phone": {
+                    "type": "string",
+                    "description": "The distributor's phone."
+                },
+                "email": {
+                    "type": "string",
+                    "description": "The distributor's email."
+                },
+                "quantity": {
+                    "type": "number",
+                    "description": "The number of individual pieces available at the distributor."
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "description": "The date this distributor information was last updated."
+                },
+                "internal": {
+                    "type": "boolean",
+                    "description": "True if the component is internal (not publicly distributed)."
+                },
+                "internalNote": {
+                    "type": "string",
+                    "description": "A note about the internal status of the component."
+                },
+                "packaging": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Packaging format from this distributor (e.g. Tape & Reel, Bulk, Tray, Cut Tape)."
+                },
+                "vpe": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Units per package / reel from this distributor."
+                },
+                "moq": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "description": "Minimum order quantity at this distributor."
+                },
+                "leadTime": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "Lead time in weeks from this distributor."
                 }
             },
             "required": [
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "substituteInfo": {
             "description": "A substitute or equivalent component that can replace this one.",
@@ -177,7 +442,8 @@
             },
             "required": [
                 "partNumber"
-            ]
+            ],
+            "additionalProperties": false
         },
         "datasheetInfoThermal": {
             "description": "Shared thermal section for datasheetInfo: operating temperature as dimensionWithTolerance (minimum = min operating, maximum = max operating).",
@@ -187,10 +453,11 @@
                     "description": "Operating temperature range in degrees Celsius.",
                     "$ref": "#/$defs/dimensionWithTolerance"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "datasheetInfoMechanical": {
-            "description": "Shared mechanical section for datasheetInfo: named dimensions as dimensionWithTolerance and connection type.",
+            "description": "Shared mechanical section for datasheetInfo: named dimensions as dimensionWithTolerance, assembly type, weight, and shape. Open base — families extend by allOf + unevaluatedProperties:false.",
             "type": "object",
             "properties": {
                 "length": {
@@ -209,62 +476,125 @@
                     "description": "Body diameter in metres (for cylindrical parts).",
                     "$ref": "#/$defs/dimensionWithTolerance"
                 },
+                "weight": {
+                    "description": "Component weight in kg.",
+                    "type": "number"
+                },
+                "shapeType": {
+                    "description": "Package / body shape (e.g. 'radial', 'axial', 'SMD', 'TO-220').",
+                    "type": "string"
+                },
                 "assemblyType": {
                     "description": "PCB mounting / assembly type.",
                     "$ref": "#/$defs/connectionType"
                 }
             }
         },
-        "datasheetInfoBusiness": {
-            "description": "Shared business / supply-chain section for datasheetInfo.",
+        "datasheetInfoPartBase": {
+            "description": "Universal part-identification fields shared by every component family. Open base — families extend by allOf + unevaluatedProperties:false, adding family-specific fields (technology, dielectricCode, subType, etc.).",
             "type": "object",
             "properties": {
-                "packaging": {
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "description": "Packaging format (e.g. Tape & Reel, Bulk, Tray)."
+                "partNumber": {
+                    "description": "Manufacturer part number.",
+                    "type": "string"
                 },
-                "vpe": {
-                    "type": [
-                        "integer",
-                        "null"
-                    ],
-                    "description": "Units per package / reel."
+                "series": {
+                    "description": "Product series or product-line name.",
+                    "type": "string"
                 },
-                "moq": {
-                    "type": [
-                        "integer",
-                        "null"
-                    ],
-                    "description": "Minimum order quantity."
+                "case": {
+                    "description": "Package / case code (e.g. '0402', 'TO-220', 'DO-214AA').",
+                    "type": "string"
                 },
-                "leadTime": {
-                    "type": [
-                        "number",
-                        "null"
-                    ],
-                    "description": "Lead time in weeks."
-                },
-                "stock": {
-                    "type": [
-                        "integer",
-                        "null"
-                    ],
-                    "description": "Available stock quantity."
-                },
-                "cost": {
-                    "type": [
-                        "number",
-                        "null"
-                    ],
-                    "description": "Unit cost."
+                "description": {
+                    "description": "Free-text part description as on the datasheet.",
+                    "type": "string"
                 }
-            }
+            },
+            "required": ["partNumber"]
+        },
+        "datasheetInfoThermalSemiconductor": {
+            "description": "Semiconductor-specific thermal section for datasheetInfo: junction thermal resistances, temperature limits, and an optional Foster RC-ladder model.",
+            "type": "object",
+            "properties": {
+                "thermalResistanceJunctionCase": {
+                    "description": "Junction-to-case thermal resistance R_th(j-c), in K/W.",
+                    "type": "number"
+                },
+                "thermalResistanceJunctionAmbient": {
+                    "description": "Junction-to-ambient thermal resistance R_th(j-a), in K/W.",
+                    "type": "number"
+                },
+                "thermalResistanceCaseSink": {
+                    "description": "Case-to-heatsink thermal resistance R_th(c-s), in K/W.",
+                    "type": "number"
+                },
+                "junctionTemperatureMax": {
+                    "description": "Absolute maximum junction temperature T_j(max), in °C.",
+                    "type": "number"
+                },
+                "junctionTemperatureMin": {
+                    "description": "Minimum junction temperature T_j(min), in °C.",
+                    "type": "number"
+                },
+                "fosterNetwork": {
+                    "description": "Foster RC ladder thermal model. Each element is {resistance: K/W, timeConstant: seconds} in order from junction outward.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "resistance": { "type": "number", "description": "Thermal resistance of this cell, in K/W." },
+                            "timeConstant": { "type": "number", "description": "Thermal time constant of this cell, in seconds." }
+                        },
+                        "required": ["resistance", "timeConstant"],
+                        "additionalProperties": false
+                    },
+                    "minItems": 1
+                }
+            },
+            "additionalProperties": false
+        },
+        "datasheetInfoLifetime": {
+            "description": "Reliability and lifetime parameters for components with wear-out mechanisms. Model: L = L0 × (V0/V)^aexp × exp(bexp × (1/T - 1/T0)). All lifetime values in hours unless stated.",
+            "type": "object",
+            "properties": {
+                "lifetimeEndurance": {
+                    "description": "Rated endurance life in hours at rated conditions (voltage, temperature).",
+                    "type": "number"
+                },
+                "maxLifetime": {
+                    "description": "Maximum expected service lifetime in years.",
+                    "type": "number"
+                },
+                "aexp": {
+                    "description": "Voltage stress exponent for the lifetime model (exponent on V0/V ratio).",
+                    "type": "number"
+                },
+                "bexp": {
+                    "description": "Temperature stress coefficient for the lifetime model (Arrhenius exponent).",
+                    "type": "number"
+                },
+                "deltaT0": {
+                    "description": "Reference temperature differential ΔT0 in °C for the lifetime model.",
+                    "type": "number"
+                },
+                "kfactor": {
+                    "description": "K factor (voltage derating exponent or scaling constant) for the lifetime model.",
+                    "type": "number"
+                },
+                "vxfactor": {
+                    "description": "Vx factor for extended voltage lifetime model.",
+                    "type": "number"
+                },
+                "usefulLife": {
+                    "description": "Useful life in hours (IEC 62863 / IEC 61709 definition: time to specified end-of-life criteria).",
+                    "type": "number"
+                }
+            },
+            "additionalProperties": false
         },
         "manufacturerInfo": {
-            "description": "Shared manufacturer information container. Each component type extends this via allOf to supply its own datasheetInfo schema.",
+            "description": "Shared manufacturer-info fields. Each component family builds its OWN closed manufacturerInfo by $ref-ing these field definitions (by JSON pointer) and adding its datasheetInfo; families do NOT allOf-extend this (incompatible with additionalProperties:false).",
             "type": "object",
             "properties": {
                 "name": {
@@ -279,11 +609,20 @@
                     "type": "string",
                     "enum": [
                         "production",
+                        "prototype",
                         "nrnd",
                         "obsolete",
                         "preview"
                     ],
                     "description": "Production status"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the part per its manufacturer"
+                },
+                "orderCode": {
+                    "type": "string",
+                    "description": "Manufacturer order code"
                 },
                 "datasheetUrl": {
                     "type": "string",
@@ -321,14 +660,13 @@
             }
         },
         "topology": {
-            "description": "Power-electronics converter topology. Reference list mirrored from MAS schemas/inputs/designRequirements.json (which is the IEC standard candidate). Keep value-aligned with MAS; update here whenever MAS updates.",
+            "description": "Power-electronics converter topology, used by every family's designRequirements to tag which converter a component is designed for (e.g. a capacitor's stress/lifetime model depends on it). PEAS HOSTS this shared vocabulary because all families reference it and PEAS is the only layer beneath them all; MAS OWNS its content (MAS implements the converter topologies under inputs/topologies/ and is the IEC standard candidate). This enum must mirror MAS's implemented topology set exactly — add a value here only when MAS adds the corresponding topology.",
             "type": "string",
             "title": "topology",
             "enum": [
                 "buckConverter",
                 "boostConverter",
-                "invertingBuckBoostConverter",
-                "SEPIC",
+                "sepicConverter",
                 "cukConverter",
                 "zetaConverter",
                 "flybackConverter",
@@ -337,16 +675,19 @@
                 "twoSwitchForwardConverter",
                 "pushPullConverter",
                 "weinbergConverter",
-                "halfBridgeConverter",
-                "fullBridgeConverter",
+                "asymmetricHalfBridgeConverter",
                 "phaseShiftedFullBridgeConverter",
                 "phaseShiftedHalfBridgeConverter",
                 "currentTransformer",
                 "isolatedBuckConverter",
                 "isolatedBuckBoostConverter",
+                "fourSwitchBuckBoostConverter",
                 "dualActiveBridgeConverter",
                 "llcResonantConverter",
                 "cllcResonantConverter",
+                "clllcResonantConverter",
+                "seriesResonantConverter",
+                "viennaRectifierConverter",
                 "commonModeChoke",
                 "differentialModeChoke",
                 "powerFactorCorrection"
@@ -379,11 +720,13 @@
                 "depth": {
                     "type": "number"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "componentPort": {
-            "description": "Identifier of one electrical port / terminal / winding of a component. Free-form string so each family can use its own vocabulary (e.g. 'gate'/'drain'/'source' for MOSFETs, 'anode'/'cathode' for diodes, 'primary'/'secondary1' for transformer windings, 'a'/'b' for capacitors and resistors).",
-            "type": "string"
+            "description": "Identifier of one electrical port / terminal / winding of a component. Free-form non-empty string so each family can use its own vocabulary (e.g. 'gate'/'drain'/'source' for MOSFETs, 'anode'/'cathode' for diodes, 'primary'/'secondary1' for transformer windings, 'a'/'b' for capacitors and resistors).",
+            "type": "string",
+            "minLength": 1
         },
         "designRequirementsBase": {
             "description": "Family-agnostic outer shell of designRequirements. Each family schema does allOf [designRequirementsBase, family-specific]; the family layer adds its required primary specs (capacitance/resistance/inductance/voltage), narrows 'role' and 'allowedTechnologies' to per-family enums, and adds family-specific optional fields (lifetime, ESR, TCR, gate-charge, etc.).",
@@ -418,8 +761,11 @@
                     "$ref": "#/$defs/dimensionWithTolerance"
                 },
                 "terminalType": {
-                    "description": "Type of terminal that must be used",
-                    "$ref": "#/$defs/connectionType"
+                    "description": "Type(s) of terminal that must be used. An array so multi-terminal/multi-winding parts (e.g. magnetics) can require a type per terminal; single-terminal families may supply a one-element array.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/connectionType"
+                    }
                 },
                 "maximumWeight": {
                     "description": "Maximum weight for the designed component, in Kg",
@@ -545,27 +891,44 @@
             "type": "object",
             "title": "currencyAmount",
             "properties": {
-                "value": { "type": "number", "minimum": 0 },
+                "value": {
+                    "type": "number",
+                    "minimum": 0
+                },
                 "currency": {
                     "type": "string",
                     "pattern": "^[A-Z]{3}$",
                     "description": "ISO 4217 three-letter currency code (EUR, USD, CNY, JPY, ...)."
                 }
             },
-            "required": ["value", "currency"],
+            "required": [
+                "value",
+                "currency"
+            ],
             "additionalProperties": false
         },
         "isolationClass": {
             "description": "Insulation class per IEC 60664-1 / IEC 62368-1. Mirror of MAS/utils.json#/$defs/insulationType.",
             "type": "string",
             "title": "isolationClass",
-            "enum": ["functional", "basic", "supplementary", "double", "reinforced"]
+            "enum": [
+                "functional",
+                "basic",
+                "supplementary",
+                "double",
+                "reinforced"
+            ]
         },
         "overvoltageCategory": {
             "description": "IEC 60664-1 overvoltage category I/II/III/IV.",
             "type": "string",
             "title": "overvoltageCategory",
-            "enum": ["I", "II", "III", "IV"]
+            "enum": [
+                "I",
+                "II",
+                "III",
+                "IV"
+            ]
         },
         "pollutionDegree": {
             "description": "IEC 60664-1 pollution degree 1..4.",
@@ -600,13 +963,30 @@
             "properties": {
                 "kind": {
                     "type": "string",
-                    "enum": ["natural", "forced", "conduction", "baseplate", "liquid"]
+                    "enum": [
+                        "natural",
+                        "forced",
+                        "conduction",
+                        "baseplate",
+                        "liquid"
+                    ]
                 },
-                "airflowCFM": { "type": "number", "minimum": 0 },
-                "baseplateTempMax": { "type": "number", "description": "Baseplate temperature limit in degrees Celsius." },
-                "coolantInletTempMax": { "type": "number", "description": "Coolant inlet temperature limit in degrees Celsius." }
+                "airflowCFM": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "baseplateTempMax": {
+                    "type": "number",
+                    "description": "Baseplate temperature limit in degrees Celsius."
+                },
+                "coolantInletTempMax": {
+                    "type": "number",
+                    "description": "Coolant inlet temperature limit in degrees Celsius."
+                }
             },
-            "required": ["kind"],
+            "required": [
+                "kind"
+            ],
             "additionalProperties": false
         },
         "environmentalQualification": {
@@ -626,17 +1006,33 @@
                     "description": "Relative humidity range, in percent.",
                     "$ref": "#/$defs/dimensionWithTolerance"
                 },
-                "condensingHumidityAllowed": { "type": "boolean" },
-                "altitudeMax": { "type": "number", "description": "Maximum operating altitude in metres above sea level." },
-                "vibrationStandard": { "type": "string", "description": "e.g. IEC 60068-2-6, MIL-STD-810 Method 514." },
-                "shockStandard": { "type": "string", "description": "e.g. IEC 60068-2-27, MIL-STD-810 Method 516." },
+                "condensingHumidityAllowed": {
+                    "type": "boolean"
+                },
+                "altitudeMax": {
+                    "type": "number",
+                    "description": "Maximum operating altitude in metres above sea level."
+                },
+                "vibrationStandard": {
+                    "type": "string",
+                    "description": "e.g. IEC 60068-2-6, MIL-STD-810 Method 514."
+                },
+                "shockStandard": {
+                    "type": "string",
+                    "description": "e.g. IEC 60068-2-27, MIL-STD-810 Method 516."
+                },
                 "ipRating": {
                     "type": "string",
                     "pattern": "^IP[0-6X][0-9X]$",
                     "description": "IEC 60529 ingress-protection code (IP00..IP69 with X wildcards allowed)."
                 },
-                "conformalCoating": { "type": "boolean" },
-                "saltFogStandard": { "type": "string", "description": "e.g. IEC 60068-2-52, MIL-STD-810 Method 509." }
+                "conformalCoating": {
+                    "type": "boolean"
+                },
+                "saltFogStandard": {
+                    "type": "string",
+                    "description": "e.g. IEC 60068-2-52, MIL-STD-810 Method 509."
+                }
             },
             "additionalProperties": false
         },
@@ -645,25 +1041,49 @@
             "type": "object",
             "title": "complianceTarget",
             "properties": {
-                "standard": { "type": "string", "minLength": 1 },
-                "edition": { "type": "string" },
-                "class": { "type": "string" },
-                "level": { "type": "string" }
+                "standard": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "edition": {
+                    "type": "string"
+                },
+                "class": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                }
             },
-            "required": ["standard"],
+            "required": [
+                "standard"
+            ],
             "additionalProperties": false
         },
         "protectionMode": {
             "description": "Recovery mode of a protection (OVP/OCP/OTP/SCP/UVLO/OPP).",
             "type": "string",
             "title": "protectionMode",
-            "enum": ["hiccup", "latch", "autorestart", "foldback", "constantCurrent"]
+            "enum": [
+                "hiccup",
+                "latch",
+                "autorestart",
+                "foldback",
+                "constantCurrent"
+            ]
         },
         "reliabilityStandard": {
             "description": "Reliability prediction standard.",
             "type": "string",
             "title": "reliabilityStandard",
-            "enum": ["MIL-HDBK-217F", "Telcordia-SR-332", "IEC-62380", "Siemens-SN29500", "FIDES-2009", "RIAC-217Plus"]
+            "enum": [
+                "MIL-HDBK-217F",
+                "Telcordia-SR-332",
+                "IEC-62380",
+                "Siemens-SN29500",
+                "FIDES-2009",
+                "RIAC-217Plus"
+            ]
         },
         "controllerCategory": {
             "description": "Functional category of a control IC. Derived from a survey of TI / Analog Devices / Onsemi / Infineon / Renesas controller product families.",
@@ -721,13 +1141,23 @@
             "description": "Synchronous-rectification support offered by the controller.",
             "type": "string",
             "title": "controllerSyncRectification",
-            "enum": ["none", "builtIn", "external", "controlOnly"]
+            "enum": [
+                "none",
+                "builtIn",
+                "external",
+                "controlOnly"
+            ]
         },
         "controllerIsolation": {
             "description": "Position of the controller relative to the isolation barrier.",
             "type": "string",
             "title": "controllerIsolation",
-            "enum": ["none", "primarySide", "secondarySide", "primaryToSecondary"]
+            "enum": [
+                "none",
+                "primarySide",
+                "secondarySide",
+                "primaryToSecondary"
+            ]
         },
         "controllerPinFunction": {
             "description": "Canonical function of one pin of a control IC. Vocabulary covers every pin function published by mainstream PWM / LLC / PFC / digital controllers, isolated gate drivers, and PMBus telemetry parts.",
@@ -795,13 +1225,33 @@
             "description": "Built-in protection kinds reported on a control IC. Superset of the converter-level protectionMode user, narrowed to events a controller can detect on its own pins.",
             "type": "string",
             "title": "controllerProtectionKind",
-            "enum": ["ovp", "uvp", "ocp", "scp", "otp", "uvlo", "opp", "brownOut", "restartTimer", "frequencyFoldback"]
+            "enum": [
+                "ovp",
+                "uvp",
+                "ocp",
+                "scp",
+                "otp",
+                "uvlo",
+                "opp",
+                "brownOut",
+                "restartTimer",
+                "frequencyFoldback"
+            ]
         },
         "telemetryChannel": {
             "description": "Telemetry quantity reported over a digital interface (PMBus / I2C / SPI).",
             "type": "string",
             "title": "telemetryChannel",
-            "enum": ["voltage", "current", "temperature", "power", "energy", "frequency", "dutyCycle", "faultStatus"]
+            "enum": [
+                "voltage",
+                "current",
+                "temperature",
+                "power",
+                "energy",
+                "frequency",
+                "dutyCycle",
+                "faultStatus"
+            ]
         },
         "packageType": {
             "description": "Mechanical package code. Open vocabulary using standard JEDEC / EIA / manufacturer designators (SOIC-8, SOIC-14, MSOP-10, TSSOP-14, QFN-16, QFN-24, DFN-10, LQFP-32, TO-220, TO-247, DPAK, D2PAK, BGA, etc.).",

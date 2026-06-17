@@ -4,23 +4,39 @@
     "title": "PEAS",
     "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller document is also a valid PEAS.",
     "type": "object",
-    "required": ["inputs"],
+    "required": [
+        "inputs"
+    ],
     "properties": {
         "inputs": {
             "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller) by the if/then clauses at the bottom of this schema.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["designRequirements"],
+            "required": [
+                "designRequirements"
+            ],
             "properties": {
                 "designRequirements": {
                     "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal) is populated.",
                     "oneOf": [
-                        { "$ref": "https://psma.com/mas/inputs/designRequirements.json" },
-                        { "$ref": "https://psma.com/cas/inputs/designRequirements.json" },
-                        { "$ref": "https://psma.com/sas/inputs/designRequirements.json" },
-                        { "$ref": "https://psma.com/ras/inputs/designRequirements.json" },
-                        { "$ref": "./controller.json#/$defs/designRequirements" },
-                        { "$ref": "./terminal.json#/$defs/designRequirements" }
+                        {
+                            "$ref": "https://psma.com/mas/inputs/designRequirements.json"
+                        },
+                        {
+                            "$ref": "https://psma.com/cas/inputs/designRequirements.json"
+                        },
+                        {
+                            "$ref": "https://psma.com/sas/inputs/designRequirements.json"
+                        },
+                        {
+                            "$ref": "https://psma.com/ras/inputs/designRequirements.json"
+                        },
+                        {
+                            "$ref": "./controller.json#/$defs/designRequirements"
+                        },
+                        {
+                            "$ref": "./terminal.json#/$defs/designRequirements"
+                        }
                     ]
                 },
                 "operatingPoints": {
@@ -54,71 +70,179 @@
         {
             "description": "Magnetic component (inductor, transformer, choke) — defined by MAS.",
             "properties": {
-                "magnetic": { "$ref": "https://psma.com/mas/magnetic.json" }
+                "magnetic": {
+                    "$ref": "https://psma.com/mas/magnetic.json"
+                }
             },
-            "required": ["magnetic"]
+            "required": [
+                "magnetic"
+            ]
         },
         {
             "description": "Capacitor — defined by CAS.",
             "properties": {
-                "capacitor": { "$ref": "https://psma.com/cas/capacitor.json" }
+                "capacitor": {
+                    "$ref": "https://psma.com/cas/capacitor.json"
+                }
             },
-            "required": ["capacitor"]
+            "required": [
+                "capacitor"
+            ]
         },
         {
             "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS.",
             "properties": {
-                "semiconductor": { "$ref": "https://psma.com/sas/SAS.json" }
+                "semiconductor": {
+                    "$ref": "https://psma.com/sas/SAS.json"
+                }
             },
-            "required": ["semiconductor"]
+            "required": [
+                "semiconductor"
+            ]
         },
         {
             "description": "Resistor — defined by RAS.",
             "properties": {
-                "resistor": { "$ref": "https://psma.com/ras/resistor.json" }
+                "resistor": {
+                    "$ref": "https://psma.com/ras/resistor.json"
+                }
             },
-            "required": ["resistor"]
+            "required": [
+                "resistor"
+            ]
         },
         {
             "description": "Control IC (PWM / LLC / PFC / digital / gate-driver / voltage-reference / current-sense / opto-feedback / isolated amplifier / hot-swap). Inline PEAS branch today; candidate for extraction to a CtAS sibling repo once the schema has settled.",
             "properties": {
-                "controller": { "$ref": "./controller.json#/properties/controller" }
+                "controller": {
+                    "$ref": "./controller.json#/properties/controller"
+                }
             },
-            "required": ["controller"]
+            "required": [
+                "controller"
+            ]
         },
         {
             "description": "Board terminal (screw terminal, solder pad, header, edge-card finger, connector). Inline PEAS branch today; first-class because every wire that crosses the converter boundary terminates at a real terminal with measurable resistance, current rating, and thermal mass.",
             "properties": {
-                "terminal": { "$ref": "./terminal.json#/properties/terminal" }
+                "terminal": {
+                    "$ref": "./terminal.json#/properties/terminal"
+                }
             },
-            "required": ["terminal"]
+            "required": [
+                "terminal"
+            ]
         }
     ],
     "allOf": [
         {
             "$comment": "Pin inputs.designRequirements shape to the populated discriminator branch.",
-            "if":   { "required": ["magnetic"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/mas/inputs/designRequirements.json" } } } } }
+            "if": {
+                "required": [
+                    "magnetic"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/mas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
         },
         {
-            "if":   { "required": ["capacitor"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/cas/inputs/designRequirements.json" } } } } }
+            "if": {
+                "required": [
+                    "capacitor"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/cas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
         },
         {
-            "if":   { "required": ["semiconductor"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/sas/inputs/designRequirements.json" } } } } }
+            "if": {
+                "required": [
+                    "semiconductor"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/sas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
         },
         {
-            "if":   { "required": ["resistor"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "https://psma.com/ras/inputs/designRequirements.json" } } } } }
+            "if": {
+                "required": [
+                    "resistor"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/ras/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
         },
         {
-            "if":   { "required": ["controller"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "./controller.json#/$defs/designRequirements" } } } } }
+            "if": {
+                "required": [
+                    "controller"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "./controller.json#/$defs/designRequirements"
+                            }
+                        }
+                    }
+                }
+            }
         },
         {
-            "if":   { "required": ["terminal"] },
-            "then": { "properties": { "inputs": { "properties": { "designRequirements": { "$ref": "./terminal.json#/$defs/designRequirements" } } } } }
+            "if": {
+                "required": [
+                    "terminal"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "./terminal.json#/$defs/designRequirements"
+                            }
+                        }
+                    }
+                }
+            }
         }
     ]
 }

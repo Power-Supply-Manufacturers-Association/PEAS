@@ -6,33 +6,43 @@
     "description": "Control IC: PWM / LLC / PFC controllers, gate drivers, digital (PMBus) controllers, voltage references, current-sense amplifiers, optocoupler feedback, hot-swap controllers, isolated amplifiers. Shape and field list derived from the published datasheet sections of mainstream parts (TI UC384x / UCC256xx / UCC28xxx / TPS40xxx; Analog Devices ADP1051 / LTC family; Onsemi NCP162x; Infineon ICE5xx; Renesas ZSPM family). A controller PEAS document MUST carry either designRequirements (pre-librarian seed) or manufacturerInfo (resolved real part); both may be present after the librarian binds a seed to a part.",
     "type": "object",
     "additionalProperties": false,
-    "required": ["controller"],
+    "required": [
+        "controller"
+    ],
     "properties": {
         "controller": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "manufacturerInfo":  { "$ref": "./utils.json#/$defs/manufacturerInfo" },
+                "manufacturerInfo": {
+                    "$ref": "./utils.json#/$defs/manufacturerInfo"
+                },
                 "distributorsInfo": {
                     "type": "array",
-                    "items": { "$ref": "./utils.json#/$defs/distributorInfo" }
+                    "items": {
+                        "$ref": "./utils.json#/$defs/distributorInfo"
+                    }
                 },
                 "substitutesInfo": {
                     "type": "array",
-                    "items": { "$ref": "./utils.json#/$defs/substituteInfo" }
+                    "items": {
+                        "$ref": "./utils.json#/$defs/substituteInfo"
+                    }
                 },
-                "datasheetInfo": { "$ref": "#/$defs/datasheetInfo" }
+                "datasheetInfo": {
+                    "$ref": "#/$defs/datasheetInfo"
+                }
             }
         }
     },
-
     "$defs": {
-
         "designRequirements": {
             "description": "What the design needs from a controller. Lives at PEAS root inputs.designRequirements (not inside the controller branch payload). The stencil emits this pre-librarian; the librarian uses it as the search constraint to bind a real part; it is retained post-binding as the spec the part met.\n\nIdeal-simulation floor: `category` is universally required. For switching-converter categories (pwmController, llcController, pfcController, dualPwmController, phaseShiftController, syncRectifierController, digitalController) `intendedTopology` and `switchingFrequency` are additionally required so a behavioural switch model can be instantiated from the seed alone. Non-switching categories (gateDriver, voltageReference, currentSenseAmplifier, optocouplerFeedback, isolatedAmplifier, hotSwapController, secondaryFeedbackController) only require `category`.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["category"],
+            "required": [
+                "category"
+            ],
             "allOf": [
                 {
                     "if": {
@@ -49,26 +59,46 @@
                                 ]
                             }
                         },
-                        "required": ["category"]
+                        "required": [
+                            "category"
+                        ]
                     },
                     "then": {
-                        "required": ["intendedTopology", "switchingFrequency"]
+                        "required": [
+                            "intendedTopology",
+                            "switchingFrequency"
+                        ]
                     }
                 }
             ],
             "properties": {
-                "name":               { "type": "string", "description": "Label for this requirements seed." },
-                "category":           { "$ref": "./utils.json#/$defs/controllerCategory" },
-                "intendedTopology":   { "$ref": "./utils.json#/$defs/topology" },
-                "modulation":         { "$ref": "./utils.json#/$defs/controllerModulation" },
-                "conductionMode":     { "$ref": "./utils.json#/$defs/controllerConductionMode" },
+                "name": {
+                    "type": "string",
+                    "description": "Label for this requirements seed."
+                },
+                "category": {
+                    "$ref": "./utils.json#/$defs/controllerCategory"
+                },
+                "intendedTopology": {
+                    "$ref": "./utils.json#/$defs/topology"
+                },
+                "modulation": {
+                    "$ref": "./utils.json#/$defs/controllerModulation"
+                },
+                "conductionMode": {
+                    "$ref": "./utils.json#/$defs/controllerConductionMode"
+                },
                 "channelCount": {
                     "type": "integer",
                     "minimum": 1,
                     "description": "Required number of independent PWM / driver channels."
                 },
-                "syncRectification":  { "$ref": "./utils.json#/$defs/controllerSyncRectification" },
-                "isolation":          { "$ref": "./utils.json#/$defs/controllerIsolation" },
+                "syncRectification": {
+                    "$ref": "./utils.json#/$defs/controllerSyncRectification"
+                },
+                "isolation": {
+                    "$ref": "./utils.json#/$defs/controllerIsolation"
+                },
                 "supplyVoltageAvailable": {
                     "description": "Bias-rail voltage range the design can offer the controller's VCC pin, in volts.",
                     "$ref": "./utils.json#/$defs/dimensionWithTolerance"
@@ -90,83 +120,137 @@
                 "requiredProtections": {
                     "description": "Protections the controller must implement on-die.",
                     "type": "array",
-                    "items": { "$ref": "./utils.json#/$defs/controllerProtectionKind" },
+                    "items": {
+                        "$ref": "./utils.json#/$defs/controllerProtectionKind"
+                    },
                     "uniqueItems": true
                 },
                 "digitalInterfaceRequired": {
                     "description": "Required digital interface, if any.",
                     "type": "string",
-                    "enum": ["none", "i2c", "pmbus", "smbus", "spi"]
+                    "enum": [
+                        "none",
+                        "i2c",
+                        "pmbus",
+                        "smbus",
+                        "spi"
+                    ]
                 },
                 "requiredTelemetry": {
                     "description": "Telemetry channels the controller must report (only meaningful when digitalInterfaceRequired is not 'none').",
                     "type": "array",
-                    "items": { "$ref": "./utils.json#/$defs/telemetryChannel" },
+                    "items": {
+                        "$ref": "./utils.json#/$defs/telemetryChannel"
+                    },
                     "uniqueItems": true
                 },
                 "operatingTemperature": {
                     "description": "Required operating junction-temperature envelope, in degrees Celsius.",
                     "$ref": "./utils.json#/$defs/dimensionWithTolerance"
                 },
-                "market":             { "$ref": "./utils.json#/$defs/market" },
-                "maximumDimensions":  { "$ref": "./utils.json#/$defs/maximumDimensions" },
-                "terminalType":       { "$ref": "./utils.json#/$defs/connectionType" },
+                "market": {
+                    "$ref": "./utils.json#/$defs/market"
+                },
+                "maximumDimensions": {
+                    "$ref": "./utils.json#/$defs/maximumDimensions"
+                },
+                "terminalType": {
+                    "$ref": "./utils.json#/$defs/connectionType"
+                },
                 "aecQGrade": {
                     "type": "string",
-                    "enum": ["Q100-G0", "Q100-G1", "Q100-G2", "Q100-G3", "Q101"]
+                    "enum": [
+                        "Q100-G0",
+                        "Q100-G1",
+                        "Q100-G2",
+                        "Q100-G3",
+                        "Q101"
+                    ]
                 }
             }
         },
-
         "datasheetInfo": {
             "description": "Manufacturer-published data for a resolved controller part. Populated by the librarian; absent on pre-librarian seeds.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["function"],
+            "required": [
+                "function"
+            ],
             "properties": {
-                "function":          { "$ref": "#/$defs/function" },
-                "electrical":        { "$ref": "#/$defs/electrical" },
+                "function": {
+                    "$ref": "#/$defs/function"
+                },
+                "electrical": {
+                    "$ref": "#/$defs/electrical"
+                },
                 "protections": {
                     "type": "array",
-                    "items": { "$ref": "#/$defs/protection" }
+                    "items": {
+                        "$ref": "#/$defs/protection"
+                    }
                 },
                 "pins": {
                     "description": "Canonical pin map. Required for stencils to wire the controller into a TAS circuit.",
                     "type": "array",
-                    "items": { "$ref": "#/$defs/pin" }
+                    "items": {
+                        "$ref": "#/$defs/pin"
+                    }
                 },
-                "digitalInterface":  { "$ref": "#/$defs/digitalInterface" },
-                "thermal":           { "$ref": "./utils.json#/$defs/datasheetInfoThermal" },
-                "mechanical":        { "$ref": "#/$defs/mechanical" },
-                "business":          { "$ref": "./utils.json#/$defs/datasheetInfoBusiness" }
+                "digitalInterface": {
+                    "$ref": "#/$defs/digitalInterface"
+                },
+                "thermal": {
+                    "$ref": "./utils.json#/$defs/datasheetInfoThermal"
+                },
+                "mechanical": {
+                    "$ref": "#/$defs/mechanical"
+                },
+                "business": {
+                    "$ref": "./utils.json#/$defs/datasheetInfoBusiness"
+                }
             }
         },
-
         "function": {
             "description": "What the controller does. Mirrors the 'Description / Features' page of every controller datasheet.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["category"],
+            "required": [
+                "category"
+            ],
             "properties": {
-                "category":           { "$ref": "./utils.json#/$defs/controllerCategory" },
+                "category": {
+                    "$ref": "./utils.json#/$defs/controllerCategory"
+                },
                 "intendedTopologies": {
                     "description": "Topology families this controller is designed for. Empty for non-converter parts (voltage references, current-sense amps).",
                     "type": "array",
-                    "items": { "$ref": "./utils.json#/$defs/topology" },
+                    "items": {
+                        "$ref": "./utils.json#/$defs/topology"
+                    },
                     "uniqueItems": true
                 },
-                "modulation":         { "$ref": "./utils.json#/$defs/controllerModulation" },
-                "conductionMode":     { "$ref": "./utils.json#/$defs/controllerConductionMode" },
-                "channelCount":       { "type": "integer", "minimum": 1 },
-                "syncRectification":  { "$ref": "./utils.json#/$defs/controllerSyncRectification" },
-                "isolation":          { "$ref": "./utils.json#/$defs/controllerIsolation" },
+                "modulation": {
+                    "$ref": "./utils.json#/$defs/controllerModulation"
+                },
+                "conductionMode": {
+                    "$ref": "./utils.json#/$defs/controllerConductionMode"
+                },
+                "channelCount": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "syncRectification": {
+                    "$ref": "./utils.json#/$defs/controllerSyncRectification"
+                },
+                "isolation": {
+                    "$ref": "./utils.json#/$defs/controllerIsolation"
+                },
                 "frequencyJitterSupported": {
                     "type": "boolean",
                     "description": "True if the controller implements frequency dithering for conducted-EMI reduction."
                 }
             }
         },
-
         "electrical": {
             "description": "Operating electrical characteristics. Mirrors the 'Electrical Characteristics' table of the datasheet.",
             "type": "object",
@@ -230,17 +314,24 @@
                 },
                 "slopeCompensation": {
                     "type": "string",
-                    "enum": ["internal", "external", "notApplicable"]
+                    "enum": [
+                        "internal",
+                        "external",
+                        "notApplicable"
+                    ]
                 },
-                "errorAmplifier":    { "$ref": "#/$defs/errorAmplifier" },
-                "gateDrive":         { "$ref": "#/$defs/gateDrive" },
+                "errorAmplifier": {
+                    "$ref": "#/$defs/errorAmplifier"
+                },
+                "gateDrive": {
+                    "$ref": "#/$defs/gateDrive"
+                },
                 "deadTime": {
                     "description": "Dead time between complementary outputs (half-bridge / full-bridge / synchronous), in seconds. Omit for single-ended controllers.",
                     "$ref": "./utils.json#/$defs/dimensionWithTolerance"
                 }
             }
         },
-
         "errorAmplifier": {
             "description": "Internal error-amplifier characteristics (needed for compensator design).",
             "type": "object",
@@ -248,7 +339,10 @@
             "properties": {
                 "type": {
                     "type": "string",
-                    "enum": ["voltage", "transconductance"]
+                    "enum": [
+                        "voltage",
+                        "transconductance"
+                    ]
                 },
                 "transconductance": {
                     "description": "Forward transconductance gm, in siemens (transconductance amplifiers only).",
@@ -276,7 +370,6 @@
                 }
             }
         },
-
         "gateDrive": {
             "description": "Gate-driver output characteristics (mirrors the 'Output Stage' / 'Gate Driver' section).",
             "type": "object",
@@ -318,14 +411,18 @@
                 }
             }
         },
-
         "protection": {
             "description": "One on-die protection event with its threshold, hysteresis, and recovery behaviour.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["kind", "mode"],
+            "required": [
+                "kind",
+                "mode"
+            ],
             "properties": {
-                "kind":      { "$ref": "./utils.json#/$defs/controllerProtectionKind" },
+                "kind": {
+                    "$ref": "./utils.json#/$defs/controllerProtectionKind"
+                },
                 "threshold": {
                     "description": "Trip threshold in native units of the monitored quantity (V for voltage-class, A for current-class, degrees Celsius for temperature, fraction for duty-class).",
                     "type": "number"
@@ -334,7 +431,9 @@
                     "description": "Hysteresis in the same units as threshold.",
                     "type": "number"
                 },
-                "mode":              { "$ref": "./utils.json#/$defs/protectionMode" },
+                "mode": {
+                    "$ref": "./utils.json#/$defs/protectionMode"
+                },
                 "restartDelay": {
                     "description": "Auto-restart / hiccup delay before re-engagement, in seconds (when mode is autorestart or hiccup).",
                     "type": "number",
@@ -342,16 +441,27 @@
                 }
             }
         },
-
         "pin": {
             "description": "One pin of the controller. The combination (number, name, function) is canonical and must be unique within a part.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["number", "name", "function"],
+            "required": [
+                "number",
+                "name",
+                "function"
+            ],
             "properties": {
-                "number":   { "type": "integer", "minimum": 1 },
-                "name":     { "type": "string", "minLength": 1 },
-                "function": { "$ref": "./utils.json#/$defs/controllerPinFunction" },
+                "number": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "function": {
+                    "$ref": "./utils.json#/$defs/controllerPinFunction"
+                },
                 "absMaxVoltage": {
                     "description": "Absolute-maximum voltage at this pin, in volts.",
                     "type": "number"
@@ -366,7 +476,6 @@
                 }
             }
         },
-
         "digitalInterface": {
             "description": "Digital communication interface, if any. A part with no digital interface omits this object entirely.",
             "type": "object",
@@ -374,66 +483,131 @@
             "properties": {
                 "kind": {
                     "type": "string",
-                    "enum": ["i2c", "pmbus", "smbus", "spi"]
+                    "enum": [
+                        "i2c",
+                        "pmbus",
+                        "smbus",
+                        "spi"
+                    ]
                 },
-                "pmbus":     { "$ref": "#/$defs/pmbusInterface" },
-                "i2c":       { "$ref": "#/$defs/i2cInterface" },
-                "spi":       { "$ref": "#/$defs/spiInterface" },
+                "pmbus": {
+                    "$ref": "#/$defs/pmbusInterface"
+                },
+                "i2c": {
+                    "$ref": "#/$defs/i2cInterface"
+                },
+                "spi": {
+                    "$ref": "#/$defs/spiInterface"
+                },
                 "telemetryChannels": {
                     "type": "array",
-                    "items": { "$ref": "./utils.json#/$defs/telemetryChannel" },
+                    "items": {
+                        "$ref": "./utils.json#/$defs/telemetryChannel"
+                    },
                     "uniqueItems": true
                 }
             }
         },
-
         "pmbusInterface": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "revision":         { "type": "string", "description": "PMBus specification revision (e.g. '1.3.1')." },
-                "defaultAddress":   { "type": "integer", "minimum": 0, "maximum": 127 },
-                "addressPinCount":  { "type": "integer", "minimum": 0, "description": "Number of strap pins used to set the address." },
+                "revision": {
+                    "type": "string",
+                    "description": "PMBus specification revision (e.g. '1.3.1')."
+                },
+                "defaultAddress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 127
+                },
+                "addressPinCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of strap pins used to set the address."
+                },
                 "supportedCommands": {
                     "description": "PMBus command codes implemented by the part, as canonical command names (e.g. 'READ_VOUT', 'READ_IOUT', 'STATUS_WORD').",
                     "type": "array",
-                    "items": { "type": "string", "minLength": 1 },
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
                     "uniqueItems": true
                 }
             }
         },
-
         "i2cInterface": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "maxClock":       { "type": "number", "minimum": 0, "description": "Maximum SCL clock frequency, in Hz." },
-                "addressBits":    { "type": "integer", "enum": [7, 10] },
-                "defaultAddress": { "type": "integer", "minimum": 0 }
+                "maxClock": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum SCL clock frequency, in Hz."
+                },
+                "addressBits": {
+                    "type": "integer",
+                    "enum": [
+                        7,
+                        10
+                    ]
+                },
+                "defaultAddress": {
+                    "type": "integer",
+                    "minimum": 0
+                }
             }
         },
-
         "spiInterface": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "maxClock":  { "type": "number", "minimum": 0, "description": "Maximum SCK clock frequency, in Hz." },
-                "mode":      { "type": "integer", "enum": [0, 1, 2, 3], "description": "SPI mode (CPOL/CPHA pair encoded 0..3)." },
-                "wordWidth": { "type": "integer", "minimum": 1 }
+                "maxClock": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum SCK clock frequency, in Hz."
+                },
+                "mode": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "description": "SPI mode (CPOL/CPHA pair encoded 0..3)."
+                },
+                "wordWidth": {
+                    "type": "integer",
+                    "minimum": 1
+                }
             }
         },
-
         "mechanical": {
             "description": "Mechanical package data for the controller. Extends the shared datasheetInfoMechanical with an explicit packageType code.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "packageType": { "$ref": "./utils.json#/$defs/packageType" },
-                "length":      { "$ref": "./utils.json#/$defs/dimensionWithTolerance" },
-                "width":       { "$ref": "./utils.json#/$defs/dimensionWithTolerance" },
-                "height":      { "$ref": "./utils.json#/$defs/dimensionWithTolerance" },
-                "pinCount":    { "type": "integer", "minimum": 2 },
-                "assemblyType":{ "$ref": "./utils.json#/$defs/connectionType" }
+                "packageType": {
+                    "$ref": "./utils.json#/$defs/packageType"
+                },
+                "length": {
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "width": {
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "height": {
+                    "$ref": "./utils.json#/$defs/dimensionWithTolerance"
+                },
+                "pinCount": {
+                    "type": "integer",
+                    "minimum": 2
+                },
+                "assemblyType": {
+                    "$ref": "./utils.json#/$defs/connectionType"
+                }
             }
         }
     }

@@ -111,7 +111,7 @@ PEAS defines the universal contract:
 
 The `oneOf` discriminator pattern allows polymorphic references: any code or schema that accepts an PEAS document can handle any component type without knowing which one it is in advance.
 
-**Schema ID**: `http://openconverters.com/schemas/PEAS/peas.json`
+**Schema ID**: `https://psma.com/peas/peas.json`
 
 ---
 
@@ -132,7 +132,7 @@ MAS includes extensive databases of standard components (500+ core shapes, 50+ f
 
 The three-section pattern (`inputs` + `magnetic` + `outputs`) that MAS established became the template for all other component schemas.
 
-**Schema ID**: `http://openmagnetics.com/schemas/MAS.json`
+**Schema ID**: `https://psma.com/mas/MAS.json`
 **Component key in PEAS**: `magnetic`
 
 ---
@@ -150,7 +150,7 @@ SAS describes semiconductor devices used in power converters:
 - Thermal parameters (junction-to-case, junction-to-ambient thermal resistance)
 - SPICE model parameters
 
-**Schema ID**: `http://openconverters.com/schemas/SAS/SAS.json`
+**Schema ID**: `https://psma.com/sas/SAS.json`
 **Component key in PEAS**: `semiconductor`
 
 ---
@@ -168,7 +168,7 @@ CAS describes capacitor components:
 - Temperature characteristics (X5R, X7R, C0G, etc.)
 - Ripple current ratings and lifetime models
 
-**Schema ID**: `http://openconverters.com/schemas/CAS/CAS.json`
+**Schema ID**: `https://psma.com/cas/CAS.json`
 **Component key in PEAS**: `capacitor`
 
 ---
@@ -186,7 +186,7 @@ RAS describes resistor components:
 - Power derating curves (temperature vs. allowable power fraction)
 - Mechanical dimensions and assembly type
 
-**Schema ID**: `http://openconverters.com/schemas/RAS/RAS.json`
+**Schema ID**: `https://psma.com/ras/RAS.json`
 **Component key in PEAS**: `resistor`
 
 ---
@@ -210,7 +210,7 @@ Each component in the `componentList` has:
 
 The `netlist` section defines circuit topology by listing nodes and connecting component pins to those nodes.
 
-**Schema ID**: `http://openconverters.com/schemas/TAS/TAS.json`
+**Schema ID**: `https://psma.com/tas/TAS.json`
 
 ---
 
@@ -311,9 +311,9 @@ flowchart TD
     TAS --> Proteus
 ```
 
-- PEAS references MAS via its external URI (`http://openmagnetics.com/schemas/magnetic.json`)
+- PEAS references MAS via its external URI (`https://psma.com/mas/magnetic.json`)
 - PEAS references SAS, CAS, and RAS via local relative paths (`./semiconductor.json`, `./capacitor.json`, `./resistor.json`)
-- TAS references PEAS via its URI (`http://openconverters.com/schemas/PEAS/peas.json`)
+- TAS references PEAS via its URI (`https://psma.com/peas/peas.json`)
 - Proteus (the AI design system) orchestrates the entire ecosystem, using all schemas and computation libraries to produce complete converter designs
 
 ---

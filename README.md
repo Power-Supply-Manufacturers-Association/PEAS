@@ -71,7 +71,7 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 
 | Property Key | Schema | Component Type |
 |-------------|--------|----------------|
-| `magnetic` | MAS (`http://openmagnetics.com/schemas/magnetic.json`) | Inductors, transformers, chokes |
+| `magnetic` | MAS (`https://psma.com/mas/magnetic.json`) | Inductors, transformers, chokes |
 | `semiconductor` | SAS (`./semiconductor.json`) | MOSFETs, diodes, IGBTs, BJTs |
 | `capacitor` | CAS (`./capacitor.json`) | Ceramic, electrolytic, film capacitors |
 | `resistor` | RAS (`./resistor.json`) | Thin film, thick film, shunt, wirewound resistors |
@@ -164,7 +164,7 @@ PEAS was created to generalize the MAS pattern to all electronic component types
 - **SI units throughout**: Ohms, Watts, Volts, meters, Celsius
 - **JSON Schema 2020-12**: machine-validatable, self-documenting
 
-MAS lives in its own repository (`OpenMagnetics/MAS`) and is referenced by PEAS via the URI `http://openmagnetics.com/schemas/magnetic.json`. The other component schemas (SAS, CAS, RAS) live under `OpenConverters/`.
+MAS lives in its own repository (`OpenMagnetics/MAS`) and is referenced by PEAS via the URI `https://psma.com/mas/magnetic.json`. The other component schemas (SAS, CAS, RAS) live under `OpenConverters/`.
 
 ---
 
@@ -233,7 +233,7 @@ The complete PEAS schema (`schemas/peas.json`):
 ```json
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://openconverters.com/schemas/PEAS/peas.json",
+    "$id": "https://psma.com/peas/peas.json",
     "title": "PEAS",
     "description": "Power Electronics Agnostic Structure -- Universal container for any electronic component.",
     "type": "object",

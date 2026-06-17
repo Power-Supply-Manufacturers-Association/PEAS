@@ -45,7 +45,9 @@
             "required": [
                 "port",
                 "excitation"
-            ]
+            ],
+            "additionalProperties": false
         }
-    }
+    },
+    "additionalProperties": false
 }

@@ -195,7 +195,8 @@
                     "required": [
                         "amplitudes",
                         "frequencies"
-                    ]
+                    ],
+                    "additionalProperties": false
                 }
             },
             "anyOf": [
@@ -232,7 +233,8 @@
             },
             "required": [
                 "data"
-            ]
+            ],
+            "additionalProperties": false
         },
         "compressedWaveform": {
             "description": "Data containing the points that define an arbitrary waveform with non-equidistant points paired with their time in the period",
@@ -259,7 +261,8 @@
             "required": [
                 "data",
                 "time"
-            ]
+            ],
+            "additionalProperties": false
         }
     }
 }

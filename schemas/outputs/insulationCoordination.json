@@ -44,5 +44,6 @@
         "distanceThroughInsulation",
         "withstandVoltage"
     ],
-    "$defs": {}
+    "$defs": {},
+    "additionalProperties": false
 }

@@ -22,5 +22,6 @@
         "phase",
         "frequency"
     ],
-    "$defs": {}
+    "$defs": {},
+    "additionalProperties": false
 }

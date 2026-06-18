@@ -309,11 +309,8 @@
                     "description": "Product page URL."
                 },
                 "cost": {
-                    "type": [
-                        "number",
-                        "null"
-                    ],
-                    "description": "Unit cost in USD."
+                    "description": "Unit cost as a monetary value with explicit currency ({value, currency}). The currency is the code this distributor quotes in (derived from the distributor's country where not stated).",
+                    "$ref": "#/$defs/currencyAmount"
                 },
                 "stock": {
                     "type": [
@@ -446,15 +443,14 @@
             "additionalProperties": false
         },
         "datasheetInfoThermal": {
-            "description": "Shared thermal section for datasheetInfo: operating temperature as dimensionWithTolerance (minimum = min operating, maximum = max operating).",
+            "description": "Shared thermal section for datasheetInfo: operating temperature as dimensionWithTolerance (minimum = min operating, maximum = max operating). Open base — families extend by allOf and close the composed object with additionalProperties:false on the extension branch.",
             "type": "object",
             "properties": {
                 "operatingTemperature": {
                     "description": "Operating temperature range in degrees Celsius.",
                     "$ref": "#/$defs/dimensionWithTolerance"
                 }
-            },
-            "additionalProperties": false
+            }
         },
         "datasheetInfoMechanical": {
             "description": "Shared mechanical section for datasheetInfo: named dimensions as dimensionWithTolerance, assembly type, weight, and shape. Open base — families extend by allOf + unevaluatedProperties:false.",
@@ -499,8 +495,8 @@
                     "type": "string"
                 },
                 "series": {
-                    "description": "Product series or product-line name.",
-                    "type": "string"
+                    "description": "Product series or product-line name (null where the part has no distinct series).",
+                    "type": ["string", "null"]
                 },
                 "case": {
                     "description": "Package / case code (e.g. '0402', 'TO-220', 'DO-214AA').",
@@ -555,43 +551,42 @@
             "additionalProperties": false
         },
         "datasheetInfoLifetime": {
-            "description": "Reliability and lifetime parameters for components with wear-out mechanisms. Model: L = L0 × (V0/V)^aexp × exp(bexp × (1/T - 1/T0)). All lifetime values in hours unless stated.",
+            "description": "Reliability and lifetime parameters for components with wear-out mechanisms. Model: L = L0 × (V0/V)^aexp × exp(bexp × (1/T - 1/T0)). All lifetime values in hours unless stated. Open base — families extend by allOf and close the composed object on the extension branch. Numeric fields accept null (datasheets routinely omit individual model parameters).",
             "type": "object",
             "properties": {
                 "lifetimeEndurance": {
                     "description": "Rated endurance life in hours at rated conditions (voltage, temperature).",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "maxLifetime": {
                     "description": "Maximum expected service lifetime in years.",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "aexp": {
                     "description": "Voltage stress exponent for the lifetime model (exponent on V0/V ratio).",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "bexp": {
                     "description": "Temperature stress coefficient for the lifetime model (Arrhenius exponent).",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "deltaT0": {
                     "description": "Reference temperature differential ΔT0 in °C for the lifetime model.",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "kfactor": {
                     "description": "K factor (voltage derating exponent or scaling constant) for the lifetime model.",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "vxfactor": {
                     "description": "Vx factor for extended voltage lifetime model.",
-                    "type": "number"
+                    "type": ["number", "null"]
                 },
                 "usefulLife": {
                     "description": "Useful life in hours (IEC 62863 / IEC 61709 definition: time to specified end-of-life criteria).",
-                    "type": "number"
+                    "type": ["number", "null"]
                 }
-            },
-            "additionalProperties": false
+            }
         },
         "manufacturerInfo": {
             "description": "Shared manufacturer-info fields. Each component family builds its OWN closed manufacturerInfo by $ref-ing these field definitions (by JSON pointer) and adding its datasheetInfo; families do NOT allOf-extend this (incompatible with additionalProperties:false).",
@@ -628,6 +623,14 @@
                     "type": "string",
                     "format": "uri",
                     "description": "URL to manufacturer datasheet"
+                },
+                "family": {
+                    "type": "string",
+                    "description": "Manufacturer product family / product-line name (e.g. 'CoolMOS C7', 'WE-MAPI')."
+                },
+                "series": {
+                    "type": "string",
+                    "description": "Manufacturer product series within the family."
                 },
                 "spiceModel": {
                     "type": "object",

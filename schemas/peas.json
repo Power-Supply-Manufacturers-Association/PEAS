@@ -2,14 +2,14 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/peas.json",
     "title": "PEAS",
-    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller document is also a valid PEAS.",
+    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller / connector document is also a valid PEAS.",
     "type": "object",
     "required": [
         "inputs"
     ],
     "properties": {
         "inputs": {
-            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller) by the if/then clauses at the bottom of this schema.",
+            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal/connector) by the if/then clauses at the bottom of this schema.",
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -17,7 +17,7 @@
             ],
             "properties": {
                 "designRequirements": {
-                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal) is populated.",
+                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal/connector) is populated.",
                     "oneOf": [
                         {
                             "$ref": "https://psma.com/mas/inputs/designRequirements.json"
@@ -36,6 +36,9 @@
                         },
                         {
                             "$ref": "./terminal.json#/$defs/designRequirements"
+                        },
+                        {
+                            "$ref": "https://psma.com/coas/inputs/designRequirements.json"
                         }
                     ]
                 },
@@ -131,6 +134,17 @@
             },
             "required": [
                 "terminal"
+            ]
+        },
+        {
+            "description": "Connector — defined by COAS. Coexists with the lightweight 'terminal' branch: terminal is the abstract board-boundary point, connector is the physical orderable part.",
+            "properties": {
+                "connector": {
+                    "$ref": "https://psma.com/coas/connector.json"
+                }
+            },
+            "required": [
+                "connector"
             ]
         }
     ],
@@ -238,6 +252,24 @@
                         "properties": {
                             "designRequirements": {
                                 "$ref": "./terminal.json#/$defs/designRequirements"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "connector"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/coas/inputs/designRequirements.json"
                             }
                         }
                     }

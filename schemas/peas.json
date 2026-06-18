@@ -38,7 +38,7 @@
                             "$ref": "./terminal.json#/$defs/designRequirements"
                         },
                         {
-                            "$ref": "https://psma.com/coas/inputs/designRequirements.json"
+                            "$ref": "https://psma.com/conas/inputs/designRequirements.json"
                         }
                     ]
                 },
@@ -137,10 +137,10 @@
             ]
         },
         {
-            "description": "Connector — defined by COAS. Coexists with the lightweight 'terminal' branch: terminal is the abstract board-boundary point, connector is the physical orderable part.",
+            "description": "Connector — defined by CONAS. Coexists with the lightweight 'terminal' branch: terminal is the abstract board-boundary point, connector is the physical orderable part.",
             "properties": {
                 "connector": {
-                    "$ref": "https://psma.com/coas/connector.json"
+                    "$ref": "https://psma.com/conas/connector.json"
                 }
             },
             "required": [
@@ -269,7 +269,7 @@
                     "inputs": {
                         "properties": {
                             "designRequirements": {
-                                "$ref": "https://psma.com/coas/inputs/designRequirements.json"
+                                "$ref": "https://psma.com/conas/inputs/designRequirements.json"
                             }
                         }
                     }

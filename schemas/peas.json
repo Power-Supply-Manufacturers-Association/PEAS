@@ -32,7 +32,7 @@
                             "$ref": "https://psma.com/ras/inputs/designRequirements.json"
                         },
                         {
-                            "$ref": "./controller.json#/$defs/designRequirements"
+                            "$ref": "https://psma.com/ctas/inputs/designRequirements.json"
                         },
                         {
                             "$ref": "https://psma.com/conas/inputs/designRequirements.json"
@@ -112,10 +112,10 @@
             ]
         },
         {
-            "description": "Control IC (PWM / LLC / PFC / digital / gate-driver / voltage-reference / current-sense / opto-feedback / isolated amplifier / hot-swap). Inline PEAS branch today; candidate for extraction to a CtAS sibling repo once the schema has settled.",
+            "description": "Control IC (PWM / multiphase / LLC / PFC / phase-shift / sync-rectifier / digital / gate-driver / shunt-regulator / voltage-reference / current-sense / isolated amplifier / hot-swap / eFuse) — defined by CTAS. Extracted from the former inline PEAS branch into the CTAS sibling repo; CTAS owns the controller-family enums while reusing the PEAS shared primitives.",
             "properties": {
                 "controller": {
-                    "$ref": "./controller.json#/properties/controller"
+                    "$ref": "https://psma.com/ctas/controller.json"
                 }
             },
             "required": [
@@ -219,7 +219,7 @@
                     "inputs": {
                         "properties": {
                             "designRequirements": {
-                                "$ref": "./controller.json#/$defs/designRequirements"
+                                "$ref": "https://psma.com/ctas/inputs/designRequirements.json"
                             }
                         }
                     }

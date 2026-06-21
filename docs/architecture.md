@@ -107,7 +107,7 @@ sequenceDiagram
 PEAS defines the universal contract:
 - Every component has `inputs` (design requirements, operating conditions)
 - Every component has `outputs` (computed results)
-- Exactly one of four component-type keys must be present: `magnetic`, `semiconductor`, `capacitor`, or `resistor`
+- Exactly one component-type key must be present: `magnetic` (MAS), `semiconductor` (SAS), `capacitor` (CAS), `resistor` (RAS), `controller` (CTAS), or `connector` (CONAS)
 
 The `oneOf` discriminator pattern allows polymorphic references: any code or schema that accepts an PEAS document can handle any component type without knowing which one it is in advance.
 
@@ -188,6 +188,24 @@ RAS describes resistor components:
 
 **Schema ID**: `https://psma.com/ras/RAS.json`
 **Component key in PEAS**: `resistor`
+
+---
+
+### CTAS -- Controller Agnostic Structure
+
+**Repository**: `OpenConverters/CTAS/`
+**Schema**: `schemas/CTAS.json`
+**Role**: Control ICs -- PWM / multiphase / LLC / PFC / phase-shift / sync-rectifier controllers, isolated & non-isolated gate drivers, digital/PMBus controllers, shunt regulators, voltage references, current-sense & isolated amplifiers, hot-swap / eFuse controllers
+
+CTAS describes the control-IC half of a converter, with one agnostic schema discriminated internally on `function.category`:
+- Functional class, intended topologies, modulation / conduction mode, channel & phase count
+- Common electricals (supply, switching-frequency band, duty, reference, soft-start) plus category-gated capability sub-objects (`gateDrive`, `isolation`, `currentMode`, `shuntReference`, `hotSwap`, `senseAmplifier`, `syncRectifier`, `pfc`, `loadLine`, ...)
+- On-die protections, slim pin map, digital interface + telemetry, thermal / mechanical / compliance
+
+CTAS was extracted from the former inline `PEAS/schemas/controller.json` branch; PEAS now references it by `$id`. CTAS owns the controller-family vocabularies and reuses the PEAS shared primitives.
+
+**Schema ID**: `https://psma.com/ctas/CTAS.json`
+**Component key in PEAS**: `controller`
 
 ---
 

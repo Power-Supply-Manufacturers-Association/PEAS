@@ -259,7 +259,10 @@
                     "description": "Operating conditions under which this curve was measured (e.g. {\"temperature\": 25, \"voltage\": 5}). Keys are condition names; values are numeric quantities in SI units unless the key name implies otherwise.",
                     "type": "object",
                     "additionalProperties": {
-                        "type": ["number", "string"]
+                        "type": [
+                            "number",
+                            "string"
+                        ]
                     }
                 }
             }
@@ -496,7 +499,10 @@
                 },
                 "series": {
                     "description": "Product series or product-line name (null where the part has no distinct series).",
-                    "type": ["string", "null"]
+                    "type": [
+                        "string",
+                        "null"
+                    ]
                 },
                 "case": {
                     "description": "Package / case code (e.g. '0402', 'TO-220', 'DO-214AA').",
@@ -507,7 +513,9 @@
                     "type": "string"
                 }
             },
-            "required": ["partNumber"]
+            "required": [
+                "partNumber"
+            ]
         },
         "datasheetInfoThermalSemiconductor": {
             "description": "Semiconductor-specific thermal section for datasheetInfo: junction thermal resistances, temperature limits, and an optional Foster RC-ladder model.",
@@ -539,10 +547,19 @@
                     "items": {
                         "type": "object",
                         "properties": {
-                            "resistance": { "type": "number", "description": "Thermal resistance of this cell, in K/W." },
-                            "timeConstant": { "type": "number", "description": "Thermal time constant of this cell, in seconds." }
+                            "resistance": {
+                                "type": "number",
+                                "description": "Thermal resistance of this cell, in K/W."
+                            },
+                            "timeConstant": {
+                                "type": "number",
+                                "description": "Thermal time constant of this cell, in seconds."
+                            }
                         },
-                        "required": ["resistance", "timeConstant"],
+                        "required": [
+                            "resistance",
+                            "timeConstant"
+                        ],
                         "additionalProperties": false
                     },
                     "minItems": 1
@@ -556,35 +573,59 @@
             "properties": {
                 "lifetimeEndurance": {
                     "description": "Rated endurance life in hours at rated conditions (voltage, temperature).",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "maxLifetime": {
                     "description": "Maximum expected service lifetime in years.",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "aexp": {
                     "description": "Voltage stress exponent for the lifetime model (exponent on V0/V ratio).",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "bexp": {
                     "description": "Temperature stress coefficient for the lifetime model (Arrhenius exponent).",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "deltaT0": {
                     "description": "Reference temperature differential ΔT0 in °C for the lifetime model.",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "kfactor": {
                     "description": "K factor (voltage derating exponent or scaling constant) for the lifetime model.",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "vxfactor": {
                     "description": "Vx factor for extended voltage lifetime model.",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 },
                 "usefulLife": {
                     "description": "Useful life in hours (IEC 62863 / IEC 61709 definition: time to specified end-of-life criteria).",
-                    "type": ["number", "null"]
+                    "type": [
+                        "number",
+                        "null"
+                    ]
                 }
             }
         },
@@ -1063,18 +1104,6 @@
             ],
             "additionalProperties": false
         },
-        "protectionMode": {
-            "description": "Recovery mode of a protection (OVP/OCP/OTP/SCP/UVLO/OPP).",
-            "type": "string",
-            "title": "protectionMode",
-            "enum": [
-                "hiccup",
-                "latch",
-                "autorestart",
-                "foldback",
-                "constantCurrent"
-            ]
-        },
         "reliabilityStandard": {
             "description": "Reliability prediction standard.",
             "type": "string",
@@ -1087,180 +1116,6 @@
                 "FIDES-2009",
                 "RIAC-217Plus"
             ]
-        },
-        "controllerCategory": {
-            "description": "Functional category of a control IC. Derived from a survey of TI / Analog Devices / Onsemi / Infineon / Renesas controller product families.",
-            "type": "string",
-            "title": "controllerCategory",
-            "enum": [
-                "pwmController",
-                "llcController",
-                "pfcController",
-                "dualPwmController",
-                "phaseShiftController",
-                "syncRectifierController",
-                "gateDriver",
-                "digitalController",
-                "secondaryFeedbackController",
-                "currentSenseAmplifier",
-                "voltageReference",
-                "optocouplerFeedback",
-                "isolatedAmplifier",
-                "hotSwapController"
-            ]
-        },
-        "controllerModulation": {
-            "description": "Modulation / control scheme implemented by the controller. notApplicable is used for parts that do not modulate (voltage references, current-sense amps, gate drivers, opto feedback).",
-            "type": "string",
-            "title": "controllerModulation",
-            "enum": [
-                "voltageMode",
-                "peakCurrentMode",
-                "averageCurrentMode",
-                "hysteretic",
-                "constantOnTime",
-                "constantOffTime",
-                "chargeMode",
-                "frequencyModulation",
-                "phaseShiftedPwm",
-                "digital",
-                "notApplicable"
-            ]
-        },
-        "controllerConductionMode": {
-            "description": "Conduction mode the controller is designed for.",
-            "type": "string",
-            "title": "controllerConductionMode",
-            "enum": [
-                "ccm",
-                "dcm",
-                "crcm",
-                "quasiResonant",
-                "multimode",
-                "notApplicable"
-            ]
-        },
-        "controllerSyncRectification": {
-            "description": "Synchronous-rectification support offered by the controller.",
-            "type": "string",
-            "title": "controllerSyncRectification",
-            "enum": [
-                "none",
-                "builtIn",
-                "external",
-                "controlOnly"
-            ]
-        },
-        "controllerIsolation": {
-            "description": "Position of the controller relative to the isolation barrier.",
-            "type": "string",
-            "title": "controllerIsolation",
-            "enum": [
-                "none",
-                "primarySide",
-                "secondarySide",
-                "primaryToSecondary"
-            ]
-        },
-        "controllerPinFunction": {
-            "description": "Canonical function of one pin of a control IC. Vocabulary covers every pin function published by mainstream PWM / LLC / PFC / digital controllers, isolated gate drivers, and PMBus telemetry parts.",
-            "type": "string",
-            "title": "controllerPinFunction",
-            "enum": [
-                "vcc",
-                "vdd",
-                "vddLow",
-                "vddHigh",
-                "vbias",
-                "vin",
-                "gnd",
-                "pgnd",
-                "agnd",
-                "feedback",
-                "compensation",
-                "currentSense",
-                "currentSensePositive",
-                "currentSenseNegative",
-                "gateHighSide",
-                "gateLowSide",
-                "gate",
-                "bootstrap",
-                "switchNode",
-                "enable",
-                "syncIn",
-                "syncOut",
-                "rt",
-                "ct",
-                "rtct",
-                "softStart",
-                "slopeCompensation",
-                "frequencySet",
-                "modeSelect",
-                "pmbusData",
-                "pmbusClock",
-                "pmbusAlert",
-                "smbusData",
-                "smbusClock",
-                "i2cData",
-                "i2cClock",
-                "spiClock",
-                "spiMosi",
-                "spiMiso",
-                "spiCs",
-                "address",
-                "vref",
-                "vrefBuffered",
-                "tempSense",
-                "tempReport",
-                "iSense",
-                "vSense",
-                "powerGood",
-                "fault",
-                "brownOut",
-                "lineSense",
-                "zeroCrossingDetect",
-                "auxiliaryWinding",
-                "demagDetect",
-                "noConnect"
-            ]
-        },
-        "controllerProtectionKind": {
-            "description": "Built-in protection kinds reported on a control IC. Superset of the converter-level protectionMode user, narrowed to events a controller can detect on its own pins.",
-            "type": "string",
-            "title": "controllerProtectionKind",
-            "enum": [
-                "ovp",
-                "uvp",
-                "ocp",
-                "scp",
-                "otp",
-                "uvlo",
-                "opp",
-                "brownOut",
-                "restartTimer",
-                "frequencyFoldback"
-            ]
-        },
-        "telemetryChannel": {
-            "description": "Telemetry quantity reported over a digital interface (PMBus / I2C / SPI).",
-            "type": "string",
-            "title": "telemetryChannel",
-            "enum": [
-                "voltage",
-                "current",
-                "temperature",
-                "power",
-                "energy",
-                "frequency",
-                "dutyCycle",
-                "faultStatus"
-            ]
-        },
-        "packageType": {
-            "description": "Mechanical package code. Open vocabulary using standard JEDEC / EIA / manufacturer designators (SOIC-8, SOIC-14, MSOP-10, TSSOP-14, QFN-16, QFN-24, DFN-10, LQFP-32, TO-220, TO-247, DPAK, D2PAK, BGA, etc.).",
-            "type": "string",
-            "title": "packageType",
-            "minLength": 1
         },
         "semiconductorSubApplication": {
             "description": "Semiconductor sub-application narrowing.",

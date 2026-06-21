@@ -9,7 +9,7 @@
     ],
     "properties": {
         "inputs": {
-            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal/connector) by the if/then clauses at the bottom of this schema.",
+            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector) by the if/then clauses at the bottom of this schema.",
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -17,7 +17,7 @@
             ],
             "properties": {
                 "designRequirements": {
-                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/terminal/connector) is populated.",
+                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector) is populated.",
                     "oneOf": [
                         {
                             "$ref": "https://psma.com/mas/inputs/designRequirements.json"
@@ -33,9 +33,6 @@
                         },
                         {
                             "$ref": "./controller.json#/$defs/designRequirements"
-                        },
-                        {
-                            "$ref": "./terminal.json#/$defs/designRequirements"
                         },
                         {
                             "$ref": "https://psma.com/conas/inputs/designRequirements.json"
@@ -126,18 +123,7 @@
             ]
         },
         {
-            "description": "Board terminal (screw terminal, solder pad, header, edge-card finger, connector). Inline PEAS branch today; first-class because every wire that crosses the converter boundary terminates at a real terminal with measurable resistance, current rating, and thermal mass.",
-            "properties": {
-                "terminal": {
-                    "$ref": "./terminal.json#/properties/terminal"
-                }
-            },
-            "required": [
-                "terminal"
-            ]
-        },
-        {
-            "description": "Connector — defined by CONAS. Coexists with the lightweight 'terminal' branch: terminal is the abstract board-boundary point, connector is the physical orderable part.",
+            "description": "Connector — defined by CONAS. Covers the full range of board-boundary conductors: screw terminals (terminalBlock), solder pads, pin headers, edge-card, wire-to-board, RF, power, etc. A minimal Tier-1-only CONAS doc (connector: {}) with inputs.designRequirements (connectorFamily + electrical ratings) is valid for pre-librarian abstract-boundary seeds; manufacturerInfo is populated after librarian binding.",
             "properties": {
                 "connector": {
                     "$ref": "https://psma.com/conas/connector.json"
@@ -234,24 +220,6 @@
                         "properties": {
                             "designRequirements": {
                                 "$ref": "./controller.json#/$defs/designRequirements"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "required": [
-                    "terminal"
-                ]
-            },
-            "then": {
-                "properties": {
-                    "inputs": {
-                        "properties": {
-                            "designRequirements": {
-                                "$ref": "./terminal.json#/$defs/designRequirements"
                             }
                         }
                     }

@@ -2,14 +2,14 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/peas.json",
     "title": "PEAS",
-    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller / connector document is also a valid PEAS.",
+    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller / connector / analog document is also a valid PEAS.",
     "type": "object",
     "required": [
         "inputs"
     ],
     "properties": {
         "inputs": {
-            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector) by the if/then clauses at the bottom of this schema.",
+            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog) by the if/then clauses at the bottom of this schema.",
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -17,7 +17,7 @@
             ],
             "properties": {
                 "designRequirements": {
-                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector) is populated.",
+                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog) is populated.",
                     "oneOf": [
                         {
                             "$ref": "https://psma.com/mas/inputs/designRequirements.json"
@@ -36,6 +36,9 @@
                         },
                         {
                             "$ref": "https://psma.com/conas/inputs/designRequirements.json"
+                        },
+                        {
+                            "$ref": "https://psma.com/aas/inputs/designRequirements.json"
                         }
                     ]
                 },
@@ -131,6 +134,17 @@
             },
             "required": [
                 "connector"
+            ]
+        },
+        {
+            "description": "Analog IC (op amp, comparator, instrumentation/difference amp, PGA, buffer/line driver, sample-and-hold, analog switch, multiplexer, ADC, DAC) — generic analog/linear parts, defined by AAS. Distinct from CTAS (power-control ICs) and SAS (discrete power semiconductors).",
+            "properties": {
+                "analog": {
+                    "$ref": "https://psma.com/aas/AAS.json"
+                }
+            },
+            "required": [
+                "analog"
             ]
         }
     ],
@@ -238,6 +252,24 @@
                         "properties": {
                             "designRequirements": {
                                 "$ref": "https://psma.com/conas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "analog"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/aas/inputs/designRequirements.json"
                             }
                         }
                     }

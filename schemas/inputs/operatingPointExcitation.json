@@ -86,6 +86,7 @@
                     ]
                 },
                 "processed": {
+                    "title": "processedWaveform",
                     "type": "object",
                     "properties": {
                         "label": {
@@ -172,6 +173,7 @@
                     ]
                 },
                 "harmonics": {
+                    "title": "harmonics",
                     "description": "Data containing the harmonics of the waveform, defined by a list of amplitudes and a list of frequencies",
                     "type": "object",
                     "properties": {
@@ -213,6 +215,7 @@
             ]
         },
         "equidistantWaveform": {
+            "title": "equidistantWaveform",
             "description": "Data containing the points that define an arbitrary waveform with equidistant points",
             "type": "object",
             "properties": {
@@ -237,6 +240,7 @@
             "additionalProperties": false
         },
         "compressedWaveform": {
+            "title": "compressedWaveform",
             "description": "Data containing the points that define an arbitrary waveform with non-equidistant points paired with their time in the period",
             "type": "object",
             "properties": {

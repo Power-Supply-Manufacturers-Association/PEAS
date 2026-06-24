@@ -346,3 +346,20 @@ To add a new component type (e.g., a connector or sensor schema):
 4. Add corresponding roles in `TAS/schemas/components.json`
 
 The PEAS abstraction means that TAS and all higher-level tools automatically support the new type once PEAS is updated.
+## Provenance (data-source trail)
+
+Every `datasheetInfo` carries an optional `provenance` array recording where its data
+came from. Optional and closed, so records without it remain valid. Each entry:
+
+| field | meaning |
+|---|---|
+| `source` | `manufacturerDatasheet` · `manufacturerParametric` · `manufacturerDatabase` · `distributor` · `librarianEnrichment` · `scrape` · `manual` |
+| `sourceName` | human-readable source, e.g. `"TI parametric API"`, `"WE - Passive Components.mdb"`, `"DigiKey"` |
+| `sourceUrl` | URL the value came from (optional) |
+| `retrievedDate` | `YYYY-MM-DD` (optional) |
+| `fields` | which `datasheetInfo` fields this source supplied — for mixed-source records (optional) |
+
+It is a **list**: a record may combine sources (e.g. specs from the datasheet, a rated
+voltage from a distributor, a missing field back-filled by librarian enrichment). The
+canonical definition lives in `PEAS/schemas/utils.json#/$defs/provenance` (mirrored in
+`MAS/schemas/utils.json`, which is self-contained).

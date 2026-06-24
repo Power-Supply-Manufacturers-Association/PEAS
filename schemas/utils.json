@@ -1151,6 +1151,59 @@
                 "bodyDiode",
                 "inrushLimiter"
             ]
+        },
+        "provenance": {
+            "title": "provenance",
+            "description": "Data-provenance trail for this part's datasheetInfo. A list, because different fields may come from different sources (e.g. core specs from the manufacturer datasheet, current rating from a distributor, a missing field back-filled by librarian enrichment).",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "source": {
+                        "description": "Kind of source this data came from.",
+                        "type": "string",
+                        "enum": [
+                            "manufacturerDatasheet",
+                            "manufacturerParametric",
+                            "manufacturerDatabase",
+                            "distributor",
+                            "librarianEnrichment",
+                            "scrape",
+                            "manual"
+                        ]
+                    },
+                    "sourceName": {
+                        "description": "Human-readable source identifier, e.g. 'TI parametric API', 'WE - Passive Components.mdb', 'DigiKey'.",
+                        "type": "string"
+                    },
+                    "sourceUrl": {
+                        "description": "URL the data was retrieved from, if applicable.",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uri"
+                    },
+                    "retrievedDate": {
+                        "description": "Date the data was retrieved (YYYY-MM-DD).",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "fields": {
+                        "description": "Optional: which datasheetInfo fields this source provided (for mixed-source records).",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "source"
+                ]
+            }
         }
     }
 }

@@ -16,6 +16,7 @@
 
 #include <optional>
 #include <stdexcept>
+#include <nlohmann/json.hpp>
 
 namespace PEAS {
 
@@ -51,6 +52,28 @@ double resolve_dimensional_values(const Dim& d, DimensionalValues preferred = Di
 // Pass-through for fields that are already a bare scalar.
 inline double resolve_dimensional_values(double value, DimensionalValues = DimensionalValues::NOMINAL) {
     return value;
+}
+
+// JSON overload — same MKF semantics for code that holds the dimensionWithTolerance as raw nlohmann::json
+// (a {nominal,minimum,maximum} object) or a bare number, rather than the generated struct. Lets json-based
+// consumers stop hand-reading nominal/minimum/maximum and share the one canonical resolution rule.
+inline double resolve_dimensional_values(const nlohmann::json& j,
+                                         DimensionalValues preferred = DimensionalValues::NOMINAL) {
+    if (j.is_number()) return j.get<double>();
+    auto opt = [&](const char* k) -> std::optional<double> {
+        if (j.is_object() && j.contains(k) && j.at(k).is_number()) return j.at(k).get<double>();
+        return std::nullopt;
+    };
+    const std::optional<double> nom = opt("nominal"), lo = opt("minimum"), hi = opt("maximum");
+    switch (preferred) {
+        case DimensionalValues::MAXIMUM:
+            if (hi) return *hi; if (nom) return *nom; if (lo) return *lo; break;
+        case DimensionalValues::NOMINAL:
+            if (nom) return *nom; if (hi && lo) return 0.5 * (*hi + *lo); if (hi) return *hi; if (lo) return *lo; break;
+        case DimensionalValues::MINIMUM:
+            if (lo) return *lo; if (nom) return *nom; if (hi) return *hi; break;
+    }
+    throw std::runtime_error("resolve_dimensional_values(json): dimension has no minimum/nominal/maximum");
 }
 
 } // namespace PEAS

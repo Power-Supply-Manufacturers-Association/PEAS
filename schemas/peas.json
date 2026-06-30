@@ -356,6 +356,32 @@
                             }
                         }
                     }
+                },
+                {
+                    "description": "Static nonlinear I-V (conductance) relation i(v) as a piecewise-linear table — e.g. a varistor/TVS/ESD clamping curve obtained by characterizing the device's terminals (model-order reduction of a behavioral macromodel). Points are strictly increasing in voltage; consumers interpolate. CiasCircuitConverter emits: ngspice -> B-source I=pwl(v(a,b), v1,i1, v2,i2, ...); LTspice -> behavioral current source with a table().",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["nature", "points"],
+                    "properties": {
+                        "nature": {
+                            "type": "string",
+                            "const": "conductance"
+                        },
+                        "points": {
+                            "type": "array",
+                            "minItems": 2,
+                            "description": "I-V breakpoints, strictly increasing in voltage.",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["voltage", "current"],
+                                "properties": {
+                                    "voltage": { "type": "number", "description": "Terminal voltage v across the device [V]." },
+                                    "current": { "type": "number", "description": "Current i through the device at v [A]." }
+                                }
+                            }
+                        }
+                    }
                 }
             ]
         },

@@ -358,26 +358,36 @@
                     }
                 },
                 {
-                    "description": "Static nonlinear I-V (conductance) relation i(v) as a piecewise-linear table — e.g. a varistor/TVS/ESD clamping curve obtained by characterizing the device's terminals (model-order reduction of a behavioral macromodel). Points are strictly increasing in voltage; consumers interpolate. CiasCircuitConverter emits: ngspice -> B-source I=pwl(v(a,b), v1,i1, v2,i2, ...); LTspice -> behavioral current source with a table().",
+                    "description": "Controlled / dependent source: an ideal behavioral source whose value is a function of THIS component's own terminal voltages and currents only (composable — it never reaches into external nets). Subsumes VCVS/VCCS/CCVS/CCCS and nonlinear behavioral relations (op-amp gain, current mirror, gyrator, varistor/TVS clamp i(v)). The expression references own pins as v(p,q) (voltage between own pins) and i(p,q) (current into pin p via the p->q branch) plus standard math and pwl(x, x1,y1, ...). Finite input/output impedance is modeled with sibling R/C components, not here. CiasCircuitConverter emits a B-source between the 'across' pins (V= or I=), substituting v()/i() with the wired nodes and synthesising a 0 V sense for each i(); pwl maps to LTspice table().",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "points"],
+                    "required": ["nature", "output"],
                     "properties": {
                         "nature": {
                             "type": "string",
-                            "const": "conductance"
+                            "const": "controlled"
                         },
-                        "points": {
-                            "type": "array",
-                            "minItems": 2,
-                            "description": "I-V breakpoints, strictly increasing in voltage.",
-                            "items": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "required": ["voltage", "current"],
-                                "properties": {
-                                    "voltage": { "type": "number", "description": "Terminal voltage v across the device [V]." },
-                                    "current": { "type": "number", "description": "Current i through the device at v [A]." }
+                        "output": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["quantity", "across", "expression"],
+                            "properties": {
+                                "quantity": {
+                                    "type": "string",
+                                    "enum": ["voltage", "current"],
+                                    "description": "'voltage' forces V(across[0],across[1]) = expression; 'current' injects I from across[0] to across[1] = expression."
+                                },
+                                "across": {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "items": { "type": "string", "minLength": 1 },
+                                    "description": "The two OWN pin names the source is applied between."
+                                },
+                                "expression": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Function of this component's own terminals only: v(p,q), i(p,q), standard math, pwl(x, x1,y1, x2,y2, ...). E.g. VCVS 'gain*v(inp,inn)', VCCS 'gm*v(inp,inn)', CCVS 'r*i(inp,inn)', CCCS 'beta*i(inp,inn)', clamp 'pwl(v(a,b), v1,i1, ...)'."
                                 }
                             }
                         }

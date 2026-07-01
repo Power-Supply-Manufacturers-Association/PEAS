@@ -157,6 +157,17 @@
             "required": [
                 "behavioral"
             ]
+        },
+        {
+            "description": "Distributed transmission line (lossy or lossless; SPICE O / .model LTRA) — a 2-port element defined by per-unit-length RLGC and a length. A PEAS-native primitive with no external family schema.",
+            "properties": {
+                "transmissionLine": {
+                    "$ref": "#/$defs/transmissionLine"
+                }
+            },
+            "required": [
+                "transmissionLine"
+            ]
         }
     ],
     "allOf": [
@@ -327,7 +338,7 @@
                         "expression": {
                             "type": "string",
                             "minLength": 1,
-                            "description": "Analytic expression using i (port current [A]), v (branch voltage [V]), and standard math functions. E.g. '1e-9*i*(12.897*exp(-0.04309*abs(i))+119.58*exp(-0.8347*abs(i)))'."
+                            "description": "Analytic expression using i (this component's own port current [A]), v (its branch voltage [V]), i(<designator>) (the branch current of a sibling 'source' component in the same brick — e.g. a shared port-current sense), and standard math functions. E.g. '1e-9*i*(12.897*exp(-0.04309*abs(i))+119.58*exp(-0.8347*abs(i)))'."
                         }
                     }
                 },
@@ -358,7 +369,7 @@
                     }
                 },
                 {
-                    "description": "Controlled / dependent source: an ideal behavioral source whose value is a function of THIS component's own terminal voltages and currents only (composable — it never reaches into external nets). Subsumes VCVS/VCCS/CCVS/CCCS and nonlinear behavioral relations (op-amp gain, current mirror, gyrator, varistor/TVS clamp i(v)). The expression references own pins as v(p,q) (voltage between own pins) and i(p,q) (current into pin p via the p->q branch) plus standard math and pwl(x, x1,y1, ...). Finite input/output impedance is modeled with sibling R/C components, not here. CiasCircuitConverter emits a B-source between the 'across' pins (V= or I=), substituting v()/i() with the wired nodes and synthesising a 0 V sense for each i(); pwl maps to LTspice table().",
+                    "description": "Controlled / dependent source: an ideal behavioral source whose value is a function of THIS component's own terminal voltages and currents, plus (by name) the branch current of a sibling 'source' component in the same brick — it never reaches into arbitrary external nets. Subsumes VCVS/VCCS/CCVS/CCCS and nonlinear behavioral relations (op-amp gain, current mirror, gyrator, varistor/TVS clamp i(v)). The expression references own pins as v(p,q) (voltage between own pins) and i(p,q) (current into pin p via the p->q branch) plus standard math and pwl(x, x1,y1, ...). Finite input/output impedance is modeled with sibling R/C components, not here. CiasCircuitConverter emits a B-source between the 'across' pins (V= or I=), substituting v()/i() with the wired nodes and synthesising a 0 V sense for each i(); pwl maps to LTspice table().",
                     "type": "object",
                     "additionalProperties": false,
                     "required": ["nature", "output"],
@@ -387,13 +398,101 @@
                                 "expression": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "description": "Function of this component's own terminals only: v(p,q), i(p,q), standard math, pwl(x, x1,y1, x2,y2, ...). E.g. VCVS 'gain*v(inp,inn)', VCCS 'gm*v(inp,inn)', CCVS 'r*i(inp,inn)', CCCS 'beta*i(inp,inn)', clamp 'pwl(v(a,b), v1,i1, ...)'."
+                                    "description": "Function of this component's own terminals, plus named sibling current senses: v(p,q), i(p,q), i(<designator>) (the branch current of a sibling 'source' component in the same brick — e.g. a shared port-current sense), standard math, pwl(x, x1,y1, x2,y2, ...). E.g. VCVS 'gain*v(inp,inn)', VCCS 'gm*v(inp,inn)', CCVS 'r*i(inp,inn)', CCCS 'beta*i(inp,inn)', clamp 'pwl(v(a,b), v1,i1, ...)'."
                                 }
                             }
                         }
                     }
+                },
+                {
+                    "description": "Fixed internal source that is part of a component macromodel (NOT external stimulus — that enters via ports/TAS). nature='source' forces a constant voltage across, or current through, its 'across' pins. A voltage source of value 0 is an ideal ammeter (current sense): its branch current is referenceable from a sibling behavioral expression as i(<designator>). CiasCircuitConverter emits V<name> a b <value> (voltage) or I<name> a b <value> (current).",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["nature", "quantity", "across", "value"],
+                    "properties": {
+                        "nature": {
+                            "type": "string",
+                            "const": "source"
+                        },
+                        "quantity": {
+                            "type": "string",
+                            "enum": ["voltage", "current"],
+                            "description": "'voltage' forces V(across[0],across[1]) = value; 'current' injects I from across[0] to across[1] = value."
+                        },
+                        "across": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "type": "string", "minLength": 1 },
+                            "description": "The two OWN pin names the source is applied between."
+                        },
+                        "value": {
+                            "type": "number",
+                            "description": "Constant value [V] or [A]. Use 0 for a pure current sense (ideal ammeter)."
+                        }
+                    }
+                },
+                {
+                    "description": "Voltage-controlled hysteretic switch (SPICE S / .model SW). Conducts 'ron' once V(control) rises through vOn and 'roff' once it falls through vOff; the vOn/vOff gap is the hysteresis that makes ESD snapback protection work. Four own pins: the switched path 'across' and the controlling pair 'control'. CiasCircuitConverter emits S<name> across+ across- control+ control- <model> + .model <model> SW(Ron= Roff= Von= Voff=).",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["nature", "across", "control", "ron", "roff", "vOn", "vOff"],
+                    "properties": {
+                        "nature": {
+                            "type": "string",
+                            "const": "switch"
+                        },
+                        "across": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "type": "string", "minLength": 1 },
+                            "description": "The two OWN pins of the switched path."
+                        },
+                        "control": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "type": "string", "minLength": 1 },
+                            "description": "The two OWN pins whose voltage controls the switch."
+                        },
+                        "ron":  { "type": "number", "exclusiveMinimum": 0, "description": "On-state resistance [Ω]." },
+                        "roff": { "type": "number", "exclusiveMinimum": 0, "description": "Off-state resistance [Ω]." },
+                        "vOn":  { "type": "number", "description": "Control voltage [V] at/above which the switch turns on." },
+                        "vOff": { "type": "number", "description": "Control voltage [V] at/below which the switch turns off." }
+                    }
                 }
             ]
+        },
+        "transmissionLine": {
+            "title": "transmissionLine",
+            "description": "Distributed 2-port transmission line (SPICE O / .model LTRA). Four pins: in+, in-, out+, out-. 'kind' selects the loss model; 'lossy' carries per-unit-length R/L/C(/G) and a length. CiasCircuitConverter emits O<name> in+ in- out+ out- <model> + .model <model> LTRA(len=… R=… L=… C=… G=…).",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "length", "perUnitLength"],
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "enum": ["lossy", "lossless"],
+                    "description": "Loss model: 'lossy' (RLGC per unit length) or 'lossless' (LC only)."
+                },
+                "length": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Physical line length [m]."
+                },
+                "perUnitLength": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["resistance", "inductance", "capacitance"],
+                    "properties": {
+                        "resistance":  { "type": "number", "minimum": 0, "description": "R [Ω/m] — series resistance per unit length." },
+                        "inductance":  { "type": "number", "minimum": 0, "description": "L [H/m] — series inductance per unit length." },
+                        "capacitance": { "type": "number", "minimum": 0, "description": "C [F/m] — shunt capacitance per unit length." },
+                        "conductance": { "type": "number", "minimum": 0, "description": "G [S/m] — shunt conductance per unit length (default 0)." }
+                    }
+                }
+            }
         },
         "behavioralTemperatureValue": {
             "title": "behavioralTemperatureValue",

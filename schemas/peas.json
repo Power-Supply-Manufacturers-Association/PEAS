@@ -461,6 +461,49 @@
                         "vOn":  { "type": "number", "description": "Control voltage [V] at/above which the switch turns on." },
                         "vOff": { "type": "number", "description": "Control voltage [V] at/below which the switch turns off." }
                     }
+                },
+                {
+                    "description": "Frequency-domain controlled source (SPICE E/G FREQ table). Output = H(f)*control, where H(f) is a tabulated complex transfer function — one entry of a Touchstone S-matrix (e.g. a WE-CLFS filter's S_ij). CiasCircuitConverter emits E<name> across+ across- FREQ {V(control+,control-)}= MAG (f mag phase)(...), converting the stored linear magnitude and radian phase to the target's convention.",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["nature", "quantity", "across", "control", "points"],
+                    "properties": {
+                        "nature": { "type": "string", "const": "frequencyResponse" },
+                        "quantity": {
+                            "type": "string",
+                            "enum": ["voltage", "current"],
+                            "description": "'voltage' forces V(across[0],across[1]) = H(f)*V(control); 'current' injects that current from across[0] to across[1]."
+                        },
+                        "across": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "type": "string", "minLength": 1 },
+                            "description": "The two OWN output pins."
+                        },
+                        "control": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": { "type": "string", "minLength": 1 },
+                            "description": "The two OWN pins whose voltage is the controlling input V(control[0],control[1])."
+                        },
+                        "points": {
+                            "type": "array",
+                            "minItems": 1,
+                            "description": "Tabulated transfer function H(f), one entry per frequency, ascending.",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["frequency", "magnitude", "phase"],
+                                "properties": {
+                                    "frequency": { "type": "number" },
+                                    "magnitude": { "type": "number", "description": "Linear (dimensionless) gain magnitude, not dB." },
+                                    "phase":     { "type": "number", "description": "Phase angle, radians." }
+                                }
+                            }
+                        }
+                    }
                 }
             ]
         },

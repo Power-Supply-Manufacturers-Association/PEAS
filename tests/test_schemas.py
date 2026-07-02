@@ -17,7 +17,7 @@ from referencing.jsonschema import DRAFT202012
 
 REPO = Path(__file__).resolve().parents[1]
 WORKSPACE = REPO.parent
-SIBLINGS = ["PEAS", "MAS", "CAS", "SAS", "RAS", "AAS", "CTAS", "CONAS", "TAS", "CIAS", "COAS"]
+SIBLINGS = ["PEAS", "MAS", "CAS", "SAS", "RAS", "AAS", "CTAS", "CONAS", "TBAS", "TAS", "CIAS", "COAS"]
 PEAS_SCHEMAS = sorted(REPO.glob("schemas/**/*.json"))
 
 

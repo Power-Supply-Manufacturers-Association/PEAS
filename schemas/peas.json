@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/peas.json",
     "title": "PEAS",
-    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller / connector / analog document is also a valid PEAS.",
+    "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller / connector / analog / timeBase document is also a valid PEAS.",
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -10,7 +10,7 @@
     ],
     "properties": {
         "inputs": {
-            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog) by the if/then clauses at the bottom of this schema.",
+            "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog/timeBase) by the if/then clauses at the bottom of this schema.",
             "type": "object",
             "additionalProperties": false,
             "required": [
@@ -18,7 +18,7 @@
             ],
             "properties": {
                 "designRequirements": {
-                    "description": "Family-specific design-requirements seed. Its exact shape is pinned to the populated discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog/behavioral/transmissionLine) by the if/then clauses at the bottom of this schema — every branch has a pin, so no property-level union is needed (a union here would double-match empty seeds across permissive families).",
+                    "description": "Family-specific design-requirements seed. Its exact shape is pinned to the populated discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog/timeBase/behavioral/transmissionLine) by the if/then clauses at the bottom of this schema — every branch has a pin, so no property-level union is needed (a union here would double-match empty seeds across permissive families).",
                     "type": "object"
                 },
                 "operatingPoints": {
@@ -69,6 +69,9 @@
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
         "analog": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "timeBase": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
         "behavioral": {
@@ -165,6 +168,17 @@
             },
             "required": [
                 "analog"
+            ]
+        },
+        {
+            "description": "Time-base component (crystal / XO / TCXO / VCXO / OCXO / MEMS / silicon-RC / programmable oscillator, 555-class timer, SR latch) — defined by TBAS. The families carry ideal `behavioral` blocks (periodic source / one-shot / latch), so an anonymous PWM ramp in a CIAS control brick and an orderable oscillator are the same type. Distinct from CTAS (power-control ICs) and AAS (analog signal path).",
+            "properties": {
+                "timeBase": {
+                    "$ref": "https://psma.com/tbas/tbas.json"
+                }
+            },
+            "required": [
+                "timeBase"
             ]
         },
         {
@@ -339,6 +353,24 @@
         {
             "if": {
                 "required": [
+                    "timeBase"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/tbas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
                     "behavioral"
                 ]
             },
@@ -387,7 +419,7 @@
         },
         "behavioral": {
             "title": "Behavioral",
-            "description": "A two-terminal element whose constitutive relation is given analytically. Two shapes: expression-based (flux linkage Ψ(i) or charge Q(v,i)) and the parametric Chan saturable-core model (Hc/Bs/Br + geometry). Variables in expressions are fixed by convention: i = port current [A], v = branch voltage [V], temp = temperature [°C]; standard math functions (exp, abs, sqrt, sin, cos, atan, log) are valid.",
+            "description": "A two-terminal element whose constitutive relation is given analytically. Two shapes: expression-based (flux linkage Ψ(i) or charge Q(v,i)) and the parametric Chan saturable-core model (Hc/Bs/Br + geometry). Variables in expressions are fixed by convention: i = port current [A], v = branch voltage [V], temp = temperature [°C], time = simulation time [s]; standard math functions (exp, abs, sqrt, sin, cos, atan, log) are valid. time maps to LTspice/ngspice `time` and Verilog-A $abstime; it enables soft-start ramps and bespoke stimuli without dedicated natures.",
             "oneOf": [
                 {
                     "description": "Expression-based constitutive relation. nature='flux' defines Ψ(i)=expression [V·s]; nature='charge' defines Q(v,i)=expression [C]. CiasCircuitConverter emits: LTspice→FLux=/Q= with x=i or x=v; ngspice→B-element with V=ddt(expr(I(Vsense))) or I=ddt(expr(V(a,b))); Verilog-A→Phi(br)<+expr or Q(br)<+expr.",
@@ -514,7 +546,7 @@
                                 "expression": {
                                     "type": "string",
                                     "minLength": 1,
-                                    "description": "Function of this component's own terminals, plus named sibling current senses: v(p,q), i(p,q), i(<designator>) (the branch current of a sibling 'source' component in the same brick — e.g. a shared port-current sense), standard math, pwl(x, x1,y1, x2,y2, ...). E.g. VCVS 'gain*v(inp,inn)', VCCS 'gm*v(inp,inn)', CCVS 'r*i(inp,inn)', CCCS 'beta*i(inp,inn)', clamp 'pwl(v(a,b), v1,i1, ...)'."
+                                    "description": "Function of this component's own terminals, plus named sibling current senses: v(p,q), i(p,q), i(<designator>) (the branch current of a sibling 'source' component in the same brick — e.g. a shared port-current sense), time (simulation time [s]; LTspice/ngspice `time`, Verilog-A $abstime), standard math, pwl(x, x1,y1, x2,y2, ...). E.g. VCVS 'gain*v(inp,inn)', VCCS 'gm*v(inp,inn)', CCVS 'r*i(inp,inn)', CCCS 'beta*i(inp,inn)', clamp 'pwl(v(a,b), v1,i1, ...)'."
                                 }
                             }
                         }

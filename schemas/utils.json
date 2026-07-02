@@ -15,16 +15,6 @@
             "minItems": 2,
             "maxItems": 3
         },
-        "irdi": {
-            "description": "International Registration Data Identifier per ISO/IEC 11179-6 / ISO 29002-5, in the form `RAI#DI#VI` where RAI is the registration-authority identifier (e.g. `0112` for IEC CDD, `0173-1` for ECLASS), DI the data identifier and VI the version identifier. Populate only with values issued by an authoritative registry.",
-            "title": "irdi",
-            "type": "string",
-            "pattern": "^[0-9A-Za-z]{4}(?:-[0-9A-Za-z]+)*#[0-9A-Za-z./-]+#[0-9A-Za-z.-]+$",
-            "examples": [
-                "0112/2///62317#ETD-34-17-11#001",
-                "0112/2///60404#FERRITE-N97#002"
-            ]
-        },
         "cooling": {
             "description": "Standardized cooling method for a power-electronic component of ANY family (magnetic, semiconductor, capacitor, resistor). Exactly one of natural convection, forced convection, a heatsink, or a cold plate. Shared across the OpenConverters families so cooling is described identically wherever it appears (operating conditions, thermal design requirements, etc.).",
             "title": "cooling",
@@ -234,7 +224,8 @@
                         "maximum"
                     ]
                 }
-            ]
+            ],
+            "additionalProperties": false
         },
         "curve": {
             "title": "curve",
@@ -989,11 +980,15 @@
             ]
         },
         "pollutionDegree": {
-            "description": "IEC 60664-1 pollution degree 1..4.",
-            "type": "integer",
+            "description": "IEC 60664-1 pollution degree. String form PD1..PD4 (the original MAS vocabulary, kept family-wide so pre-existing MAS documents remain valid).",
             "title": "pollutionDegree",
-            "minimum": 1,
-            "maximum": 4
+            "type": "string",
+            "enum": [
+                "PD1",
+                "PD2",
+                "PD3",
+                "PD4"
+            ]
         },
         "mountingStyle": {
             "description": "Mechanical mounting style at the product (not component) level. Used by COAS for converter form-factor.",
@@ -1013,39 +1008,6 @@
                 "enclosed",
                 "rackUnit"
             ]
-        },
-        "coolingMethod": {
-            "description": "Heat-removal method available to the converter. Forced-air requires airflowCFM; baseplate requires baseplateTempMax; liquid requires coolantInletTempMax.",
-            "type": "object",
-            "title": "coolingMethod",
-            "properties": {
-                "kind": {
-                    "type": "string",
-                    "enum": [
-                        "natural",
-                        "forced",
-                        "conduction",
-                        "baseplate",
-                        "liquid"
-                    ]
-                },
-                "airflowCFM": {
-                    "type": "number",
-                    "minimum": 0
-                },
-                "baseplateTempMax": {
-                    "type": "number",
-                    "description": "Baseplate temperature limit in degrees Celsius."
-                },
-                "coolantInletTempMax": {
-                    "type": "number",
-                    "description": "Coolant inlet temperature limit in degrees Celsius."
-                }
-            },
-            "required": [
-                "kind"
-            ],
-            "additionalProperties": false
         },
         "environmentalQualification": {
             "description": "Environmental qualification envelope a product must satisfy. Common to converter (COAS) and component (MAS/CAS/RAS/SAS) levels.",

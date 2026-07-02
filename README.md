@@ -72,47 +72,59 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 | Property Key | Schema | Component Type |
 |-------------|--------|----------------|
 | `magnetic` | MAS (`https://psma.com/mas/magnetic.json`) | Inductors, transformers, chokes |
-| `semiconductor` | SAS (`./semiconductor.json`) | MOSFETs, diodes, IGBTs, BJTs |
-| `capacitor` | CAS (`./capacitor.json`) | Ceramic, electrolytic, film capacitors |
-| `resistor` | RAS (`./resistor.json`) | Thin film, thick film, shunt, wirewound resistors |
+| `capacitor` | CAS (`https://psma.com/cas/capacitor.json`) | Ceramic, electrolytic, film capacitors |
+| `semiconductor` | SAS (`https://psma.com/sas/SAS.json`) | MOSFETs, diodes, IGBTs, BJTs |
+| `resistor` | RAS (`https://psma.com/ras/resistor.json`) | Thin/thick film, shunt, wirewound resistors |
+| `varistor` | RAS (`https://psma.com/ras/varistor.json`) | MOV / multilayer voltage-dependent protection elements |
+| `controller` | CTAS (`https://psma.com/ctas/controller.json`) | PWM / LLC / PFC / sync-rectifier / gate-driver / reference control ICs |
+| `connector` | CONAS (`https://psma.com/conas/connector.json`) | Terminals, headers, edge-card, wire-to-board, power |
+| `analog` | AAS (`https://psma.com/aas/AAS.json`) | Op amps, comparators, ADC/DAC, analog switches |
+| `behavioral` | PEAS-native (`#/$defs/behavioral`) | Analytic Ψ(i)/Q(v) or Chan saturable-core models |
+| `transmissionLine` | PEAS-native (`#/$defs/transmissionLine`) | Distributed RLGC lines |
 
-A valid PEAS document must contain `inputs`, `outputs`, and **exactly one** of the four component keys above.
+Cross-repo `$ref`s use the **absolute** `https://psma.com/<repo>/...` `$id` URIs (resolved via a `referencing.Registry`), never relative paths.
+
+A valid PEAS document must contain `inputs` (with `inputs.designRequirements`) and **exactly one** of the component keys above. `outputs` is optional. The root object is closed (`additionalProperties: false`): unknown top-level keys are rejected.
 
 ### Example: A Resistor as an PEAS Document
 
 ```json
 {
-    "inputs": {},
+    "inputs": {
+        "designRequirements": {
+            "deviceType": "resistor",
+            "resistance": {"nominal": 0.01},
+            "powerRating": 1.0
+        }
+    },
     "resistor": {
         "manufacturerInfo": {
+            "name": "Vishay",
+            "reference": "WSK2512R0100FEA",
             "datasheetInfo": {
                 "part": {
-                    "partNumber": "CRCW060310K0FKEA",
-                    "technology": "thickFilm",
-                    "case": "0603"
+                    "partNumber": "WSK2512R0100FEA",
+                    "technology": "currentSenseShunt",
+                    "case": "2512"
                 },
                 "electrical": {
-                    "resistance": {"nominal": 10000},
+                    "resistance": {"nominal": 0.01},
                     "tolerance": 0.01,
-                    "powerRating": 0.1
-                },
-                "mechanical": {
-                    "shape": {"assembly": "SMT", "shapeType": "SMD Chip"}
+                    "powerRating": 1.0
                 }
             }
         }
-    },
-    "outputs": []
+    }
 }
 ```
 
-This document is simultaneously a valid RAS document and a valid PEAS document.
+This document is simultaneously a valid RAS document and a valid PEAS document. `inputs.designRequirements` is required (its shape — including the `deviceType` discriminator — is pinned to the `resistor` branch by RAS); `outputs` is optional and omitted here. The authoritative field shapes live in `RAS/schemas/`; see `RAS/examples/` for complete documents.
 
 ---
 
 ## How TAS References PEAS Documents
 
-TAS (Topology Agnostic Structure) describes complete power converter designs. Its `components.componentList` contains entries where each component's `data` field is an PEAS document -- either inline or by reference:
+TAS (Topology Agnostic Structure) describes complete power converter designs as a tree of stages, each owning a circuit whose `components[]` entries carry a `data` field that is a PEAS document -- either inline or a URI reference into a catalog:
 
 ### Inline (full PEAS document embedded)
 
@@ -228,34 +240,13 @@ flowchart LR
 
 ## Schema Definition
 
-The complete PEAS schema (`schemas/peas.json`):
+`schemas/peas.json` is the authoritative source (this README does not inline it — a hand-copy drifts). Its structure:
 
-```json
-{
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://psma.com/peas/peas.json",
-    "title": "PEAS",
-    "description": "Power Electronics Agnostic Structure -- Universal container for any electronic component.",
-    "type": "object",
-    "properties": {
-        "inputs": {
-            "description": "Design requirements and operating points for this component",
-            "type": "object"
-        },
-        "outputs": {
-            "description": "Computed results (losses, thermal, impedance, etc.)",
-            "type": ["object", "array"]
-        }
-    },
-    "required": ["inputs", "outputs"],
-    "oneOf": [
-        { "required": ["magnetic"],       "description": "MAS -- Magnetic" },
-        { "required": ["capacitor"],      "description": "CAS -- Capacitor" },
-        { "required": ["semiconductor"],  "description": "SAS -- Semiconductor" },
-        { "required": ["resistor"],       "description": "RAS -- Resistor" }
-    ]
-}
-```
+- **`type: object`, `additionalProperties: false`** — the root is closed; unknown top-level keys are rejected.
+- **`required: ["inputs"]`** — only `inputs` is mandatory; `outputs` is optional.
+- **`properties`** — `inputs`, `outputs`, and the ten discriminator keys (declared permissively; the `oneOf` is their real validator).
+- **`oneOf`** — the ten mutually-exclusive component branches (see the table above), each `$ref`-ing its family schema by absolute URI.
+- **`allOf`** — one `if`/`then` clause per branch, pinning `inputs.designRequirements` to the matching family's designRequirements schema (the PEAS-native `behavioral`/`transmissionLine` branches pin to `#/$defs/behavioralDesignRequirements`).
 
 ---
 
@@ -263,11 +254,17 @@ The complete PEAS schema (`schemas/peas.json`):
 
 ```
 PEAS/
-+-- schemas/
-      +-- peas.json          # The PEAS schema (abstract base)
+├── schemas/
+│   ├── peas.json          # The PEAS root (closed object + oneOf discriminator + DR pins)
+│   ├── utils.json         # Shared primitives (dimensionWithTolerance, curve, cooling,
+│   │                      #   manufacturerInfo, distributorInfo, datasheetInfo* mixins, ...)
+│   ├── inputs/            # operatingPoint / operatingConditions / excitation templates
+│   └── outputs/           # outputBase + shared result blocks
+├── src/                   # header-only C++ helpers (resolve_dimensional_values, Fidelity)
+└── tests/test_schemas.py  # meta-validation, $ref resolution, per-discriminator fixtures
 ```
 
-PEAS is intentionally minimal: it contains only the abstract schema. The concrete component schemas live in their respective repositories (MAS, SAS, CAS, RAS), and TAS references PEAS for its component list.
+The concrete component schemas live in their sibling repositories (MAS, CAS, SAS, RAS, CTAS, CONAS, AAS); `utils.json` holds the primitives they share. TAS references PEAS documents for the components inside a converter design.
 
 ---
 

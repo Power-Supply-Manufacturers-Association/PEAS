@@ -105,9 +105,10 @@ sequenceDiagram
 **Role**: Abstract base type for all electronic components
 
 PEAS defines the universal contract:
-- Every component has `inputs` (design requirements, operating conditions)
-- Every component has `outputs` (computed results)
-- Exactly one component-type key must be present: `magnetic` (MAS), `semiconductor` (SAS), `capacitor` (CAS), `resistor` (RAS), `controller` (CTAS), or `connector` (CONAS)
+- Every component has `inputs` (with `inputs.designRequirements` required; operating points optional)
+- `outputs` (computed results) is optional
+- The root object is closed (`additionalProperties: false`) — unknown top-level keys are rejected
+- Exactly one component-type key must be present: `magnetic` (MAS), `capacitor` (CAS), `semiconductor` (SAS), `resistor` / `varistor` (RAS), `controller` (CTAS), `connector` (CONAS), `analog` (AAS), or the PEAS-native `behavioral` / `transmissionLine` primitives
 
 The `oneOf` discriminator pattern allows polymorphic references: any code or schema that accepts an PEAS document can handle any component type without knowing which one it is in advance.
 

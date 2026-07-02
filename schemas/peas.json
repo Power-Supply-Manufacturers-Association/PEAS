@@ -4,6 +4,7 @@
     "title": "PEAS",
     "description": "Power Electronics Agnostic Structure — Universal container for any electronic component. A valid MAS / CAS / SAS / RAS / controller / connector / analog document is also a valid PEAS.",
     "type": "object",
+    "additionalProperties": false,
     "required": [
         "inputs"
     ],
@@ -17,30 +18,8 @@
             ],
             "properties": {
                 "designRequirements": {
-                    "description": "Family-specific design-requirements seed. The if/then clauses below pin this to the matching family schema based on which discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog) is populated.",
-                    "oneOf": [
-                        {
-                            "$ref": "https://psma.com/mas/inputs/designRequirements.json"
-                        },
-                        {
-                            "$ref": "https://psma.com/cas/inputs/designRequirements.json"
-                        },
-                        {
-                            "$ref": "https://psma.com/sas/inputs/designRequirements.json"
-                        },
-                        {
-                            "$ref": "https://psma.com/ras/inputs/designRequirements.json"
-                        },
-                        {
-                            "$ref": "https://psma.com/ctas/inputs/designRequirements.json"
-                        },
-                        {
-                            "$ref": "https://psma.com/conas/inputs/designRequirements.json"
-                        },
-                        {
-                            "$ref": "https://psma.com/aas/inputs/designRequirements.json"
-                        }
-                    ]
+                    "description": "Family-specific design-requirements seed. Its exact shape is pinned to the populated discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog/behavioral/transmissionLine) by the if/then clauses at the bottom of this schema — every branch has a pin, so no property-level union is needed (a union here would double-match empty seeds across permissive families).",
+                    "type": "object"
                 },
                 "operatingPoints": {
                     "description": "Operating points the component must satisfy. Shape is fixed by the sibling family schema (e.g. MAS inputs/operatingPoint).",
@@ -67,6 +46,36 @@
                     }
                 }
             ]
+        },
+        "magnetic": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "capacitor": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "semiconductor": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "resistor": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "varistor": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "controller": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "connector": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "analog": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "behavioral": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "transmissionLine": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         }
     },
     "oneOf": [
@@ -112,6 +121,17 @@
             },
             "required": [
                 "resistor"
+            ]
+        },
+        {
+            "description": "Varistor (MOV / multilayer) — defined by RAS alongside resistor; voltage-dependent protection element.",
+            "properties": {
+                "varistor": {
+                    "$ref": "https://psma.com/ras/varistor.json"
+                }
+            },
+            "required": [
+                "varistor"
             ]
         },
         {
@@ -247,6 +267,24 @@
         {
             "if": {
                 "required": [
+                    "varistor"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/ras/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
                     "controller"
                 ]
             },
@@ -309,8 +347,25 @@
                     "inputs": {
                         "properties": {
                             "designRequirements": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/$defs/behavioralDesignRequirements"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "transmissionLine"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "#/$defs/behavioralDesignRequirements"
                             }
                         }
                     }
@@ -318,8 +373,18 @@
             }
         }
     ],
-
     "$defs": {
+        "behavioralDesignRequirements": {
+            "title": "behavioralDesignRequirements",
+            "description": "Design-requirements seed for the PEAS-native primitives (behavioral, transmissionLine). They have no family repo, so the seed carries only an optional label; all electrical definition lives in the component branch itself.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "behavioral": {
             "title": "Behavioral",
             "description": "A two-terminal element whose constitutive relation is given analytically. Two shapes: expression-based (flux linkage Ψ(i) or charge Q(v,i)) and the parametric Chan saturable-core model (Hc/Bs/Br + geometry). Variables in expressions are fixed by convention: i = port current [A], v = branch voltage [V], temp = temperature [°C]; standard math functions (exp, abs, sqrt, sin, cos, atan, log) are valid.",
@@ -328,11 +393,17 @@
                     "description": "Expression-based constitutive relation. nature='flux' defines Ψ(i)=expression [V·s]; nature='charge' defines Q(v,i)=expression [C]. CiasCircuitConverter emits: LTspice→FLux=/Q= with x=i or x=v; ngspice→B-element with V=ddt(expr(I(Vsense))) or I=ddt(expr(V(a,b))); Verilog-A→Phi(br)<+expr or Q(br)<+expr.",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "expression"],
+                    "required": [
+                        "nature",
+                        "expression"
+                    ],
                     "properties": {
                         "nature": {
                             "type": "string",
-                            "enum": ["flux", "charge"],
+                            "enum": [
+                                "flux",
+                                "charge"
+                            ],
                             "description": "Physical quantity being defined: 'flux' for flux-linkage Ψ(i) [V·s], 'charge' for charge Q(v,i) [C]."
                         },
                         "expression": {
@@ -346,7 +417,10 @@
                     "description": "Chan saturable core model (LTspice Hc/Bs/Br/A/Lm/Lg/N parameters). NOTE: despite widespread use of the name, LTspice implements the Chan 1991 model (IEEE Trans. CAD), not the Jiles-Atherton model — parameters are not inter-convertible without B-H curve fitting. CiasCircuitConverter emits: LTspice→L Hc=… Bs=… Br=… A=… Lm=… Lg=… N=…; ngspice→Chan/JA Verilog-A subcircuit (ngspice ≥36 via OSDI) or approximate saturation B-element; Verilog-A→Chan analog module.",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "parameters"],
+                    "required": [
+                        "nature",
+                        "parameters"
+                    ],
                     "properties": {
                         "nature": {
                             "type": "string",
@@ -355,15 +429,44 @@
                         "parameters": {
                             "type": "object",
                             "additionalProperties": false,
-                            "required": ["coercive_force", "saturation_flux_density", "remanence_flux_density", "effective_area", "magnetic_path_length", "air_gap", "turns"],
+                            "required": [
+                                "coercive_force",
+                                "saturation_flux_density",
+                                "remanence_flux_density",
+                                "effective_area",
+                                "magnetic_path_length",
+                                "air_gap",
+                                "turns"
+                            ],
                             "properties": {
-                                "coercive_force":          { "description": "Hc [A/m] — coercive field strength. The B-H material parameters (Hc/Bs/Br) may be temperature-dependent (LTspice tbl(temp,...)).", "$ref": "#/$defs/behavioralTemperatureValue" },
-                                "saturation_flux_density": { "description": "Bs [T] — flux density at saturation. May be temperature-dependent.", "$ref": "#/$defs/behavioralTemperatureValue" },
-                                "remanence_flux_density":  { "description": "Br [T] — residual flux density after deenergisation. May be temperature-dependent.", "$ref": "#/$defs/behavioralTemperatureValue" },
-                                "magnetic_path_length":    { "type": "number", "description": "Lm [m] — mean magnetic path length of the core (geometry, NOT an inductance). LTspice Chan calls this Lm." },
-                                "effective_area":          { "type": "number", "description": "A [m^2] — effective core cross-sectional area (geometry, NOT a domain density). LTspice Chan calls this A." },
-                                "air_gap":                 { "type": "number", "description": "Lg [m] — equivalent air-gap length." },
-                                "turns":                   { "type": "number", "description": "N — winding turns count." }
+                                "coercive_force": {
+                                    "description": "Hc [A/m] — coercive field strength. The B-H material parameters (Hc/Bs/Br) may be temperature-dependent (LTspice tbl(temp,...)).",
+                                    "$ref": "#/$defs/behavioralTemperatureValue"
+                                },
+                                "saturation_flux_density": {
+                                    "description": "Bs [T] — flux density at saturation. May be temperature-dependent.",
+                                    "$ref": "#/$defs/behavioralTemperatureValue"
+                                },
+                                "remanence_flux_density": {
+                                    "description": "Br [T] — residual flux density after deenergisation. May be temperature-dependent.",
+                                    "$ref": "#/$defs/behavioralTemperatureValue"
+                                },
+                                "magnetic_path_length": {
+                                    "type": "number",
+                                    "description": "Lm [m] — mean magnetic path length of the core (geometry, NOT an inductance). LTspice Chan calls this Lm."
+                                },
+                                "effective_area": {
+                                    "type": "number",
+                                    "description": "A [m^2] — effective core cross-sectional area (geometry, NOT a domain density). LTspice Chan calls this A."
+                                },
+                                "air_gap": {
+                                    "type": "number",
+                                    "description": "Lg [m] — equivalent air-gap length."
+                                },
+                                "turns": {
+                                    "type": "number",
+                                    "description": "N — winding turns count."
+                                }
                             }
                         }
                     }
@@ -372,7 +475,10 @@
                     "description": "Controlled / dependent source: an ideal behavioral source whose value is a function of THIS component's own terminal voltages and currents, plus (by name) the branch current of a sibling 'source' component in the same brick — it never reaches into arbitrary external nets. Subsumes VCVS/VCCS/CCVS/CCCS and nonlinear behavioral relations (op-amp gain, current mirror, gyrator, varistor/TVS clamp i(v)). The expression references own pins as v(p,q) (voltage between own pins) and i(p,q) (current into pin p via the p->q branch) plus standard math and pwl(x, x1,y1, ...). Finite input/output impedance is modeled with sibling R/C components, not here. CiasCircuitConverter emits a B-source between the 'across' pins (V= or I=), substituting v()/i() with the wired nodes and synthesising a 0 V sense for each i(); pwl maps to LTspice table().",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "output"],
+                    "required": [
+                        "nature",
+                        "output"
+                    ],
                     "properties": {
                         "nature": {
                             "type": "string",
@@ -381,18 +487,28 @@
                         "output": {
                             "type": "object",
                             "additionalProperties": false,
-                            "required": ["quantity", "across", "expression"],
+                            "required": [
+                                "quantity",
+                                "across",
+                                "expression"
+                            ],
                             "properties": {
                                 "quantity": {
                                     "type": "string",
-                                    "enum": ["voltage", "current"],
+                                    "enum": [
+                                        "voltage",
+                                        "current"
+                                    ],
                                     "description": "'voltage' forces V(across[0],across[1]) = expression; 'current' injects I from across[0] to across[1] = expression."
                                 },
                                 "across": {
                                     "type": "array",
                                     "minItems": 2,
                                     "maxItems": 2,
-                                    "items": { "type": "string", "minLength": 1 },
+                                    "items": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
                                     "description": "The two OWN pin names the source is applied between."
                                 },
                                 "expression": {
@@ -408,7 +524,12 @@
                     "description": "Fixed internal source that is part of a component macromodel (NOT external stimulus — that enters via ports/TAS). nature='source' forces a constant voltage across, or current through, its 'across' pins. A voltage source of value 0 is an ideal ammeter (current sense): its branch current is referenceable from a sibling behavioral expression as i(<designator>). CiasCircuitConverter emits V<name> a b <value> (voltage) or I<name> a b <value> (current).",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "quantity", "across", "value"],
+                    "required": [
+                        "nature",
+                        "quantity",
+                        "across",
+                        "value"
+                    ],
                     "properties": {
                         "nature": {
                             "type": "string",
@@ -416,14 +537,20 @@
                         },
                         "quantity": {
                             "type": "string",
-                            "enum": ["voltage", "current"],
+                            "enum": [
+                                "voltage",
+                                "current"
+                            ],
                             "description": "'voltage' forces V(across[0],across[1]) = value; 'current' injects I from across[0] to across[1] = value."
                         },
                         "across": {
                             "type": "array",
                             "minItems": 2,
                             "maxItems": 2,
-                            "items": { "type": "string", "minLength": 1 },
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "description": "The two OWN pin names the source is applied between."
                         },
                         "value": {
@@ -436,7 +563,15 @@
                     "description": "Voltage-controlled hysteretic switch (SPICE S / .model SW). Conducts 'ron' once V(control) rises through vOn and 'roff' once it falls through vOff; the vOn/vOff gap is the hysteresis that makes ESD snapback protection work. Four own pins: the switched path 'across' and the controlling pair 'control'. CiasCircuitConverter emits S<name> across+ across- control+ control- <model> + .model <model> SW(Ron= Roff= Von= Voff=).",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "across", "control", "ron", "roff", "vOn", "vOff"],
+                    "required": [
+                        "nature",
+                        "across",
+                        "control",
+                        "ron",
+                        "roff",
+                        "vOn",
+                        "vOff"
+                    ],
                     "properties": {
                         "nature": {
                             "type": "string",
@@ -446,46 +581,84 @@
                             "type": "array",
                             "minItems": 2,
                             "maxItems": 2,
-                            "items": { "type": "string", "minLength": 1 },
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "description": "The two OWN pins of the switched path."
                         },
                         "control": {
                             "type": "array",
                             "minItems": 2,
                             "maxItems": 2,
-                            "items": { "type": "string", "minLength": 1 },
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "description": "The two OWN pins whose voltage controls the switch."
                         },
-                        "ron":  { "type": "number", "exclusiveMinimum": 0, "description": "On-state resistance [Ω]." },
-                        "roff": { "type": "number", "exclusiveMinimum": 0, "description": "Off-state resistance [Ω]." },
-                        "vOn":  { "type": "number", "description": "Control voltage [V] at/above which the switch turns on." },
-                        "vOff": { "type": "number", "description": "Control voltage [V] at/below which the switch turns off." }
+                        "ron": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "description": "On-state resistance [Ω]."
+                        },
+                        "roff": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "description": "Off-state resistance [Ω]."
+                        },
+                        "vOn": {
+                            "type": "number",
+                            "description": "Control voltage [V] at/above which the switch turns on."
+                        },
+                        "vOff": {
+                            "type": "number",
+                            "description": "Control voltage [V] at/below which the switch turns off."
+                        }
                     }
                 },
                 {
                     "description": "Frequency-domain controlled source (SPICE E/G FREQ table). Output = H(f)*control, where H(f) is a tabulated complex transfer function — one entry of a Touchstone S-matrix (e.g. a WE-CLFS filter's S_ij). CiasCircuitConverter emits E<name> across+ across- FREQ {V(control+,control-)}= MAG (f mag phase)(...), converting the stored linear magnitude and radian phase to the target's convention.",
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["nature", "quantity", "across", "control", "points"],
+                    "required": [
+                        "nature",
+                        "quantity",
+                        "across",
+                        "control",
+                        "points"
+                    ],
                     "properties": {
-                        "nature": { "type": "string", "const": "frequencyResponse" },
+                        "nature": {
+                            "type": "string",
+                            "const": "frequencyResponse"
+                        },
                         "quantity": {
                             "type": "string",
-                            "enum": ["voltage", "current"],
+                            "enum": [
+                                "voltage",
+                                "current"
+                            ],
                             "description": "'voltage' forces V(across[0],across[1]) = H(f)*V(control); 'current' injects that current from across[0] to across[1]."
                         },
                         "across": {
                             "type": "array",
                             "minItems": 2,
                             "maxItems": 2,
-                            "items": { "type": "string", "minLength": 1 },
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "description": "The two OWN output pins."
                         },
                         "control": {
                             "type": "array",
                             "minItems": 2,
                             "maxItems": 2,
-                            "items": { "type": "string", "minLength": 1 },
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "description": "The two OWN pins whose voltage is the controlling input V(control[0],control[1])."
                         },
                         "points": {
@@ -495,11 +668,23 @@
                             "items": {
                                 "type": "object",
                                 "additionalProperties": false,
-                                "required": ["frequency", "magnitude", "phase"],
+                                "required": [
+                                    "frequency",
+                                    "magnitude",
+                                    "phase"
+                                ],
                                 "properties": {
-                                    "frequency": { "type": "number" },
-                                    "magnitude": { "type": "number", "description": "Linear (dimensionless) gain magnitude, not dB." },
-                                    "phase":     { "type": "number", "description": "Phase angle, radians." }
+                                    "frequency": {
+                                        "type": "number"
+                                    },
+                                    "magnitude": {
+                                        "type": "number",
+                                        "description": "Linear (dimensionless) gain magnitude, not dB."
+                                    },
+                                    "phase": {
+                                        "type": "number",
+                                        "description": "Phase angle, radians."
+                                    }
                                 }
                             }
                         }
@@ -512,11 +697,18 @@
             "description": "Distributed 2-port transmission line (SPICE O / .model LTRA). Four pins: in+, in-, out+, out-. 'kind' selects the loss model; 'lossy' carries per-unit-length R/L/C(/G) and a length. CiasCircuitConverter emits O<name> in+ in- out+ out- <model> + .model <model> LTRA(len=… R=… L=… C=… G=…).",
             "type": "object",
             "additionalProperties": false,
-            "required": ["kind", "length", "perUnitLength"],
+            "required": [
+                "kind",
+                "length",
+                "perUnitLength"
+            ],
             "properties": {
                 "kind": {
                     "type": "string",
-                    "enum": ["lossy", "lossless"],
+                    "enum": [
+                        "lossy",
+                        "lossless"
+                    ],
                     "description": "Loss model: 'lossy' (RLGC per unit length) or 'lossless' (LC only)."
                 },
                 "length": {
@@ -527,12 +719,32 @@
                 "perUnitLength": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["resistance", "inductance", "capacitance"],
+                    "required": [
+                        "resistance",
+                        "inductance",
+                        "capacitance"
+                    ],
                     "properties": {
-                        "resistance":  { "type": "number", "minimum": 0, "description": "R [Ω/m] — series resistance per unit length." },
-                        "inductance":  { "type": "number", "minimum": 0, "description": "L [H/m] — series inductance per unit length." },
-                        "capacitance": { "type": "number", "minimum": 0, "description": "C [F/m] — shunt capacitance per unit length." },
-                        "conductance": { "type": "number", "minimum": 0, "description": "G [S/m] — shunt conductance per unit length (default 0)." }
+                        "resistance": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "R [Ω/m] — series resistance per unit length."
+                        },
+                        "inductance": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "L [H/m] — series inductance per unit length."
+                        },
+                        "capacitance": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "C [F/m] — shunt capacitance per unit length."
+                        },
+                        "conductance": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "G [S/m] — shunt conductance per unit length (default 0)."
+                        }
                     }
                 }
             }
@@ -541,11 +753,15 @@
             "title": "behavioralTemperatureValue",
             "description": "A scalar in a behavioral model that may vary with temperature. Either a plain number (temperature-independent) or a set of (temperature, value) breakpoints that reproduce the source LTspice tbl(temp, T1,v1, T2,v2, ...) table; consumers interpolate, and a non-interpolating consumer resolves at referenceTemperature.",
             "oneOf": [
-                { "type": "number" },
+                {
+                    "type": "number"
+                },
                 {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["perTemperature"],
+                    "required": [
+                        "perTemperature"
+                    ],
                     "properties": {
                         "referenceTemperature": {
                             "type": "number",
@@ -558,10 +774,19 @@
                             "items": {
                                 "type": "object",
                                 "additionalProperties": false,
-                                "required": ["temperature", "value"],
+                                "required": [
+                                    "temperature",
+                                    "value"
+                                ],
                                 "properties": {
-                                    "temperature": { "type": "number", "description": "Temperature in degrees Celsius." },
-                                    "value": { "type": "number", "description": "Value at this temperature." }
+                                    "temperature": {
+                                        "type": "number",
+                                        "description": "Temperature in degrees Celsius."
+                                    },
+                                    "value": {
+                                        "type": "number",
+                                        "description": "Value at this temperature."
+                                    }
                                 }
                             }
                         }

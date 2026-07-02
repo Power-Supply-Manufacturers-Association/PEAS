@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/inputs/multiPortOperatingPoint.json",
-    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "$comment": "SPDX-License-Identifier: MIT",
     "title": "multiPortOperatingPoint",
     "description": "Operating point template for multi-port components: components with three or more terminals or multiple windings, where each port carries its own voltage and current waveforms (e.g. MOSFETs, IGBTs, BJTs, transformers when described component-side). Structurally analogous to MAS's operatingPoint with excitationsPerWinding[], but uses a generic 'port' label rather than 'winding'. MAS keeps its own native shape for backward compatibility with the IEC standard candidate.",
     "type": "object",

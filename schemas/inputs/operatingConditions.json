@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/inputs/operatingConditions.json",
-    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "$comment": "SPDX-License-Identifier: MIT",
     "title": "operatingConditions",
     "description": "Operating conditions (ambient + cooling) shared by all component families (CAS, SAS, RAS, MAS). The cooling method is the standardized PEAS cooling type, utils.json#/$defs/cooling, so cooling is described identically wherever it appears across the OpenConverters families.",
     "type": "object",

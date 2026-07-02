@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://psma.com/peas/outputs/insulationCoordination.json",
-    "$comment": "SPDX-License-Identifier: Apache-2.0",
+    "$comment": "SPDX-License-Identifier: MIT",
     "title": "insulationCoordination",
     "description": "Required clearance / creepage / distance-through-insulation and withstand-voltage figures for a component. Mirror of MAS schemas/outputs.json#/$defs/insulationCoordination so safety / EMC capacitors and isolated semiconductors can use the same shape.",
     "type": "object",

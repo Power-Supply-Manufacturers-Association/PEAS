@@ -8,8 +8,10 @@
   technology added; `enableFunction`, `dutyCycle`, `spreadSpectrum`,
   `resonantImpedance`, `builtInCapacitance` fields added; `driveLevel` and
   `standbyCurrent` dropped (no buyer filters, no validator use); RTC /
-  clock-generator / RF-VCO / SAW confirmed out of scope. Remaining follow-up:
-  the CIAS emitters (§7) and the ctas_to_cias lowerings.
+  clock-generator / RF-VCO / SAW confirmed out of scope. The CIAS emitters (§7)
+  and the ctas_to_cias lowerings for all six schemes (§6) landed the same
+  day — ngspice-verified end-to-end (PWM duty tracks the error command; the
+  duty clamp holds). Nothing from this RFC remains open.
 - **Created:** 2026-07-02
 - **Touches (each schema edit needs separate approval):** new repo
   `OpenConverters/TBAS` (schemas created from scratch), `PEAS/schemas/peas.json`

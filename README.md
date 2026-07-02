@@ -76,6 +76,7 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 | `semiconductor` | SAS (`https://psma.com/sas/SAS.json`) | MOSFETs, diodes, IGBTs, BJTs |
 | `resistor` | RAS (`https://psma.com/ras/resistor.json`) | Thin/thick film, shunt, wirewound resistors |
 | `varistor` | RAS (`https://psma.com/ras/varistor.json`) | MOV / multilayer voltage-dependent protection elements |
+| `thermistor` | RAS (`https://psma.com/ras/thermistor.json`) | NTC / PTC thermistors (inrush limiting, temperature sensing/compensation) |
 | `controller` | CTAS (`https://psma.com/ctas/controller.json`) | PWM / LLC / PFC / sync-rectifier / gate-driver / reference control ICs |
 | `connector` | CONAS (`https://psma.com/conas/connector.json`) | Terminals, headers, edge-card, wire-to-board, power |
 | `analog` | AAS (`https://psma.com/aas/AAS.json`) | Op amps, comparators, ADC/DAC, analog switches |

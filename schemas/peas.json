@@ -62,6 +62,9 @@
         "varistor": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
+        "thermistor": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
         "controller": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
@@ -135,6 +138,17 @@
             },
             "required": [
                 "varistor"
+            ]
+        },
+        {
+            "description": "Thermistor (NTC / PTC) — defined by RAS alongside resistor and varistor; temperature-dependent resistor for inrush limiting and temperature sensing/compensation. Resettable polymer PTC fuses (PPTC) are protection parts, out of scope.",
+            "properties": {
+                "thermistor": {
+                    "$ref": "https://psma.com/ras/thermistor.json"
+                }
+            },
+            "required": [
+                "thermistor"
             ]
         },
         {
@@ -282,6 +296,24 @@
             "if": {
                 "required": [
                     "varistor"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/ras/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "thermistor"
                 ]
             },
             "then": {

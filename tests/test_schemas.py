@@ -134,6 +134,20 @@ def test_varistor_empty_seed_validates(peas):
     assert valid(peas, doc)
 
 
+def test_thermistor_validates_as_peas(peas):
+    # Thermistors are first-class PEAS citizens via their own branch (mirrors varistor).
+    doc = json.loads((WORKSPACE / "RAS/examples/04_thermistor_sl22.json").read_text())
+    assert valid(peas, doc)
+
+
+def test_thermistor_empty_seed_validates(peas):
+    doc = {"inputs": {"designRequirements": {"deviceType": "thermistor",
+                                              "resistanceAt25C": {"nominal": 10.0},
+                                              "minimumSteadyStateCurrent": 5.0}},
+           "thermistor": {}}
+    assert valid(peas, doc)
+
+
 def test_transmission_line_validates(peas):
     doc = {
         "inputs": {"designRequirements": {}},

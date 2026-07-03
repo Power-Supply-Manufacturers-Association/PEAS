@@ -1,7 +1,7 @@
-# PEAS-RFC 0001 — TBAS: Time-Based Agnostic Structure (new family repo)
+# PEAS-RFC 0001 — TDAS: Timing Devices Agnostic Structure (new family repo)
 
 - **Status:** IMPLEMENTED 2026-07-02 (rev 3). The repo exists at
-  `github.com/Power-Supply-Manufacturers-Association/TBAS`; PEAS carries the
+  `github.com/Power-Supply-Manufacturers-Association/TDAS`; PEAS carries the
   `timeBase` branch + `time` variable; AAS sampleHold has its behavioral
   block; CTAS controlScheme grew as §5.3 (as a complete per-scheme oneOf,
   not a flat enum). Market-survey deltas vs rev 2: `ceramicResonator`
@@ -14,7 +14,7 @@
   duty clamp holds). Nothing from this RFC remains open.
 - **Created:** 2026-07-02
 - **Touches (each schema edit needs separate approval):** new repo
-  `OpenConverters/TBAS` (schemas created from scratch), `PEAS/schemas/peas.json`
+  `OpenConverters/TDAS` (schemas created from scratch), `PEAS/schemas/peas.json`
   (one new discriminator branch + expression-grammar text),
   `AAS/schemas/sampleHold.json` ($defs/behavioral), `CTAS/schemas/*`
   (controlScheme enum), `CIAS` C++ emitter (code, not schema)
@@ -43,18 +43,18 @@ source hits this hole.
 Rev 1 of this RFC proposed the atoms as new `peas.json` behavioral natures,
 arguing a repo would invert the dependency direction. That argument was
 wrong: `peas.json` already `$ref`-pins every discriminator branch into the
-sibling family repos — PEAS depending on TBAS is exactly as legitimate as
+sibling family repos — PEAS depending on TDAS is exactly as legitimate as
 PEAS depending on AAS. The correct test is *"is this a component family?"*,
 and it is (§1, second paragraph). The repo shape buys:
 
-- **Family symmetry.** `TBAS — Time-Based Agnostic Structure` slots into the
+- **Family symmetry.** `TDAS — Timing Devices Agnostic Structure` slots into the
   established pattern (MAS/CAS/SAS/RAS/CTAS/CONAS/AAS), with the standard
   PEAS citizenship: `{timeBase: {…}}` discriminator, DR pin, seed branch.
 - **One schema for the ideal atom and the orderable part.** AAS proved the
   pattern: the comparator's `behavioral` block "is present on an otherwise
   part-less document to describe an ideal control block", while the same
   family carries full datasheet fields when `manufacturerInfo` is present.
-  TBAS oscillators work the same way: the anonymous PWM ramp in a CIAS
+  TDAS oscillators work the same way: the anonymous PWM ramp in a CIAS
   control brick and a SiTime MEMS oscillator in TAS/data are the same type.
 - **A home for the datasheet physics.** Frequency stability (ppm), aging,
   phase jitter, startup time, supply pushing — none of that has anywhere to
@@ -64,7 +64,7 @@ and it is (§1, second paragraph). The repo shape buys:
   well-structured), and Blade Runner can grow physics checks
   (f × stability sanity, jitter floors) once records exist.
 
-What stays OUT of TBAS: the `time` expression variable (it is grammar of the
+What stays OUT of TDAS: the `time` expression variable (it is grammar of the
 existing PEAS `behavioral` expressions, §5.3); the AAS `sampleHold`
 behavioral block (sampling is analog signal path, and the family already
 lives in AAS, §5.4).
@@ -75,8 +75,8 @@ Standard family layout, modeled on AAS (the healthiest repo in the 2026-07
 review):
 
 ```
-TBAS/
-  schemas/tbas.json          — family oneOf: oscillator | timer | latch  (type-discriminated)
+TDAS/
+  schemas/tdas.json          — family oneOf: oscillator | timer | latch  (type-discriminated)
   schemas/oscillator.json    — parts + behavioral
   schemas/timer.json         — parts + behavioral
   schemas/latch.json         — parts + behavioral
@@ -86,7 +86,7 @@ TBAS/
   LICENSE (MIT), README.md
 ```
 
-`$id` namespace `https://psma.com/tbas/…`. Conventions as everywhere: draft
+`$id` namespace `https://psma.com/tdas/…`. Conventions as everywhere: draft
 2020-12, closed objects, `const`-pinned discriminators, seed-friendly
 (`{timeBase: {}}` and part-less behavioral-only documents both valid),
 datasheet requireds only once `manufacturerInfo` is present, SI everywhere
@@ -94,7 +94,7 @@ datasheet requireds only once `manufacturerInfo` is present, SI everywhere
 
 ### 3.1 `oscillator` — free-running waveform source / VCO / orderable oscillator
 
-Behavioral core (the TBAS atom CIAS consumes):
+Behavioral core (the TDAS atom CIAS consumes):
 
 ```jsonc
 "behavioral": {
@@ -200,9 +200,9 @@ two required fields, no shared-value ambiguity.)
 
 One edit to `peas.json` (approval item 2): add the `timeBase` discriminator —
 a new `oneOf` branch `{"required": ["timeBase"], "properties": {"timeBase":
-{"$ref": "https://psma.com/tbas/tbas.json"}}}` mirroring `analog`, plus the
+{"$ref": "https://psma.com/tdas/tdas.json"}}}` mirroring `analog`, plus the
 matching `inputs.designRequirements` pin in the root `allOf` (every branch
-has one). TBAS documents then validate as PEAS documents with the
+has one). TDAS documents then validate as PEAS documents with the
 `{timeBase: …}` wrap, TAS `component.data` URIs can point into
 `time_based.ndjson`, and CIAS resolves them exactly like AAS blocks.
 
@@ -234,15 +234,15 @@ amplitude, slope-comp gain, dead time from controller fields).
 ## 6. Proof it closes the gap — the five control schemes
 
 Using only existing natures (`source`, `switch`, `controlled`), existing AAS
-blocks (comparator, multiplier, integrator, op-amp), and TBAS parts:
+blocks (comparator, multiplier, integrator, op-amp), and TDAS parts:
 
-1. **Voltage-mode PWM** — error amp → TBAS `oscillator` (sawtooth, f_sw) →
+1. **Voltage-mode PWM** — error amp → TDAS `oscillator` (sawtooth, f_sw) →
    AAS comparator(err, ramp) → gate. *Needs: oscillator.*
 2. **Peak-current-mode** — `oscillator` (square, dutyCycle≈0.05) →
    `latch.set`; comparator(i_sense·Ri + slope-comp vs error) →
    `latch.reset`; `dominance: "reset"`; slope comp = the same sawtooth
    through a `controlled` summer. *Needs: oscillator + latch.*
-3. **Constant-on-time** — feedback comparator → TBAS `timer` (monostable,
+3. **Constant-on-time** — feedback comparator → TDAS `timer` (monostable,
    onTime = T_on, `retriggerable: false`) → gate. One component where rev 1
    needed a four-atom recipe. *Needs: timer.*
 4. **Resonant FM (LLC)** — error amp → `oscillator.frequencyControl`
@@ -273,7 +273,7 @@ Each canonical subcircuit is a single tested template in
   root `oneOf` grows exactly as it did for `analog`), one new AAS `$defs`
   block, description-text extensions, CTAS enum growth. No existing document
   changes validity.
-- TBAS tests: pytest schema suite (meta-validation, registry over siblings,
+- TDAS tests: pytest schema suite (meta-validation, registry over siblings,
   per-family valid/negative fixtures — square-without-dutyCycle,
   monostable-with-period, missing dominance — empty-seed, part-less
   behavioral-only, PEAS citizenship both directions).
@@ -287,7 +287,7 @@ Each canonical subcircuit is a single tested template in
 
 ## 9. Approval checklist (per the ask-per-schema-change rule)
 
-1. Create the `TBAS` repo scaffold with `schemas/tbas.json` +
+1. Create the `TDAS` repo scaffold with `schemas/tdas.json` +
    `oscillator.json` + `timer.json` + `latch.json` + inputs/outputs as in §3.
 2. `PEAS/schemas/peas.json` — add the `timeBase` discriminator branch + DR
    pin (§4).
@@ -305,7 +305,7 @@ the schemas exist.
 - **Q1:** family list — start with `oscillator | timer | latch`, or include
   `rtc` / `clockGenerator` seeds from day one? (Recommend: start with three;
   the family `oneOf` grows the way AAS grew to 14.)
-- **Q2:** should TBAS crystal units (bare crystals, no oscillator circuit)
+- **Q2:** should TDAS crystal units (bare crystals, no oscillator circuit)
   be a fourth family or a `technology: "crystal"` oscillator? (Recommend:
   `technology` value first; split later if resonator-specific fields — CL,
   ESR, drive level — accumulate.)

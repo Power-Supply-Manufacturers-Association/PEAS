@@ -188,7 +188,7 @@
             "description": "Time-base component (crystal / XO / TCXO / VCXO / OCXO / MEMS / silicon-RC / programmable oscillator, 555-class timer, SR latch) — defined by TBAS. The families carry ideal `behavioral` blocks (periodic source / one-shot / latch), so an anonymous PWM ramp in a CIAS control brick and an orderable oscillator are the same type. Distinct from CTAS (power-control ICs) and AAS (analog signal path).",
             "properties": {
                 "timeBase": {
-                    "$ref": "https://psma.com/tbas/tbas.json"
+                    "$ref": "https://psma.com/tdas/tdas.json"
                 }
             },
             "required": [
@@ -393,7 +393,7 @@
                     "inputs": {
                         "properties": {
                             "designRequirements": {
-                                "$ref": "https://psma.com/tbas/inputs/designRequirements.json"
+                                "$ref": "https://psma.com/tdas/inputs/designRequirements.json"
                             }
                         }
                     }

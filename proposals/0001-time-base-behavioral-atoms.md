@@ -59,7 +59,7 @@ and it is (§1, second paragraph). The repo shape buys:
 - **A home for the datasheet physics.** Frequency stability (ppm), aging,
   phase jitter, startup time, supply pushing — none of that has anywhere to
   live in a PEAS nature.
-- **Catalog growth.** `TAS/data/time_bases.ndjson` becomes sourceable from
+- **Catalog growth.** `TAS/data/time_based.ndjson` becomes sourceable from
   the usual vendor parametric APIs (frequency-control catalogs are
   well-structured), and Blade Runner can grow physics checks
   (f × stability sanity, jitter floors) once records exist.
@@ -204,7 +204,7 @@ a new `oneOf` branch `{"required": ["timeBase"], "properties": {"timeBase":
 matching `inputs.designRequirements` pin in the root `allOf` (every branch
 has one). TBAS documents then validate as PEAS documents with the
 `{timeBase: …}` wrap, TAS `component.data` URIs can point into
-`time_bases.ndjson`, and CIAS resolves them exactly like AAS blocks.
+`time_based.ndjson`, and CIAS resolves them exactly like AAS blocks.
 
 ## 5. The other three pieces (unchanged from rev 1)
 
@@ -280,7 +280,7 @@ Each canonical subcircuit is a single tested template in
 - CIAS: Catch2 cases asserting emitted netlists per dialect + one ngspice
   smoke sim per §6 recipe (duty tracks error; latch resets on i_sense
   crossing; VCO frequency tracks control voltage; one-shot width = onTime).
-- TAS: `time_bases.ndjson` starts empty-or-seeded; `test_data.py` picks it
+- TAS: `time_based.ndjson` starts empty-or-seeded; `test_data.py` picks it
   up by the existing per-type mapping once records land.
 - Blade Runner: no checks initially; candidate follow-up once catalog
   records exist (f × stability sanity, jitter floor vs technology).

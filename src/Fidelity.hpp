@@ -10,6 +10,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <map>
 
 namespace PEAS {
 
@@ -26,6 +27,14 @@ struct Fidelity {
     Origin origin;                          // no default — must be supplied
     bool allowStoredModelParams = false;    // OFF by default: stored modelParams.* used only when true
     CurveFit curveFit = CurveFit::NONE;
+
+    // Per-component origin overrides, keyed by the component's TAS ref (e.g. "T1"). An entry is an
+    // explicit USER DIRECTIVE: it wins over both `origin` and any per-component inference the
+    // assembler does from the bound data — REQUIREMENTS renders the ideal seed model even for a
+    // bound part; DATASHEET/MKF_MODEL demand the corresponding data on the part and the family
+    // converter throws when it is absent (no silent downgrade). A ref that matches no component in
+    // the assembled TAS is an error (typo protection), enforced by the assembler.
+    std::map<std::string, Origin> componentOrigins;
 
     explicit Fidelity(Origin o,
                       bool allowStored = false,

@@ -113,14 +113,12 @@
                             "minimum": 0
                         },
                         "positivePeak": {
-                            "description": "The maximum positive value of the waveform",
-                            "type": "number",
-                            "minimum": 0
+                            "description": "The maximum value of the waveform (>= 0 for bipolar signals; may be negative for negatively-biased signals that never cross zero)",
+                            "type": "number"
                         },
                         "negativePeak": {
-                            "description": "The most-negative value of the waveform (always <= 0 for bipolar signals)",
-                            "type": "number",
-                            "maximum": 0
+                            "description": "The minimum value of the waveform (<= 0 for bipolar signals; may be positive for DC-biased/unipolar signals that never cross zero)",
+                            "type": "number"
                         },
                         "phase": {
                             "description": "The phase of the waveform, in degrees",

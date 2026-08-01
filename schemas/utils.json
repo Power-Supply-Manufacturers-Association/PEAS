@@ -1166,6 +1166,273 @@
                     "source"
                 ]
             }
+        },
+        "pinFunction": {
+            "title": "pinFunction",
+            "description": "Normalized electrical ROLE of one physical terminal — the family-wide controlled vocabulary, hoisted to PEAS (2026-08) from the previously divergent module-local copies (AAS pinout.function 25-value enum, CONAS contactSystem signalRole 7-value enum, CTAS pins.function free string). One vocabulary so a controller's 'ground' and an op-amp's 'ground' are machine-comparable. This is the ROLE axis only: electrical direction is implied by the role (dataIn/dataOut), active level lives in pin.polarity, output topology in family extensions (AAS outputStage), and pad geometry in landPattern. Values are grouped: generic (signal/power/ground/shield/mechanical/noConnect/doNotConnect/other), differential pair halves, analog amplifier roles, supply rails, control, digital data/bus, power-semiconductor terminals, magnetic winding ends, and the power-controller vocabulary merged from CTAS controllerPinFunction (2026-08; normalized on merge: gnd->ground, and the duplicate feedback/compensation/enable/address/noConnect/gate entries deduplicated). 'mechanical' is a terminal with no electrical function (mounting post, board-lock). 'doNotConnect' is a datasheet DNC (internally bonded — must stay open), distinct from 'noConnect' (not bonded).",
+            "type": "string",
+            "enum": [
+                "signal",
+                "power",
+                "ground",
+                "shield",
+                "mechanical",
+                "noConnect",
+                "doNotConnect",
+                "other",
+                "differentialP",
+                "differentialN",
+                "inputPositive",
+                "inputNegative",
+                "input",
+                "output",
+                "outputComplementary",
+                "offsetTrim",
+                "compensation",
+                "reference",
+                "feedback",
+                "supplyPositive",
+                "supplyNegative",
+                "enable",
+                "disable",
+                "shutdown",
+                "chipSelect",
+                "clock",
+                "interrupt",
+                "dataIn",
+                "dataOut",
+                "dataBidirectional",
+                "address",
+                "gate",
+                "drain",
+                "source",
+                "kelvinSource",
+                "collector",
+                "emitter",
+                "base",
+                "anode",
+                "cathode",
+                "thermalPad",
+                "windingStart",
+                "windingEnd",
+                "tap",
+                "vcc",
+                "vdd",
+                "vddLow",
+                "vddHigh",
+                "vee",
+                "vbias",
+                "vin",
+                "vout",
+                "pgnd",
+                "agnd",
+                "currentSense",
+                "currentSensePositive",
+                "currentSenseNegative",
+                "drainSense",
+                "gateHighSide",
+                "gateLowSide",
+                "pwmOutput",
+                "syncRectifierGate",
+                "bootstrap",
+                "switchNode",
+                "logicInput",
+                "syncIn",
+                "syncOut",
+                "rt",
+                "ct",
+                "rtct",
+                "softStart",
+                "slopeCompensation",
+                "frequencySet",
+                "modeSelect",
+                "pmbusData",
+                "pmbusClock",
+                "pmbusAlert",
+                "smbusData",
+                "smbusClock",
+                "i2cData",
+                "i2cClock",
+                "spiClock",
+                "spiMosi",
+                "spiMiso",
+                "spiCs",
+                "vref",
+                "vrefBuffered",
+                "tempSense",
+                "tempReport",
+                "iSense",
+                "vSense",
+                "vidInput",
+                "powerGood",
+                "fault",
+                "brownOut",
+                "lineSense",
+                "zeroCrossingDetect",
+                "auxiliaryWinding",
+                "demagDetect",
+                "multiplier"
+            ]
+        },
+        "pin": {
+            "title": "pin",
+            "description": "One physical terminal of a packaged component: the (pin, name, function) triple that decides drop-in compatibility (same package does NOT imply same pinout — three mutually incompatible SOIC-8 single-op-amp pinouts exist). 'pin' is the designator as printed ('1', 'A2', 'G'); 'name' preserves the datasheet's own label verbatim ('IN+', 'NC/TRIM'); 'function' is the normalized cross-family vocabulary. OPEN MIXIN BASE (like datasheetInfoPartBase): deliberately not sealed here so a family may extend it via the sanctioned allOf idiom (e.g. AAS adds outputStage) — every consumer MUST seal with top-level unevaluatedProperties:false. Direct unextended use: $ref #/$defs/pinout, which is pre-sealed.",
+            "type": "object",
+            "properties": {
+                "pin": {
+                    "description": "Pin number / ball / terminal designator, as printed ('1', 'A2', 'G', 'TAB').",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "name": {
+                    "description": "Datasheet pin name verbatim ('IN+', 'DIS', 'VBUS', 'NC/TRIM').",
+                    "type": "string"
+                },
+                "function": {
+                    "$ref": "#/$defs/pinFunction"
+                },
+                "polarity": {
+                    "description": "Active level, for control pins where a swap breaks drop-in compatibility.",
+                    "type": "string",
+                    "enum": [
+                        "activeHigh",
+                        "activeLow"
+                    ]
+                }
+            },
+            "required": [
+                "pin",
+                "function"
+            ]
+        },
+        "pinout": {
+            "title": "pinout",
+            "description": "Per-terminal function map — one sealed entry per package pin/ball/terminal. The deciding axis for interchangeability of packaged parts. Families needing extra per-pin fields do NOT re-implement this: they build their own array whose items are allOf [pin, extension] sealed with unevaluatedProperties:false (see AAS). Register maps and per-pin absolute-max ratings are deliberately out of scope — they are not parametric pinout properties.",
+            "type": "array",
+            "items": {
+                "allOf": [
+                    {
+                        "$ref": "#/$defs/pin"
+                    }
+                ],
+                "unevaluatedProperties": false
+            }
+        },
+        "landPatternPad": {
+            "title": "landPatternPad",
+            "description": "One pad or hole of a manufacturer-recommended PCB land pattern. Geometry (shape) is deliberately separate from through-board character (drill/plated) — conflating them (a 'plated-hole' shape) cannot express a rectangular THT pad; KiCad separates pad type from pad shape for the same reason. SMT pad: no drill. THT/press-fit pad: drill (+ copper size). Non-plated mechanical hole: drill + plated:false, no width. Slotted hole (terminal blocks): drill = slot short dimension + slotLength.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "description": "Pad designator as printed in the land-pattern drawing. Joins pinout[].pin (and, for connectors, the CONAS contactSystem contact id) where applicable; purely mechanical pads use their own ids ('MH1').",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "x": {
+                    "description": "Pad-centre X in the land-pattern frame, in m (see landPattern.originDatum).",
+                    "type": "number"
+                },
+                "y": {
+                    "description": "Pad-centre Y in the land-pattern frame, in m.",
+                    "type": "number"
+                },
+                "rotation": {
+                    "description": "Rotation of the pad about its own centre, in degrees counter-clockwise; 0 (the default when absent) puts width along +X. Degrees are a documented exception to SI radians, matching the MAS coil turn-rotation convention and universal EDA practice.",
+                    "type": "number"
+                },
+                "shape": {
+                    "description": "Copper (or hole) outline. Pure geometry — never encodes plating.",
+                    "type": "string",
+                    "enum": [
+                        "round",
+                        "oval",
+                        "rectangle",
+                        "roundedRectangle"
+                    ]
+                },
+                "width": {
+                    "description": "Copper size along the pad's local X (before rotation), in m; the diameter for round pads. Omit for hole-only pads.",
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "height": {
+                    "description": "Copper size along the pad's local Y, in m. Omit for round pads.",
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "drill": {
+                    "description": "Finished hole diameter, in m; presence marks a through-board pad (THT / press-fit / mechanical). When slotLength is present this is the slot's short dimension.",
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "slotLength": {
+                    "description": "Long dimension of a slotted (oval) drill, in m. Requires drill.",
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "plated": {
+                    "description": "Whether the hole barrel is plated. Only meaningful together with drill; omit for SMT pads.",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "x",
+                "y",
+                "shape"
+            ],
+            "dependentRequired": {
+                "slotLength": [
+                    "drill"
+                ],
+                "plated": [
+                    "drill"
+                ]
+            }
+        },
+        "landPattern": {
+            "title": "landPattern",
+            "description": "Manufacturer-RECOMMENDED PCB land pattern (the 'recommended layout' drawing of the datasheet): pad centres, copper sizes and drills, exactly as published. Datasheet-layer facts only — no derived values, no courtyard/keep-out/3-D envelope (those stay family-side, e.g. CONAS geometry.keepOut/boundingEnvelope). Distinct from any scalar mounting-area figure (CAS capacitor 'footprint' is an area in m^2 and is NOT this type). Family-wide shared type hoisted to PEAS (2026-08); previously only CONAS carried a local variant.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "pattern": {
+                    "description": "Coarse topology hint for browse/filter; the pads array is the authority.",
+                    "type": "string",
+                    "enum": [
+                        "singleRow",
+                        "dualRow",
+                        "grid",
+                        "custom"
+                    ]
+                },
+                "originDatum": {
+                    "description": "What (0,0) of the pad coordinates refers to. A coordinate list with no stated datum is not reusable data.",
+                    "type": "string",
+                    "enum": [
+                        "pin1",
+                        "padCentroid",
+                        "bodyCenter",
+                        "other"
+                    ]
+                },
+                "recommendedBoardThickness": {
+                    "description": "Board thickness the pattern is specified for, in m, when the datasheet states one (press-fit patterns are thickness-specific).",
+                    "$ref": "#/$defs/dimensionWithTolerance"
+                },
+                "pads": {
+                    "description": "Land/hole pattern, one entry per pad.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/landPatternPad"
+                    }
+                }
+            },
+            "required": [
+                "pads"
+            ]
         }
     }
 }

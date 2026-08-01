@@ -191,3 +191,86 @@ def test_two_discriminators_rejected(peas):
            "capacitor": {"capacitor": {}},
            "resistor": {"resistor": {}}}
     assert not valid(peas, doc)
+
+
+# ---------------------------------------------------------------------------
+# Guard: pinout / land-pattern types are defined ONCE, in PEAS (2026-08 hoist).
+# History: before the hoist, FIVE divergent module-local representations existed
+# (AAS pinout w/ 25-value enum, CTAS pins w/ free-string function, CONAS
+# pcbFootprint w/ plating conflated into the shape enum, CONAS signalRole,
+# MAS bobbin pinout) and two of them were the same type defined twice with
+# ZERO shared vocabulary values. No module may reimplement these again: extend
+# via allOf over the PEAS base (AAS outputStage is the worked example) and add
+# missing vocabulary values to PEAS pinFunction, never locally.
+# ---------------------------------------------------------------------------
+
+# MAS is allowlisted: committee-governed (own RFC process), and its bobbin
+# `pinout` is a bobbin MANUFACTURING spec (pitch arrays, row geometry), not a
+# per-terminal function map. Migrating the finished-magnetic side is proposed
+# through the MAS RFC process, not imposed here.
+_PINOUT_GUARD_REPOS = [r for r in SIBLINGS if r not in ("PEAS", "MAS")]
+
+_DESIGNATOR_KEYS = {"pin", "number", "designator"}
+
+
+def _walk_schema_nodes(node, path=""):
+    if isinstance(node, dict):
+        yield path, node
+        for k, v in node.items():
+            yield from _walk_schema_nodes(v, f"{path}/{k}")
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            yield from _walk_schema_nodes(v, f"{path}/{i}")
+
+
+def test_no_module_local_pinout_or_landpattern():
+    """A module schema must not re-declare the pin-map shape (a properties set
+    carrying a designator key AND 'function') or the pad-array shape (a 'pads'
+    array whose items declare x/y). Both live in PEAS utils; modules $ref them."""
+    offenders = []
+    for repo in _PINOUT_GUARD_REPOS:
+        sdir = WORKSPACE / repo / "schemas"
+        if not sdir.is_dir():
+            continue
+        for path in sorted(sdir.rglob("*.json")):
+            doc = json.loads(path.read_text())
+            for where, node in _walk_schema_nodes(doc):
+                props = node.get("properties")
+                if not isinstance(props, dict):
+                    continue
+                # pin-map shape: designator + function declared side by side
+                if "function" in props and _DESIGNATOR_KEYS & set(props):
+                    offenders.append(f"{repo}:{path.name}{where} re-declares a pin map "
+                                     f"(has {sorted(_DESIGNATOR_KEYS & set(props))} + function); "
+                                     "use https://psma.com/peas/utils.json#/$defs/pin[out]")
+                # pad-array shape: pads[] items declaring coordinates
+                pads = props.get("pads")
+                if isinstance(pads, dict):
+                    items = pads.get("items")
+                    if isinstance(items, dict):
+                        ip = items.get("properties")
+                        if isinstance(ip, dict) and {"x", "y"} <= set(ip):
+                            offenders.append(f"{repo}:{path.name}{where} re-declares a pad array; "
+                                             "use https://psma.com/peas/utils.json#/$defs/landPattern")
+    assert not offenders, "module-local pinout/landPattern definitions found:\n  " + "\n  ".join(offenders)
+
+
+def test_no_module_local_pin_function_vocabulary():
+    """A module schema must not carry its own pin-function vocabulary (an enum
+    containing the telltale role values). The single vocabulary is PEAS
+    pinFunction; missing values are ADDED there (enums are complete unions),
+    never forked locally. Catches the CTAS controllerPinFunction class."""
+    telltale = {"ground", "gnd", "noConnect", "supplyPositive", "vcc", "gateHighSide"}
+    offenders = []
+    for repo in _PINOUT_GUARD_REPOS:
+        sdir = WORKSPACE / repo / "schemas"
+        if not sdir.is_dir():
+            continue
+        for path in sorted(sdir.rglob("*.json")):
+            doc = json.loads(path.read_text())
+            for where, node in _walk_schema_nodes(doc):
+                enum = node.get("enum")
+                if isinstance(enum, list) and len(telltale & set(map(str, enum))) >= 2:
+                    offenders.append(f"{repo}:{path.name}{where} carries a local pin-function "
+                                     "vocabulary; extend PEAS utils.json#/$defs/pinFunction instead")
+    assert not offenders, "module-local pin-function vocabularies found:\n  " + "\n  ".join(offenders)

@@ -364,3 +364,25 @@ It is a **list**: a record may combine sources (e.g. specs from the datasheet, a
 voltage from a distributor, a missing field back-filled by librarian enrichment). The
 canonical definition lives in `PEAS/schemas/utils.json#/$defs/provenance` (mirrored in
 `MAS/schemas/utils.json`, which is self-contained).
+
+## Pinout and land pattern (hoisted 2026-08)
+
+`utils.json` carries the family-wide per-terminal and land-pattern types, consolidated
+from five previously divergent module-local representations (AAS `pinout`, CTAS
+`pins`/`controllerPinFunction`, CONAS `pcbFootprint`, CONAS `signalRole`; MAS
+`bobbin.pinout` stays module-side — it is a bobbin manufacturing spec, and MAS adoption
+for finished magnetics is proposed via MAS-RFC 0010):
+
+| def | what |
+|---|---|
+| `pinFunction` | THE single 100-value role vocabulary (generic + differential + amplifier + supply + control + digital + power-semiconductor + magnetics + the merged CTAS power-controller group). Missing values are ADDED here — never forked locally. |
+| `pin` | `(pin, name, function, polarity)` — an OPEN mixin base (like `datasheetInfoPartBase`); consumers seal with `unevaluatedProperties: false`, and may extend via `allOf` (AAS adds `outputStage`). |
+| `pinout` | pre-sealed array of `pin`, for direct unextended use. |
+| `landPatternPad` | one pad/hole: `id` (joins `pinout[].pin`), `x`/`y` (m), `rotation` (degrees — documented SI exception matching MAS coil), `shape` (pure geometry), `width`/`height`, `drill`/`slotLength`/`plated` (through-board character kept separate from shape). |
+| `landPattern` | the datasheet's recommended pattern: `pattern` hint, `originDatum`, `recommendedBoardThickness`, `pads[]`. Distinct from CAS's scalar `footprint` (an area in m²), which deliberately keeps a different name. |
+
+Two guard tests in `tests/test_schemas.py` enforce single-definition:
+`test_no_module_local_pinout_or_landpattern` (fails on any module schema re-declaring a
+designator+function properties set or a pads[]-with-x/y array) and
+`test_no_module_local_pin_function_vocabulary` (fails on any module-local enum carrying
+the telltale role values).

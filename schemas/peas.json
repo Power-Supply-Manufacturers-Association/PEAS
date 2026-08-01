@@ -196,7 +196,7 @@
             ]
         },
         {
-            "description": "Behavioral (mathematical model) component — a two-terminal element whose constitutive relation is expressed as an analytic formula or a parametric Chan saturable-core model. Simulator-agnostic: CiasCircuitConverter generates the correct syntax for each target (ngspice B-element with ddt(), LTspice FLux=/Q= or Hc/Bs/…, Verilog-A contribution statement).",
+            "description": "Behavioral (mathematical model) component — an element whose constitutive relation is expressed as an analytic formula, a parametric Chan saturable-core model, or a coupled-inductor inductance matrix. Simulator-agnostic: CiasCircuitConverter generates the correct syntax for each target (ngspice B-element with ddt(), LTspice FLux=/Q= or Hc/Bs/…, L/K inductor-coupling cards, Verilog-A contribution statement).",
             "properties": {
                 "behavioral": {
                     "$ref": "#/$defs/behavioral"
@@ -451,7 +451,7 @@
         },
         "behavioral": {
             "title": "Behavioral",
-            "description": "A two-terminal element whose constitutive relation is given analytically. Two shapes: expression-based (flux linkage Ψ(i) or charge Q(v,i)) and the parametric Chan saturable-core model (Hc/Bs/Br + geometry). Variables in expressions are fixed by convention: i = port current [A], v = branch voltage [V], temp = temperature [°C], time = simulation time [s]; standard math functions (exp, abs, sqrt, sin, cos, atan, log) are valid. time maps to LTspice/ngspice `time` and Verilog-A $abstime; it enables soft-start ramps and bespoke stimuli without dedicated natures.",
+            "description": "An element whose constitutive relation is given analytically. Most natures are two-terminal (expression-based flux linkage Ψ(i) or charge Q(v,i), the parametric Chan saturable-core model); 'controlled'/'source'/'switch'/'frequencyResponse' name their own pins explicitly, and 'coupledInductors' is the one 2N-terminal nature (N windings, matrix-defined). Variables in expressions are fixed by convention: i = port current [A], v = branch voltage [V], temp = temperature [°C], time = simulation time [s]; standard math functions (exp, abs, sqrt, sin, cos, atan, log) are valid. time maps to LTspice/ngspice `time` and Verilog-A $abstime; it enables soft-start ramps and bespoke stimuli without dedicated natures.",
             "oneOf": [
                 {
                     "description": "Expression-based constitutive relation. nature='flux' defines Ψ(i)=expression [V·s]; nature='charge' defines Q(v,i)=expression [C]. CiasCircuitConverter emits: LTspice→FLux=/Q= with x=i or x=v; ngspice→B-element with V=ddt(expr(I(Vsense))) or I=ddt(expr(V(a,b))); Verilog-A→Phi(br)<+expr or Q(br)<+expr.",
@@ -751,6 +751,42 @@
                                     }
                                 }
                             }
+                        }
+                    }
+                },
+                {
+                    "description": "Coupled-inductor bundle: N magnetically coupled windings defined by the full N×N inductance matrix (e.g. a connector pin-field partial-inductance model, a busbar loop, a multi-phase coupled choke). Element [i][j] is the mutual inductance M_ij [H]; the diagonal L_ii is winding i's self (partial) inductance. The matrix is expected symmetric positive-definite: consumers MUST reject (never clamp) asymmetry beyond numeric tolerance, a non-positive diagonal, or |k_ij| = |M_ij|/sqrt(L_ii*L_jj) > 1. Pin convention: winding i (1-based, in matrix row order) exposes the pin pair 'winding<i>_start' / 'winding<i>_end' — the N-winding generalization of the magnetic branch's primary_start/primary_end naming; a CIAS brick binds these pin names to nets exactly like any other component pins. Sign convention: M_ij > 0 means currents entering both _start pins produce adding flux (the dot sits at every _start). CiasCircuitConverter emits one inductor per winding, L<name>_<i> between the winding's nodes with value L_ii, plus K<name>_<i>_<j> L<name>_<i> L<name>_<j> k_ij for every i<j with M_ij != 0 (k_ij = M_ij/sqrt(L_ii*L_jj)); a seriesResistance entry lowers to a series R<name>_<i> through an internal node.",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "nature",
+                        "inductanceMatrix"
+                    ],
+                    "properties": {
+                        "nature": {
+                            "type": "string",
+                            "const": "coupledInductors"
+                        },
+                        "inductanceMatrix": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "description": "N×N inductance matrix [H], row-major: element [i][j] is the mutual M_ij between windings i and j; the diagonal [i][i] is the self inductance L_ii (> 0). Must be square and symmetric (M_ij = M_ji) and is expected positive-definite; consumers validate and throw on violation."
+                        },
+                        "seriesResistance": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "description": "Optional per-winding series resistance [Ω], one entry per winding in matrix row order (length must equal N). Lowered as a resistor in series with winding i's inductor."
                         }
                     }
                 }

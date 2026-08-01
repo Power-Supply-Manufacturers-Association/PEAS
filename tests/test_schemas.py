@@ -110,6 +110,9 @@ def test_mas_sample_is_valid_peas(peas):
 BEHAVIORAL_NATURES = [
     {"nature": "flux", "expression": "0.001*atan(i)"},
     {"nature": "charge", "expression": "1e-9*v"},
+    {"nature": "coupledInductors",
+     "inductanceMatrix": [[1e-7, 2e-8], [2e-8, 5e-8]],
+     "seriesResistance": [1e-3, 1e-3]},
 ]
 
 
@@ -157,6 +160,30 @@ def test_transmission_line_validates(peas):
         },
     }
     assert valid(peas, doc)
+
+
+def test_coupled_inductors_missing_matrix_rejected(peas):
+    # The branch requires inductanceMatrix; nature alone must not validate.
+    doc = {"inputs": {"designRequirements": {"name": "x"}},
+           "behavioral": {"nature": "coupledInductors"}}
+    assert not valid(peas, doc)
+
+
+def test_coupled_inductors_negative_series_resistance_rejected(peas):
+    doc = {"inputs": {"designRequirements": {"name": "x"}},
+           "behavioral": {"nature": "coupledInductors",
+                          "inductanceMatrix": [[1e-7]],
+                          "seriesResistance": [-1.0]}}
+    assert not valid(peas, doc)
+
+
+def test_coupled_inductors_extra_key_rejected(peas):
+    # Closed object: no stray keys on the branch.
+    doc = {"inputs": {"designRequirements": {"name": "x"}},
+           "behavioral": {"nature": "coupledInductors",
+                          "inductanceMatrix": [[1e-7]],
+                          "couplingFactor": 0.9}}
+    assert not valid(peas, doc)
 
 
 # --- negative fixtures --------------------------------------------------------

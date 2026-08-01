@@ -80,7 +80,7 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 | `controller` | CTAS (`https://psma.com/ctas/controller.json`) | PWM / LLC / PFC / sync-rectifier / gate-driver / reference control ICs |
 | `connector` | CONAS (`https://psma.com/conas/connector.json`) | Terminals, headers, edge-card, wire-to-board, power |
 | `analog` | AAS (`https://psma.com/aas/AAS.json`) | Op amps, comparators, ADC/DAC, analog switches |
-| `behavioral` | PEAS-native (`#/$defs/behavioral`) | Analytic Ψ(i)/Q(v) or Chan saturable-core models |
+| `behavioral` | PEAS-native (`#/$defs/behavioral`) | Analytic Ψ(i)/Q(v), Chan saturable-core, controlled/source/switch/frequency-response atoms, N-winding coupled-inductor matrices |
 | `transmissionLine` | PEAS-native (`#/$defs/transmissionLine`) | Distributed RLGC lines |
 
 Cross-repo `$ref`s use the **absolute** `https://psma.com/<repo>/...` `$id` URIs (resolved via a `referencing.Registry`), never relative paths.

@@ -1438,6 +1438,51 @@
             "required": [
                 "pads"
             ]
+        },
+        "sParameterReference": {
+            "title": "sParameterReference",
+            "description": "Reference to a MEASURED (or vendor-solver) S-parameter file published by its rights holder — a POINTER, never the payload. Policy (approved 2026-08, ABT #470): we reference vendor Touchstone, we never host it (single-vendor click-through licences) and we never synthesize it (a synthetic .s4p is indistinguishable from a measurement and would be rightly rejected). The checksum lets a consumer detect silent upstream replacement; retrievedDate records when the URI last resolved (a cited URL counts only once fetched).",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "uri": {
+                    "description": "Where the rights holder publishes the file (or the request page when download is form-gated).",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "format": {
+                    "type": "string",
+                    "enum": [
+                        "touchstone"
+                    ]
+                },
+                "ports": {
+                    "description": "Port count of the referenced file (e.g. 4 for a .s4p).",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "source": {
+                    "description": "Who published it and what it is (e.g. 'Samtec High Speed Characterization, SEAM-40 + SEAF-40 mated pair').",
+                    "type": "string"
+                },
+                "licenceNote": {
+                    "description": "Access/licence condition observed at retrievedDate (e.g. 'free download, no login', 'request form, 24 h turnaround').",
+                    "type": "string"
+                },
+                "checksum": {
+                    "description": "sha256 of the file as fetched at retrievedDate, hex — drift detection only, never redistribution.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "retrievedDate": {
+                    "description": "YYYY-MM-DD the URI was last verified to resolve.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "uri",
+                "format"
+            ]
         }
     }
 }

@@ -354,7 +354,8 @@ came from. Optional and closed, so records without it remain valid. Each entry:
 
 | field | meaning |
 |---|---|
-| `source` | `manufacturerDatasheet` · `manufacturerParametric` · `manufacturerDatabase` · `distributor` · `librarianEnrichment` · `scrape` · `manual` |
+| `source` | `manufacturerDatasheet` · `manufacturerParametric` · `manufacturerDatabase` · `distributor` · `librarianEnrichment` · `scrape` · `manual` · `derived` (computed from other fields of the same record — never measured) |
+| `derivation` | for `source='derived'`: the exact rule and inputs the value was computed from — the assumption record (optional otherwise) |
 | `sourceName` | human-readable source, e.g. `"TI parametric API"`, `"WE - Passive Components.mdb"`, `"DigiKey"` |
 | `sourceUrl` | URL the value came from (optional) |
 | `retrievedDate` | `YYYY-MM-DD` (optional) |

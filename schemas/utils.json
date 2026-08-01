@@ -1123,7 +1123,7 @@
                 "additionalProperties": false,
                 "properties": {
                     "source": {
-                        "description": "Kind of source this data came from.",
+                        "description": "Kind of source this data came from. 'derived' marks values COMPUTED from other fields of the same record (never measured, never read from a document) — a derived entry must say how in `derivation`, so a consumer can distinguish vendor fact from arithmetic.",
                         "type": "string",
                         "enum": [
                             "manufacturerDatasheet",
@@ -1132,8 +1132,13 @@
                             "distributor",
                             "librarianEnrichment",
                             "scrape",
-                            "manual"
+                            "manual",
+                            "derived"
                         ]
+                    },
+                    "derivation": {
+                        "description": "For source='derived': the exact rule and inputs the value was computed from (e.g. 'contactArray from mechanical.pitch x positions x rows; countX=positions/rows'). Required reading for anyone consuming a derived field — it is the assumption record.",
+                        "type": "string"
                     },
                     "sourceName": {
                         "description": "Human-readable source identifier, e.g. 'TI parametric API', 'WE - Passive Components.mdb', 'DigiKey'.",

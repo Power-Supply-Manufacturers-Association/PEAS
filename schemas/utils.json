@@ -1116,7 +1116,7 @@
         },
         "provenance": {
             "title": "provenance",
-            "description": "Data-provenance trail for this part's datasheetInfo. A list, because different fields may come from different sources (e.g. core specs from the manufacturer datasheet, current rating from a distributor, a missing field back-filled by librarian enrichment).",
+            "description": "Data-provenance trail for this record's data. A list, because different fields may come from different sources (e.g. core specs from the manufacturer datasheet, current rating from a distributor, a missing field back-filled by librarian enrichment). Most records that carry this are PARTS, where the trail describes their datasheetInfo \u2014 but the definition is deliberately record-neutral: CIAS $refs it for a whole circuit brick, which has no datasheetInfo at all, and a DERIVED brick's trail describes how the brick itself was generated.",
             "type": "array",
             "items": {
                 "type": "object",
@@ -1153,14 +1153,14 @@
                         "format": "uri"
                     },
                     "retrievedDate": {
-                        "description": "Date the data was retrieved (YYYY-MM-DD).",
+                        "description": "Date the data was retrieved (YYYY-MM-DD). For source='derived' there is nothing to retrieve, so this is the date the value was COMPUTED \u2014 the two readings are deliberately unified rather than given separate keys, because in both cases the question it answers is 'as of when is this true'.",
                         "type": [
                             "string",
                             "null"
                         ]
                     },
                     "fields": {
-                        "description": "Optional: which datasheetInfo fields this source provided (for mixed-source records).",
+                        "description": "Optional: which fields of this record this source provided (for mixed-source records). On a part that means datasheetInfo fields; on a record with no datasheetInfo (e.g. a CIAS brick) it means whatever fields the source is claiming.",
                         "type": "array",
                         "items": {
                             "type": "string"

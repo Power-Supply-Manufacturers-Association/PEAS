@@ -270,7 +270,7 @@
             }
         },
         "connectionType": {
-            "description": "PCB / terminal connection type. Superset of MAS schemas/utils.json#/$defs/connectionType: includes every MAS value (pin, screw, smt, flyingLead, tht, pcbPad) plus PEAS-only additions (chassis). Case-style aligned to MAS (lowerCamelCase) since MAS is the IEC standard candidate.",
+            "description": "PCB / terminal connection type. Superset of MAS schemas/utils.json#/$defs/connectionType: includes every MAS value (pin, screw, smt, flyingLead, tht, pcbPad) plus PEAS-only additions (chassis, blind). A blind connection is an unexposed splice joining one winding to another inside the assembly, with no externally accessible terminal. Case-style aligned to MAS (lowerCamelCase) since MAS is the IEC standard candidate.",
             "type": "string",
             "title": "connectionType",
             "enum": [
@@ -280,7 +280,8 @@
                 "flyingLead",
                 "tht",
                 "pcbPad",
-                "chassis"
+                "chassis",
+                "blind"
             ]
         },
         "distributorInfo": {

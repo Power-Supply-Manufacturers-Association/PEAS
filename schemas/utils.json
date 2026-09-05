@@ -1116,7 +1116,7 @@
         },
         "provenance": {
             "title": "provenance",
-            "description": "Data-provenance trail for this record's data. A list, because different fields may come from different sources (e.g. core specs from the manufacturer datasheet, current rating from a distributor, a missing field back-filled by librarian enrichment). Most records that carry this are PARTS, where the trail describes their datasheetInfo \u2014 but the definition is deliberately record-neutral: CIAS $refs it for a whole circuit brick, which has no datasheetInfo at all, and a DERIVED brick's trail describes how the brick itself was generated.",
+            "description": "Data-provenance trail for this record's data. A list, because different fields may come from different sources (e.g. core specs from the manufacturer datasheet, current rating from a distributor, a missing field back-filled by librarian enrichment). Most records that carry this are PARTS, where the trail describes their datasheetInfo — but the definition is deliberately record-neutral: CIAS $refs it for a whole circuit brick, which has no datasheetInfo at all, and a DERIVED brick's trail describes how the brick itself was generated.",
             "type": "array",
             "items": {
                 "type": "object",
@@ -1136,16 +1136,51 @@
                             "derived"
                         ]
                     },
+                    "verification": {
+                        "description": "What was actually DONE to establish this entry, as a closed vocabulary. `source` says WHERE the data is claimed to come from; `verification` says HOW FAR anyone got in confirming that claim. The two are independent: a manufacturerDatasheet entry may be anything from notAttempted to valuesReadFromSource. ABSENT means UNSTATED — never a claim of verification — which is what makes this key additive for the 1.7M entries written before it existed. Values, weakest to strongest: 'notAttempted' nobody tried to confirm the claim; 'sourceUnreachable' a fetch was attempted and the source could not be reached (dead URL, gated host, network failure) — evidence about the CITATION, never about the part; 'documentUnreadable' the source was retrieved but yields no usable content (scanned image, no text layer, textless CAD drawing); 'citationOnly' the cited document was retrieved and is a real document, but nothing in it was matched to this record; 'existenceConfirmed' an authoritative catalogue or database confirms this part number exists, without any document being read; 'seriesConfirmed' the retrieved document covers this part's SERIES but does not print this individual order code; 'partNamed' the retrieved document names this exact part number; 'valuesReadFromSource' the stored VALUES for the fields listed in `fields` were actually read or re-derived from the source — the only value that asserts the NUMBERS were checked, and deliberately the hardest to claim; 'disproven' the source was retrieved and CONTRADICTS this record (does not mention the part, or names a different one); 'inferredNotVerified' the entry was constructed from the record itself (its own URL, its own manufacturer name, a templated search query) with no retrieval of any kind — such an entry is NOT evidence and must never be counted as a citation.",
+                        "type": "string",
+                        "enum": [
+                            "notAttempted",
+                            "sourceUnreachable",
+                            "documentUnreadable",
+                            "citationOnly",
+                            "existenceConfirmed",
+                            "seriesConfirmed",
+                            "partNamed",
+                            "valuesReadFromSource",
+                            "disproven",
+                            "inferredNotVerified"
+                        ]
+                    },
+                    "verificationDate": {
+                        "description": "Date (YYYY-MM-DD) on which the act recorded in `verification` was performed. Distinct from `retrievedDate`, which dates the DATA; this dates the CHECK. Required whenever `verification` is present and is not 'notAttempted'.",
+                        "type": "string",
+                        "format": "date",
+                        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+                    },
+                    "verificationMethod": {
+                        "description": "Free text naming the concrete mechanism that reached the `verification` state — the endpoint called, the database read, the matcher rule that fired (e.g. 'HTTP GET + pdftotext, exact order-code match'; 'TDK Meister TstDB.tmdb part-table lookup'). This is where narrative belongs; it must NOT be written into `sourceName`.",
+                        "type": "string"
+                    },
                     "derivation": {
                         "description": "For source='derived': the exact rule and inputs the value was computed from (e.g. 'contactArray from mechanical.pitch x positions x rows; countX=positions/rows'). Required reading for anyone consuming a derived field — it is the assumption record.",
                         "type": "string"
                     },
+                    "retracted": {
+                        "description": "true when this entry has been WITHDRAWN: the claim it records is no longer asserted. A retracted entry is KEPT, never deleted, so the withdrawal stays traceable — but consumers MUST NOT count it as provenance for any field, and MUST NOT treat its sourceUrl/sourceName as a live citation. This exists because a withdrawal has nowhere to live today and is therefore written as a NEW entry that impersonates a source: 91,416 TAS entries carry retraction prose in `sourceName`, spread across five different `source` enum values for the same act.",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "retractionReason": {
+                        "description": "Why the entry was withdrawn, and by what act. Required when `retracted` is true. E.g. 'esr removed 2026-09-04: esr*C collapses onto a fixed constant across the cohort — a pipeline clamp, not a measurement (ABT #391)'. The fields the withdrawal covers go in `fields`, exactly as for a positive claim.",
+                        "type": "string"
+                    },
                     "sourceName": {
-                        "description": "Human-readable source identifier, e.g. 'TI parametric API', 'WE - Passive Components.mdb', 'DigiKey'.",
+                        "description": "Human-readable source identifier, e.g. 'TI parametric API', 'WE - Passive Components.mdb', 'DigiKey'. A NAME ONLY. Verification state belongs in `verification`/`verificationMethod`, a withdrawal in `retracted`/`retractionReason`, and a computation in `derivation` — none of it in this field. Writing them here is what produced 507 distinct bracketed phrasings of what should be a closed vocabulary.",
                         "type": "string"
                     },
                     "sourceUrl": {
-                        "description": "URL the data was retrieved from, if applicable.",
+                        "description": "URL the data was retrieved from, if applicable. MUST NOT be set when source='derived': a computation has nothing to retrieve, and a URL on a derived entry reads as a citation that was never made (37,075 such entries exist in the TAS corpus today, 315 of them citing a URL scheme retired in 2026). Put the inputs in `derivation` instead.",
                         "type": [
                             "string",
                             "null"
@@ -1153,7 +1188,7 @@
                         "format": "uri"
                     },
                     "retrievedDate": {
-                        "description": "Date the data was retrieved (YYYY-MM-DD). For source='derived' there is nothing to retrieve, so this is the date the value was COMPUTED \u2014 the two readings are deliberately unified rather than given separate keys, because in both cases the question it answers is 'as of when is this true'.",
+                        "description": "Date the data was retrieved (YYYY-MM-DD). For source='derived' there is nothing to retrieve, so this is the date the value was COMPUTED — the two readings are deliberately unified rather than given separate keys, because in both cases the question it answers is 'as of when is this true'.",
                         "type": [
                             "string",
                             "null"
@@ -1169,6 +1204,46 @@
                 },
                 "required": [
                     "source"
+                ],
+                "allOf": [
+                    {
+                        "$comment": "PHASE A (additive). A verification claim must say when it was made. Constrains only entries that opt into `verification`; every entry written before this key existed is unaffected.",
+                        "if": {
+                            "required": [
+                                "verification"
+                            ],
+                            "properties": {
+                                "verification": {
+                                    "not": {
+                                        "const": "notAttempted"
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "required": [
+                                "verificationDate"
+                            ]
+                        }
+                    },
+                    {
+                        "$comment": "PHASE A (additive). A withdrawal must say why. Constrains only entries that opt into `retracted: true`.",
+                        "if": {
+                            "required": [
+                                "retracted"
+                            ],
+                            "properties": {
+                                "retracted": {
+                                    "const": true
+                                }
+                            }
+                        },
+                        "then": {
+                            "required": [
+                                "retractionReason"
+                            ]
+                        }
+                    }
                 ]
             }
         },

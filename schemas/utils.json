@@ -1080,6 +1080,42 @@
             ],
             "additionalProperties": false
         },
+        "qualifiedReliability": {
+            "description": "A reliability grade the part is QUALIFIED to under a named specification \u2014 part IDENTITY, like a safety class or a dielectric code, not a predicted or calculated figure. MIL-PRF-39003 and MIL-PRF-39006 print ONE ratings row covering all of their failure-rate levels, so parts that differ only in this grade are otherwise identical: without this def, 4,878 of 6,373 MIL capacitor rows are byte-identical apart from a dash number and nothing in the record says which level each is. It lives in PEAS rather than in CAS because it is not capacitor-specific \u2014 2,674 magnetics carry a QPL qualification too, and PEAS already owns the requirement-side siblings `reliabilityStandard`, `complianceTarget` and `environmentalQualification` with nothing on the part side. Distinct from `reliabilityStandard`, which names a PREDICTION method (MIL-HDBK-217F, FIDES) applied by an analyst; this records what the qualifying body certified.",
+            "type": "object",
+            "title": "qualifiedReliability",
+            "properties": {
+                "specification": {
+                    "description": "The qualifying specification, e.g. 'MIL-PRF-39003', 'MIL-PRF-39006', 'MIL-PRF-39014', or a QPL designation. Open vocabulary: new specifications appear faster than an enum can be revised, and an unknown string is more useful than a rejected record.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "grade": {
+                    "description": "The failure-rate level as the specification itself letters it \u2014 M, P, R, S for the exponential levels and G, B, C, D for the Weibull ones under MIL-PRF-39003. Kept as the printed token rather than decoded, because the same letter means different rates under different specifications.",
+                    "type": ["string", "null"]
+                },
+                "failureRate": {
+                    "description": "Failure rate in SI base units: failures per SECOND (1/s). Vendors print this as %/1000 h or as FIT, so convert on the way in \u2014 1.0 %/1000 h is 2.7778e-9 1/s, and 1 FIT (one failure per 1e9 hours) is 2.7778e-13 1/s. SI is kept here rather than admitting a third documented unit exception; consumers convert back to FIT for display.",
+                    "type": ["number", "null"],
+                    "minimum": 0
+                },
+                "distribution": {
+                    "description": "Which failure model the rate is stated under. Load-bearing, not decorative: under MIL-PRF-39003 grades M and G are BOTH 1.0 %/1000 h and are distinguished only by this \u2014 M is exponential, G is Weibull \u2014 so a record carrying the rate without the distribution has lost the difference between two real, separately orderable parts.",
+                    "type": ["string", "null"],
+                    "enum": ["exponential", "weibull", null]
+                },
+                "confidenceLevel": {
+                    "description": "Confidence level the rate is qualified at, as a FRACTION (0.9, not 90) \u2014 the house convention for ratios, as with `dissipationFactor`.",
+                    "type": ["number", "null"],
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            },
+            "required": [
+                "specification"
+            ],
+            "additionalProperties": false
+        },
         "reliabilityStandard": {
             "description": "Reliability prediction standard.",
             "type": "string",

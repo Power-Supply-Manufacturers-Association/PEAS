@@ -1159,7 +1159,7 @@
                         "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
                     },
                     "verificationMethod": {
-                        "description": "Free text naming the concrete mechanism that reached the `verification` state — the endpoint called, the database read, the matcher rule that fired (e.g. 'HTTP GET + pdftotext, exact order-code match'; 'TDK Meister TstDB.tmdb part-table lookup'). This is where narrative belongs; it must NOT be written into `sourceName`.",
+                        "description": "The measurement CONDITIONS and bounds under which the source states the value, read off the source and kept because the schema has nowhere else for them — e.g. 'Measured at 10 mA Max.', '200V AC for 1 minute', 'Dielectric Withstanding Voltage 1000 VRMS Min', 'Ptot max, TC=25 C', 'Qg 55 nC (VGS 10 V)'. Several fields are typed as bare numbers, so the Min/Max sense and the RMS or temperature basis survive only here. This is NOT a place to record HOW the row was obtained: no endpoint or HTTP method, no script or tool name, no staging path, no matcher rule, no ticket number, no agent or campaign identity, no audit note or superseded-value history. That belongs in the commit and the issue tracker — it is not part of the record. It must not be written into `sourceName` either.",
                         "type": "string"
                     },
                     "derivation": {

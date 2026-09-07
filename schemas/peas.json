@@ -9,6 +9,24 @@
         "inputs"
     ],
     "properties": {
+        "analog": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "behavioral": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "capacitor": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "connector": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
+        "connectorAccessory": {
+            "$ref": "https://psma.com/conas/connectorAccessory.json"
+        },
+        "controller": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
         "inputs": {
             "description": "Per-component design requirements and operating points. `designRequirements` is ALWAYS required — it is the ideal-simulation seed that the librarian uses to bind a real part and that is retained post-binding as the spec the part met. Its concrete shape is pinned to the discriminator branch (magnetic/capacitor/semiconductor/resistor/controller/connector/analog/timeBase) by the if/then clauses at the bottom of this schema.",
             "type": "object",
@@ -31,6 +49,9 @@
                 }
             }
         },
+        "magnetic": {
+            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        },
         "outputs": {
             "description": "Computed results (losses, thermal, impedance, etc.). May be a single object or an array of per-operating-point results; concrete shape is fixed by the sibling family schema.",
             "oneOf": [
@@ -47,40 +68,31 @@
                 }
             ]
         },
-        "magnetic": {
-            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        "potentiometer": {
+            "$ref": "https://psma.com/ras/potentiometer.json"
         },
-        "capacitor": {
+        "relay": {
+            "$ref": "https://psma.com/emas/relay.json"
+        },
+        "resistor": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
         "semiconductor": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
-        "resistor": {
-            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
-        },
-        "varistor": {
-            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
+        "switch": {
+            "$ref": "https://psma.com/emas/switch.json"
         },
         "thermistor": {
-            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
-        },
-        "controller": {
-            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
-        },
-        "connector": {
-            "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
-        },
-        "analog": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
         "timeBase": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
-        "behavioral": {
+        "transmissionLine": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
-        "transmissionLine": {
+        "varistor": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         }
     },
@@ -193,6 +205,50 @@
             },
             "required": [
                 "timeBase"
+            ]
+        },
+        {
+            "description": "Potentiometer / rheostat / trimmer — defined by RAS alongside resistor, varistor and thermistor. A THREE-terminal adjustable divider, not a resistor with an extra field: the electrical model is two resistances summing to `totalResistance`, split at a design-time wiper position. It is its own discriminator because a potentiometer SATISFIES `resistor.electrical`'s required set, so filing one as a fixed resistor would validate silently rather than fail.",
+            "properties": {
+                "potentiometer": {
+                    "$ref": "https://psma.com/ras/potentiometer.json"
+                }
+            },
+            "required": [
+                "potentiometer"
+            ]
+        },
+        {
+            "description": "Connector accessory — defined by CONAS. Backshells, bare crimp and solder contacts, hoods, caps, IC and memory sockets, EMI gaskets, TPA retainers, cages, marker cards, tooling. Separate from `connector` because that family describes a MATED interface and requires `electrical`, `mechanical` and `familyDetails`: a backshell has no mating face, no contact count and no electrical rating, so three of those four blocks are structurally unavailable rather than merely unsourced.",
+            "properties": {
+                "connectorAccessory": {
+                    "$ref": "https://psma.com/conas/connectorAccessory.json"
+                }
+            },
+            "required": [
+                "connectorAccessory"
+            ]
+        },
+        {
+            "description": "Relay — electromechanical, reed, solid-state, hybrid or mercury-wetted — defined by EMAS. A contact set operated by a separate input, so `electrical.input` is a pinned union rather than a coil block: a solid-state relay's opto-isolated input cannot honestly be described as a coil.",
+            "properties": {
+                "relay": {
+                    "$ref": "https://psma.com/emas/relay.json"
+                }
+            },
+            "required": [
+                "relay"
+            ]
+        },
+        {
+            "description": "Switch — push-button, tactile, toggle, snap-action, slide, rocker, DIP/SIP, keylock and rotary, with circuit breakers as a pinned variant — defined by EMAS. Shares EMAS's load-side contact model with `relay`; the difference is what moves the contacts, an actuator rather than an input signal.",
+            "properties": {
+                "switch": {
+                    "$ref": "https://psma.com/emas/switch.json"
+                }
+            },
+            "required": [
+                "switch"
             ]
         },
         {
@@ -430,6 +486,78 @@
                         "properties": {
                             "designRequirements": {
                                 "$ref": "#/$defs/behavioralDesignRequirements"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "potentiometer"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/ras/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "connectorAccessory"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/conas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "relay"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/emas/inputs/designRequirements.json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "required": [
+                    "switch"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "inputs": {
+                        "properties": {
+                            "designRequirements": {
+                                "$ref": "https://psma.com/emas/inputs/designRequirements.json"
                             }
                         }
                     }

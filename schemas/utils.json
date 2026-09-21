@@ -680,6 +680,10 @@
                 "spiceModel": {
                     "type": "object",
                     "description": "SPICE simulation model for this component"
+                },
+                "provenance": {
+                    "description": "Where this component's data came from. Optional here so that any PEAS-based record carrying manufacturerInfo -- including ones whose own schema has no datasheet-info section, such as a bobbin -- can cite the source of each value rather than only a datasheet URL.",
+                    "$ref": "#/$defs/provenance"
                 }
             },
             "required": [

@@ -401,11 +401,11 @@
                         "string",
                         "null"
                     ],
-                    "description": "Manufacturer of the substitute."
+                    "description": "Manufacturer of the substitute. Omitted on a 'successor' entry it means the same manufacturer as this part, since a manufacturer supersedes its own part; write it anyway, and it MUST be written when it differs."
                 },
                 "type": {
                     "type": "string",
-                    "description": "Type of substitution.",
+                    "description": "Kind of substitution. 'successor' is directional and asserts that THIS part is superseded by the named one - one hop, as the manufacturer states it, never inferred from an obsolete status or from a part-number pattern; a successor that is itself superseded names its own successor on its own record. The other values are symmetric: either part may be bought in place of the other.",
                     "enum": [
                         "drop-in",
                         "near-equivalent",

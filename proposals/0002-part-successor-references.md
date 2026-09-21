@@ -1,14 +1,17 @@
 # PEAS-RFC 0002 — Reaching the PEAS `substituteInfo` type from the part families (successors and second sources)
 
-- **Status:** Proposed, awaiting owner decision. Nothing has been edited; no data has been written.
-- **Type:** Additive (non-breaking) schema change. Three module files gain one optional
-  property each; PEAS itself changes only in description text, if at all.
+- **Status:** ACCEPTED 2026-09-21 and implemented the same day (uncommitted), with the scope
+  **widened by owner decision** from three module files to every part family — see *Scope, as
+  decided* and *Amendments after implementation*. No successor data has been imported; that is
+  separate work.
+- **Type:** Additive (non-breaking) schema change. 28 part-schema files in seven modules gain
+  one optional property each; PEAS itself changes only in description text.
 - **Author:** drafted 2026-09-21
 - **Created:** 2026-09-21
 - **Depends on:** nothing new. The type already exists
   (`PEAS/schemas/utils.json#/$defs/substituteInfo`) and is already reached by two modules
-  (`CTAS/schemas/controller.json`, `COAS/schemas/converter.json`). This RFC proposes the same
-  edge from three more module files. Every proposed `$ref` is module → PEAS, which is the only
+  (`CTAS/schemas/controller.json`, `COAS/schemas/converter.json`). This RFC adds the same
+  edge from the other part families. Every `$ref` is module → PEAS, which is the only
   cross-package direction the workspace allows; no PEAS → module edge and no module → module
   edge is created.
 
@@ -23,7 +26,9 @@ govern every part for which a manufacturer-published successor is sitting unharv
 All three roots are `additionalProperties: false`, so there is no legal place to put the fact
 and the importers drop it.
 
-The proposal is the five lines CTAS already has, added to those three files.
+The proposal is the block CTAS already has (seven lines as formatted in these files), added
+to those three files — and, by the owner's decision, to every other part family too (*Scope,
+as decided*).
 
 ### Correction to the brief
 
@@ -332,7 +337,9 @@ means.
 
 ## Proposed change
 
-Three module files gain one optional property each. One PEAS file gains description text.
+*As drafted, three module files gained one optional property each; as decided, every part
+family does — see *Scope, as decided* below. The diff is the same seven-line block in every file.*
+One PEAS file gains description text.
 
 ### 1. `CAS/schemas/capacitor.json` — root properties
 
@@ -344,22 +351,29 @@ Three module files gain one optional property each. One PEAS file gains descript
 -    }
 +    },
 +    "substitutesInfo": {
-+      "description": "Replacement parts for this one: manufacturer-named successors and second sources. An entry with type 'successor' means THIS part is superseded by the named one, one hop, stated by the manufacturer — never inferred from a status of obsolete or from part-number similarity. The schema cannot check that the named part exists in the catalogue, or exists once; that is the referential pass's job, as for CIAS component URIs.",
++      "description": "Replacement parts for this one: manufacturer-named successors and second sources. An entry with type 'successor' means THIS part is superseded by the named one, one hop, as the manufacturer states it - never inferred from a status of obsolete or from part-number similarity. The schema cannot check that the named part exists in the catalogue, or exists exactly once; that is the referential pass's job, as for CIAS component URIs. Evidence for the claim goes in the record's provenance[] with fields: [\"substitutesInfo\"], carrying the same sourceUrl, retrievedDate and verification stamp as any datasheet field.",
 +      "type": "array",
 +      "items": { "$ref": "https://psma.com/peas/utils.json#/$defs/substituteInfo" }
 +    }
    },
 ```
 
+(The landed description adds its last sentence — the evidence route — which the owner decision
+settled after the draft; see *Compatibility*.)
+
 ### 2. `MAS/schemas/magnetic.json` — root properties
 
-The identical five lines, after `distributorsInfo`. (MAS is committee-stewarded: this file's
-change follows the MAS release process and its own `CHANGELOG.md`, and is listed here only
-because the parts are there — 2,769 matched magnetics, 947 of them obsolete.)
+The identical block, after `distributorsInfo`. (MAS is committee-stewarded: this file's
+change follows the MAS release process and its own `CHANGELOG.md` — 2,769 matched magnetics,
+947 of them obsolete.)
 
-### 3. `RAS/schemas/varistor.json` — root properties
+### 3. Every other part-family file — root properties
 
-The identical five lines, after `distributorsInfo`.
+The identical block, byte for byte, immediately after `distributorsInfo` in each of the 26
+remaining files listed under *Scope, as decided*. Where `distributorsInfo` was the last root
+property the preceding brace gains a comma; where another property followed (`spiceModel`,
+`behavioral`, `geometry`, `rotation`) the block is inserted before it. No other line of any
+file changes.
 
 ### 4. `PEAS/schemas/utils.json` — description text only, no structural change
 
@@ -378,22 +392,68 @@ The identical five lines, after `distributorsInfo`.
 ```
 
 Nothing else changes. No new `$defs`. No enum gains or loses a value. No field becomes required.
-`SAS/schemas/*.json`, `RAS/schemas/resistor.json`, `CONAS/schemas/connector.json` and
-`AAS/schemas/AAS.json` are **deliberately not touched**: their catalogues have obsolete parts
-(*Evidence (d)*) but no harvested successor data yet, and they can adopt the identical five
-lines when it exists. Proposing an edge nobody can populate is how the present orphan-shaped
-confusion arose.
+
+### Scope, as drafted and as decided
+
+**As drafted**, this section read: *"`SAS/schemas/*.json`, `RAS/schemas/resistor.json`,
+`CONAS/schemas/connector.json` and `AAS/schemas/AAS.json` are deliberately not touched: their
+catalogues have obsolete parts (Evidence (d)) but no harvested successor data yet, and they can
+adopt the identical five lines when it exists."* The draft wired only the three files where TDK
+data is waiting.
+
+**The owner decided the other way (2026-09-21), and the decision is recorded here rather than
+silently absorbed.** The reasoning: 4,020 live obsolete and 1,964 NRND rows across six modules
+can currently point nowhere, and adding the property only as each vendor's data happens to
+arrive means a schema edit per vendor, per family, forever — the same seven-line block, approved and
+landed again and again. The shape is fixed by precedent and the edge is module → PEAS, so there
+is nothing further to learn by waiting.
+
+So the property lands on **every PEAS part-family file that carries `manufacturerInfo` +
+`distributorsInfo` at its root** (enumerated by walking every `schemas/*.json`, not listed from
+memory) — 28 files:
+
+| module | files |
+|---|---|
+| CAS | `capacitor.json` |
+| MAS | `magnetic.json` |
+| RAS | `resistor.json`, `varistor.json`, `thermistor.json`, `potentiometer.json` |
+| SAS | `mosfet.json`, `diode.json`, `igbt.json`, `bjt.json`, `module.json` |
+| CONAS | `connector.json`, `connectorAccessory.json` |
+| AAS | `adc`, `analogSwitch`, `buffer`, `comparator`, `dac`, `differenceAmplifier`, `instrumentationAmplifier`, `multiplexer`, `multiplier`, `operationalAmplifier`, `programmableGainAmplifier`, `sampleHold` (`.json`) |
+| TDAS | `oscillator.json`, `timer.json`, `latch.json` |
+
+`CTAS/schemas/controller.json` already had it and is unchanged.
+
+Two readings of "every module that holds obsolete parts" had to be made, and both are stated so
+they can be overruled:
+
+- **TDAS is in.** The decision named SAS, CONAS, AAS and `resistor.json`; it did not name TDAS.
+  But the six-module table the decision cites (*Evidence (d)*) includes TDAS
+  (`timing_devices.ndjson`, 40 NRND rows), so leaving it out would contradict the stated
+  principle. All three TDAS part files get it, not just the two with catalogue rows, so the
+  module has one outer shape.
+- **Every file within a touched module is in**, not only the ones with obsolete rows today
+  (e.g. `thermistor.json`, 535 production rows; `potentiometer.json`; the AAS families, whose
+  3,607 rows include no obsolete part). A per-file choice would reproduce, inside a module, the
+  per-vendor drift the decision exists to prevent.
+- **EMAS is out.** `EMAS/schemas/relay.json` and `switch.json` have the same root shape, but
+  `relays.ndjson` (4,693 rows) and `switches.ndjson` (2,914) hold no obsolete or NRND part, and
+  EMAS is not among the six modules the decision cites. It is the one remaining part family
+  without the property; it adopts the identical block by a one-line decision.
+- **MAS building blocks are out.** `MAS/schemas/magnetic/core.json` and `bobbin.json` also carry
+  `manufacturerInfo` + `distributorsInfo`, but they are manufacturing building blocks, not
+  finished orderable parts, and no evidence in this RFC concerns them.
 
 ## Compatibility
 
 Additive and non-breaking, with one explicit non-claim at the end.
 
-- Every currently valid document stays valid. `substitutesInfo` is optional, and the three
-  roots are `additionalProperties: false`, so each one only becomes **less** restrictive.
-- The seed convention is unaffected. Each root's `anyOf` is
-  `[{required: [manufacturerInfo]}, {maxProperties: 0}]`; a document carrying only
-  `substitutesInfo` and no `manufacturerInfo` satisfies neither branch and is still rejected —
-  verified as a negative test, not assumed.
+- Every currently valid document stays valid. `substitutesInfo` is optional, and every
+  touched root is `additionalProperties: false`, so each one only becomes **less** restrictive.
+- The seed convention is unaffected **where a seed `anyOf` exists** — 25 of the 28 files. There,
+  a document carrying only `substitutesInfo` satisfies no branch and is still rejected, verified
+  as a negative test. *As drafted this bullet claimed it for every root; that was wrong for
+  three files — see *Amendments after implementation*, item 1.*
 - No record is affected: 0 rows in the corpus carry the key today, in any catalogue.
 - No migration, no rewrite, no data written before the decision.
 - `CTAS/schemas/controller.json` and `COAS/schemas/converter.json` are not edited and their
@@ -401,15 +461,20 @@ Additive and non-breaking, with one explicit non-claim at the end.
   outcome for them.
 - **What does change:** documents that were invalid before become valid — namely any document
   carrying `substitutesInfo`. That is the purpose of the change, and it is the only widening.
-- **Open question for the owner, not decided here:** `substituteInfo.source` is a five-value
-  enum (`manufacturer` / `distributor` / `cross-reference` / `engineering` / null) and carries
-  no URL and no date. A substitute claim therefore has weaker provenance than any datasheet
-  field, whose trail lives in `provenance[]` with `sourceUrl`, `retrievedDate`, `verification`
-  and `verificationDate`. `provenance[].fields` can name `substitutesInfo`, since it is "which
-  fields of this record this source provided" and is not restricted to `datasheetInfo` — that
-  is the recommended route, and it costs nothing. If the owner wants the claim's evidence
-  attached to the entry itself instead, that is a second, separate PEAS edit and should be its
-  own decision.
+- **Evidence route — SETTLED (owner decision 2026-09-21).** The evidence for a substitute
+  claim is an ordinary entry in the part's `manufacturerInfo.datasheetInfo.provenance[]` with
+  `fields: ["substitutesInfo"]`. `substituteInfo` itself gains **no** `sourceUrl` or date
+  fields: that would be a second PEAS edit touching CTAS and COAS, which already use the type,
+  and it needs its own decision. The consequence is stated plainly because it is the point:
+  **a successor claim carries the same `sourceUrl`, `retrievedDate`, `verification` and
+  `verificationDate` stamp as any datasheet field, and is held to the same standard.** The
+  entry's own `source` enum is a coarse label; the provenance entry is the evidence. This
+  matters here specifically — the fabricated 440 V in *Evidence (b)* came from exactly this
+  kind of cross-part relation being handled loosely, and a successor pointer with no
+  retrievable source would be the same looseness with a field name on it. Validated on three
+  real records (see *Implementation*). *As drafted this was an open question, and it claimed
+  `provenance[].fields` "is not restricted to `datasheetInfo`"; that overstates the wording —
+  see *Amendments after implementation*, item 2.*
 
 ## Alternatives considered
 
@@ -451,9 +516,25 @@ Additive and non-breaking, with one explicit non-claim at the end.
    (*Evidence (b)*), it discards a Panasonic field at the mapping step and a Murata field into
    a side report, and 4,020 dead parts in six catalogues continue to point nowhere.
 
+8. **The narrower scope this RFC originally proposed: only the three files with TDK data
+   (`capacitor.json`, `magnetic.json`, `varistor.json`).** Considered — it was the draft — and
+   **widened by owner decision**. The draft's argument was that an edge nobody can populate is
+   how the orphan-shaped confusion arose. The decision's counter-argument prevailed: the type,
+   the name and the shape are all fixed by precedent, so a family's later adoption would be the
+   same block with nothing new to decide, and gating it on each vendor's data arriving
+   turns one decision into an unbounded series of identical schema edits while 4,020 obsolete
+   parts in the unwired families keep pointing nowhere. What the draft's worry *does* still
+   warrant is recorded in *Implementation*: the property is empty everywhere, and a field that
+   exists but is never written is exactly how CTAS's `substitutesInfo` sat for its whole life.
+
+9. **Add `sourceUrl` / `retrievedDate` to `substituteInfo` itself.** Rejected by owner decision
+   in favour of the existing provenance mechanism (see *Compatibility*). It would give a
+   substitute claim its own evidence fields, but it is a second PEAS edit to a type CTAS and
+   COAS already use, and it would create two places a successor's evidence could live.
+
 ## Implementation
 
-If accepted:
+Planned text first (as drafted, for three files), then what was actually done.
 
 1. Three schema edits (`CAS/schemas/capacitor.json`, `MAS/schemas/magnetic.json`,
    `RAS/schemas/varistor.json`) plus the two description lines in `PEAS/schemas/utils.json`.
@@ -462,7 +543,8 @@ If accepted:
 2. Docs move with the schemas, per the workspace rule: `CAS/docs/schema.md`,
    `RAS/docs/schema.md` and the MAS docs gain the field beside `distributorsInfo`, and
    `CTAS/docs/schema.md` — which already lists `substitutesInfo[] (PEAS shared)` — gains the
-   successor reading rule so the two do not drift.
+   successor reading rule so the two do not drift. *(Corrected in Amendments, item 3: MAS docs
+   do not document these properties, and the CTAS rule now lives in the PEAS type itself.)*
 3. **The counter-check, stated as the thing that must fail if the change is reverted:**
    - Build a **real** record — the live `magnetics.ndjson` row for `CLF10040T-100M`
      (`status: obsolete`) with
@@ -492,5 +574,140 @@ If accepted:
    with a `provenance[]` entry naming Meister and `fields: ["substitutesInfo"]`. The 5,840
    production matches, the Panasonic EOL rows and the Murata `alternativeProducts` rows follow
    once each vendor's own label for the field is confirmed — see *What this RFC deliberately
-   does not do*. Nothing is written to `data/` in advance of the decision, and nothing in this
-   RFC has been written to any schema.
+   does not do*. Nothing is written to `data/` in advance of the decision.
+
+### What was done (2026-09-21, uncommitted)
+
+**Schemas.** The same seven-line block on all 28 files under *Scope, as decided* — one
+distinct block across all of them, `git diff --numstat` `+7 -0` in every file — each confirmed
+against `HEAD` to leave every other key of the file identical once `substitutesInfo` is
+removed; the two description lines in
+`PEAS/schemas/utils.json` (`substituteInfo.type`, `substituteInfo.manufacturer`). No other
+schema line changed.
+
+**The counter-check, run, with its results.** The BEFORE schema is the committed `HEAD` blob of
+each touched file (`git show HEAD:<path>`, confirmed free of `substitutesInfo` for all 28),
+substituted into an otherwise-live `$id` registry of 151 schemas. That is the reverted file's
+real content, obtained without mutating a working tree other sessions share.
+
+- **Real records, valid AFTER, invalid BEFORE — 26 of 28 files.** For each file, a real record
+  read (never written) from its `TAS/data` catalogue, obsolete or NRND where one exists, else
+  the repo's own example: `C0603X5R1A103K030BA` (capacitor, nrnd), `VLS4012ET-2R2M` (magnetic,
+  nrnd), `AVR-M14A2C240MT600N` (varistor, obsolete), `MBRS340` (diode, obsolete), `BU931P`
+  (bjt, obsolete), `IXGF32N170` (igbt, nrnd), `EPC2019` (mosfet), `BM55B0.5-14DP/2-0.3V(53)`
+  (connector, nrnd), `2047230010` (connectorAccessory), `ABM3BN-32.000MHZ-K4Z-T` (oscillator,
+  nrnd), `TLC3555` (timer), eleven TI/ADI analog parts (`ADS9316`, `TMUX9832`, `THS6232`,
+  `TLV9023L-Q1`, `DAC39RF20`, `INA151`, `INA1H182-SEP`, `TMUX182-SEP`, `AD633`, `TLV4825`,
+  `VCA710`), a real resistor, thermistor and potentiometer row, and
+  `SAS/examples/03_module_ff2mr12w3m1h.json` for `module.json` (no catalogue holds modules).
+  Every one: the record is valid unchanged; with `substitutesInfo` added it is **valid after**
+  and **rejected before** with `Additional properties are not allowed ('substitutesInfo' was
+  unexpected)`. The successor entry on these 26 is the fixture string
+  `TEST-FIXTURE-SUCCESSOR`, deliberately not a plausible part number, because no vendor-named
+  successor is on hand for them and a realistic-looking invented one is the very thing this
+  RFC exists to prevent.
+- **With the real TDK successor**, on the three records the evidence names: `CLF10040T-100M` →
+  `CLF10040T-100M-D` (magnetic), `C2012JB1H475M125AB` → `C2012X5R1H475K125AB` (capacitor) and
+  `B72542V6300K062` → `B72540X6300K062` (varistor; a successor we do not stock, exercising the
+  soft reference) — valid after, rejected before, and still valid after once each also carries
+  a `datasheetInfo.provenance[]` entry with `fields: ["substitutesInfo"]` (the settled
+  evidence route).
+- **The revert makes the positive assertions fail — 26 files on real records.** Against the
+  reverted (HEAD) content, every one of the 26 + 3 "valid after" documents above is rejected,
+  so the tests measure the change: they pass with it and fail without it. For `latch.json` and
+  `sampleHold.json` (no real record — *Amendments*, item 5) only the structural fact is shown:
+  the HEAD root is `additionalProperties: false` and does not declare the key.
+- **Scope: nothing else was loosened.** Nine negatives × 28 files, each asserted rejected
+  **both before and after**: entry without `partNumber`; `type: "replacement"`;
+  `source: "vendorDatabase"`; an extra key (`sourceUrl`) inside an entry; `substitutesInfo`
+  not an array; an unknown root key (`successorInfo`); a part missing `manufacturerInfo.name`;
+  and the two seed probes. 246 of 252 hold; the 6 that do not are the seed probes on three
+  files, explained in *Amendments*, item 1. The empty seed `{}` stays valid in all 28, before
+  and after.
+- **Suites, all green, case counts non-zero:** PEAS `test_schemas.py` 32 passed; CAS 25; RAS
+  72; SAS 77; TAS `test_schemas.py` 70; MAS `validate-fixtures.py` 25/25 and
+  `validate-samples.py` 8/8; AAS, CONAS, CTAS and TDAS `scripts/validate.py` PASS.
+- **No data touched.** Nothing under any `data/` directory was written; no successor was
+  imported. `git status` in each touched repo shows only the schema, doc and changelog files
+  named here (plus, in CAS, an untracked `proposals/0001-safety-class-per-class-ratings.md`
+  that belongs to another session and was left alone).
+
+**Docs, per each repo's own convention.** CAS `docs/schema.md` and RAS `docs/schema.md` (root
+field tables) gained a row; SAS `docs/schema.md` gained the table row, a TOC entry and a
+`substitutesInfo` subsection beside `distributorsInfo`, and SAS `README.md` its tree, class
+diagram and quick-reference row; RAS `README.md` its tree line; CONAS `docs/schema.md` its two
+trees; AAS `docs/schema.md` its outer-shape block plus a paragraph; TDAS `docs/schema.md` its
+outer-shape line; MAS `CHANGELOG.md` an *Added* entry under `[Unreleased]` and MAS
+`docs/glossary.md` a `substituteInfo` row in its Standards Metadata table. `examples/` are
+unchanged in every repo — see *Amendments*, item 4.
+
+## Amendments after implementation (2026-09-21)
+
+Recorded rather than silently fixed: the proposal text above was wrong or incomplete in these
+places, and a proposal that stays wrong misleads whoever reads it next.
+
+### 1. Three roots have no seed `anyOf`, so "substitutesInfo alone is still rejected" is false there
+
+The draft's *Compatibility* said every root's `anyOf` is
+`[{required: [manufacturerInfo]}, {maxProperties: 0}]`. That holds for 25 files.
+**`MAS/schemas/magnetic.json`, `CONAS/schemas/connector.json` and
+`CONAS/schemas/connectorAccessory.json` have no root `anyOf` at all** (`magnetic.json` has
+`required: []`). The scope check caught it: on those three, a document carrying only
+`distributorsInfo` was **already accepted before** this change, and a document carrying only
+`substitutesInfo` — rejected before — is **accepted after**.
+
+This is not a loosening of anything else: it is the new key being admitted on the same terms
+its sibling `distributorsInfo` has always had in those files. Every other negative holds on all
+three. It was not "fixed" by adding a seed `anyOf` to MAS or CONAS, because that would
+*tighten* two schemas — rejecting documents valid today — which is a breaking change nobody
+approved and outside this RFC. It is flagged: if the owner wants a free-floating
+`substitutesInfo` rejected in MAS and CONAS, that is the same gap `distributorsInfo` already
+has there, and it needs its own decision.
+
+### 2. `provenance[].fields` says "on a part that means datasheetInfo fields"
+
+The draft claimed `fields` "is not restricted to `datasheetInfo`". The schema does not restrict
+it — `items` is a free string, and the three real records above validate — but the
+description text does: *"On a part that means datasheetInfo fields; on a record with no
+datasheetInfo (e.g. a CIAS brick) it means whatever fields the source is claiming."*
+`substitutesInfo` is a root sibling of `manufacturerInfo`, not a `datasheetInfo` field, so the
+settled route is *valid* but *not yet described* by the text a reader will consult. The
+proposed fix is description-only, one clause —
+*"On a part that means datasheetInfo fields, or `substitutesInfo`"* — in
+`PEAS/schemas/utils.json#/$defs/provenance/items/properties/fields`. It changes no validation
+outcome, but it is a PEAS schema edit that was not part of the approval, so it has **not** been
+made. Flagged for a yes/no.
+
+### 3. Docs: MAS documents these fields only as glossary terms; CTAS needed no edit
+
+The draft said "the MAS docs gain the field beside `distributorsInfo`". MAS has no section to
+put it beside: `docs/magnetic.md` walks `name`, `core`, `coil`, `coreElectricalReference` and
+`shunts`, and gives `manufacturerInfo` / `distributorsInfo` no section of their own. What MAS
+*does* have is a **Standards Metadata** table in `docs/glossary.md` defining `manufacturerInfo`,
+`distributorInfo`, `cost`, `datasheetInfo` and `status` as terms — so `substituteInfo` went
+there, as one row beside `distributorInfo`, and the change is recorded in `CHANGELOG.md`, which
+is how MAS records schema changes. No `magnetic.md` section was added, because that would
+invent a documentation pattern the repo does not use for catalogue-level fields. The draft also
+promised the successor reading rule in
+`CTAS/docs/schema.md`; that became unnecessary once the rule was written into the PEAS
+`substituteInfo` descriptions themselves, which is what CTAS's `$ref` resolves to, so CTAS is
+untouched.
+
+### 4. Examples: none changed
+
+Each repo's `examples/` are real, named parts. None has a vendor-published successor on hand,
+and adding one to make the example exercise the field would put an invented part relation into
+a document that readers copy — the fabrication this RFC is about, in its most visible place.
+When the TDK import lands, a real record with a real successor and its provenance entry is the
+right example to add.
+
+### 5. Two part files have no real record anywhere in the workspace
+
+`TDAS/schemas/latch.json` and `AAS/schemas/sampleHold.json` have no row in any `TAS/data`
+catalogue and no sourced example (the only sample-and-hold example is the ideal behavioural
+atom, with no `manufacturerInfo`). A real-record proof is therefore impossible for them, and
+none was fabricated. What *was* proved for both: the reverted (HEAD) schema rejects the key,
+the new one declares it with the exact PEAS `$ref`, and all nine scope negatives hold — but
+only trivially, since the stand-in record they were run on is itself incomplete, so for these two
+files the scope check is weaker than for the other 26 and is reported as such. The gap
+closes when the first real latch or S/H part is catalogued.

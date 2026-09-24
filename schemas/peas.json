@@ -77,6 +77,9 @@
         "resistor": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },
+        "schemaVersion": {
+            "$ref": "https://psma.com/peas/utils.json#/$defs/schemaVersion"
+        },
         "semiconductor": {
             "$comment": "Validated by the top-level oneOf; declared here only so the closed root permits the key."
         },

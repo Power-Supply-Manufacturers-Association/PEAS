@@ -1598,6 +1598,13 @@
                 "uri",
                 "format"
             ]
+        },
+        "schemaVersion": {
+            "title": "Schema version",
+            "description": "The release of the schema package that defines the document carrying this value, as a Semantic Versioning 2.0.0 string: a MAS document carries the MAS release it conforms to, a CAS document the CAS release, and so on. Every module's top-level document may carry it under the property name schemaVersion. Optional; if absent, the latest release of the document's package is assumed. Because of that, a tool that migrates a document written against an older release must stamp the release it migrated to, or the document will be read as the latest. A consumer that does not support the MAJOR version of a present value must reject the document rather than guess.",
+            "$comment": "Pattern is the official SemVer 2.0.0 regular expression, numbered-capture-group variant, copied unchanged from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string",
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
         }
     }
 }

@@ -1203,7 +1203,7 @@
                         "type": "string"
                     },
                     "derivation": {
-                        "description": "For source='derived': the exact rule and inputs the value was computed from (e.g. 'contactArray from mechanical.pitch x positions x rows; countX=positions/rows'). Required reading for anyone consuming a derived field — it is the assumption record.",
+                        "description": "For source='derived': the rule the value follows, as a short phrase (e.g. 'contact array from pitch, positions and rows', 'IPC-7351B nominal land pattern for the case code'). No field paths, scripts, tools, ticket numbers or reasoning.",
                         "type": "string"
                     },
                     "retracted": {
@@ -1212,7 +1212,7 @@
                         "default": false
                     },
                     "retractionReason": {
-                        "description": "Why the entry was withdrawn, and by what act. Required when `retracted` is true. E.g. 'esr removed 2026-09-04: esr*C collapses onto a fixed constant across the cohort — a pipeline clamp, not a measurement (ABT #391)'. The fields the withdrawal covers go in `fields`, exactly as for a positive claim.",
+                        "description": "Why the entry was withdrawn, as a short label. Required when `retracted` is true. E.g. 'placeholder value', 'cited document is for a different part', 'superseded'. No history, reasoning or ticket numbers. The fields the withdrawal covers go in `fields`, exactly as for a positive claim.",
                         "type": "string"
                     },
                     "sourceName": {

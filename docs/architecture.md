@@ -387,3 +387,30 @@ Two guard tests in `tests/test_schemas.py` enforce single-definition:
 designator+function properties set or a pads[]-with-x/y array) and
 `test_no_module_local_pin_function_vocabulary` (fails on any module-local enum carrying
 the telltale role values).
+
+## Surge waveform (PEAS-RFC 0003, 2026-10)
+
+`utils.json#/$defs/surgeWaveform` is the shared string enum naming the standardised test
+impulse a surge/pulse rating or a clamping measurement is stated at. It is in PEAS because
+two modules use it: SAS diode (`peakPulseCurrentWaveform`, `peakPulsePowerWaveform`,
+`clampingWaveform`) and RAS varistor (`surgeWaveform`). The values are identifiers as
+datasheets print them, not quantities, so the SI rule does not apply (same reasoning as the
+`pollutionDegree` strings). Each label names ONE wave of its standard — not always the current:
+
+| value | wave it names | standard |
+|---|---|---|
+| `8/20` | current (combination-wave short-circuit current) | IEC 61000-4-5 |
+| `10/1000` | current | IEC 61643-321 / Telcordia GR-1089 |
+| `10/350` | current (lightning current) | IEC 62305-1 / IEC 61643-11 Class I |
+| `2/10` | current | Telcordia GR-1089 |
+| `5/320` | current (short-circuit current of the 10/700 generator) | ITU-T K.20 / K.21 / K.44 |
+| `10/700` | **voltage** (open circuit) | ITU-T K.20 / K.21 / K.44 |
+| `10/560` | current | FCC Part 68 / GR-1089 |
+| `9/720` | **voltage** (open circuit) | FCC Part 68 |
+| `10/160` | current | GR-1089 |
+| `TLP 100 ns` | rectangular 100 ns transmission-line pulse | ANSI/ESD STM5.5.1 |
+
+ISO 7637 / ISO 16750 pulses and IEC 61000-4-2 ESD discharges are not members (ESD ratings
+live in SAS `esdVoltageContact`/`esdVoltageAir`). A waveform outside the list cannot be
+recorded: the condition is left absent rather than approximated. **Absent never means a
+default** — it means the record does not state the waveform.

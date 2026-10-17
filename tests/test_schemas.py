@@ -301,3 +301,36 @@ def test_no_module_local_pin_function_vocabulary():
                     offenders.append(f"{repo}:{path.name}{where} carries a local pin-function "
                                      "vocabulary; extend PEAS utils.json#/$defs/pinFunction instead")
     assert not offenders, "module-local pin-function vocabularies found:\n  " + "\n  ".join(offenders)
+
+
+# --- surgeWaveform (PEAS-RFC 0003) ----------------------------------------------
+
+SURGE_WAVEFORMS = ["8/20", "10/1000", "10/350", "2/10", "5/320", "10/700",
+                   "10/560", "9/720", "10/160", "TLP 100 ns"]
+
+
+@pytest.fixture(scope="session")
+def surge(registry):
+    return Draft202012Validator({"$ref": "https://psma.com/peas/utils.json#/$defs/surgeWaveform"},
+                                registry=registry)
+
+
+def test_surge_waveform_members_exact():
+    d = json.loads((REPO / "schemas/utils.json").read_text())["$defs"]["surgeWaveform"]
+    assert d["enum"] == SURGE_WAVEFORMS
+
+
+@pytest.mark.parametrize("w", SURGE_WAVEFORMS)
+def test_surge_waveform_member_accepted(surge, w):
+    assert valid(surge, w)
+
+
+@pytest.mark.parametrize("w", ["8x20", "8/20us", "8/20 µs", "10/1000us", "ISO 7637-2 pulse 1",
+                               "IEC 61000-4-2", "TLP", "", 8.20])
+def test_surge_waveform_unknown_rejected(surge, w):
+    assert not valid(surge, w)
+
+
+def test_surge_waveform_description_has_no_automotive_claim():
+    d = json.loads((REPO / "schemas/utils.json").read_text())["$defs"]["surgeWaveform"]
+    assert "automotive" not in d["description"].lower()

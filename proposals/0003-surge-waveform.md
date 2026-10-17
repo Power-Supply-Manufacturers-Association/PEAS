@@ -52,6 +52,28 @@ ISO 7637 / ISO 16750 automotive pulses and IEC 61000-4-2 ESD are not members (ES
 - The description no longer calls `2/10` "automotive" (it is Telcordia GR-1089 telecom) and no
   longer claims every label is the current wave: it states, per value, which wave and standard.
 
+## Amendment 2026-10-18: `10/700` as a current label
+
+Approved by Alf on 2026-10-18 (decision D5 of the EMAS `protection` proposal). Gas discharge tube
+and thyristor-protector datasheets print current ratings at the ITU-T 10/700 generator as
+"200 A, 10/700 µs" (Bourns 2038 series GDT: "200 A, 10/700 µs, 500 operations"). Under the
+2026-10-17 wording `10/700` named only the open-circuit voltage wave, so such a line could not be
+stored faithfully. The member list is unchanged. Only the description changes:
+
+- On a voltage condition, `10/700` is the open-circuit voltage wave, as before.
+- On a current rating, `10/700` is the current that the 10/700 generator drives, recorded as
+  printed.
+- `5/320` stays the label for a datasheet that names the current wave by its own shape.
+- The two labels are never converted into each other.
+
+Users checked: SAS diode (`peakPulseCurrentWaveform`, `peakPulsePowerWaveform`,
+`clampingWaveform`, each tied to its rating by `dependentRequired`), RAS varistor
+(`surgeWaveform`) and EMAS protection (`pulseRating.waveform`). None of their descriptions or
+`dependentRequired` rules names a wave kind. Blade Runner compares waveforms only for string
+equality: `DIO_TVS_PULSE_PRODUCT` needs all three labels equal, `DIO_TVS_WAVEFORM_ORDER` uses only
+`8/20` and `10/1000`, and the corpus screens split cohorts by label. So a `10/700` current rating
+is only ever judged against other `10/700` ratings.
+
 ## Data impact
 
 None. All 4,086 live varistor rows and 34,746 live diode rows validate before and after

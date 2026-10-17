@@ -336,6 +336,16 @@ def test_surge_waveform_description_has_no_automotive_claim():
     assert "automotive" not in d["description"].lower()
 
 
+def test_surge_waveform_10_700_is_also_a_current_label():
+    """Amendment 2026-10-18 (D5): GDT/TSPD datasheets print '200 A, 10/700 us'. The description
+    must say that '10/700' on a CURRENT rating is the current of the 10/700 generator, and must not
+    restrict the label to the open-circuit voltage wave alone."""
+    d = json.loads((REPO / "schemas/utils.json").read_text())["$defs"]["surgeWaveform"]["description"]
+    assert "'10/700' VOLTAGE wave (open circuit)" not in d
+    assert "on a CURRENT rating it is the current that generator drives" in d
+    assert "never converted into each other" in d
+
+
 # --- resistive-element pin roles (2026-10, AAS digitalPotentiometer) -------------
 
 

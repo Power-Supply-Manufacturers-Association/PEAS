@@ -395,7 +395,8 @@ impulse a surge/pulse rating or a clamping measurement is stated at. It is in PE
 two modules use it: SAS diode (`peakPulseCurrentWaveform`, `peakPulsePowerWaveform`,
 `clampingWaveform`) and RAS varistor (`surgeWaveform`). The values are identifiers as
 datasheets print them, not quantities, so the SI rule does not apply (same reasoning as the
-`pollutionDegree` strings). Each label names ONE wave of its standard — not always the current:
+`pollutionDegree` strings). Each label names ONE wave of its standard — not always the current —
+with one exception, `10/700` (amended 2026-10-18, see the RFC):
 
 | value | wave it names | standard |
 |---|---|---|
@@ -404,7 +405,7 @@ datasheets print them, not quantities, so the SI rule does not apply (same reaso
 | `10/350` | current (lightning current) | IEC 62305-1 / IEC 61643-11 Class I |
 | `2/10` | current | Telcordia GR-1089 |
 | `5/320` | current (short-circuit current of the 10/700 generator) | ITU-T K.20 / K.21 / K.44 |
-| `10/700` | **voltage** (open circuit) | ITU-T K.20 / K.21 / K.44 |
+| `10/700` | **voltage** (open circuit) on a voltage condition; on a **current** rating, the current the 10/700 generator drives, as GDT/TSPD datasheets print it ("200 A, 10/700 µs") | ITU-T K.20 / K.21 / K.44 |
 | `10/560` | current | FCC Part 68 / GR-1089 |
 | `9/720` | **voltage** (open circuit) | FCC Part 68 |
 | `10/160` | current | GR-1089 |
@@ -414,3 +415,8 @@ ISO 7637 / ISO 16750 pulses and IEC 61000-4-2 ESD discharges are not members (ES
 live in SAS `esdVoltageContact`/`esdVoltageAir`). A waveform outside the list cannot be
 recorded: the condition is left absent rather than approximated. **Absent never means a
 default** — it means the record does not state the waveform.
+
+`10/700` and `5/320` are never converted into each other. A current line printed as
+"10/700" is stored as `10/700`, and a datasheet that prints the current wave by its own shape
+keeps `5/320`. Consumers that compare ratings (Blade Runner cohorts, the TVS pulse-product
+check) compare only equal labels, so the two labels form separate cohorts.

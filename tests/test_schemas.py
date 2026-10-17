@@ -17,7 +17,7 @@ from referencing.jsonschema import DRAFT202012
 
 REPO = Path(__file__).resolve().parents[1]
 WORKSPACE = REPO.parent
-SIBLINGS = ["PEAS", "MAS", "CAS", "SAS", "RAS", "AAS", "CTAS", "CONAS", "TDAS", "EMAS", "TAS", "CIAS", "COAS"]
+SIBLINGS = ["PEAS", "MAS", "CAS", "SAS", "RAS", "AAS", "CTAS", "CONAS", "TDAS", "EMAS", "TMAS", "TAS", "CIAS", "COAS"]
 PEAS_SCHEMAS = sorted(REPO.glob("schemas/**/*.json"))
 
 
@@ -178,6 +178,64 @@ def test_protection_design_requirements_pinned_to_emas(peas):
                                               "minimumPeakSurgeCurrent": 100.0}},
            "protection": {}}
     assert not valid(peas, doc)
+
+
+THERMAL_EXAMPLES = sorted((WORKSPACE / "TMAS/examples").glob("*.json"))
+
+
+@pytest.mark.parametrize("path", THERMAL_EXAMPLES, ids=lambda p: p.name)
+def test_thermal_management_validates_as_peas(peas, path):
+    # TMAS parts (heatsink, interface material, fan, mounting hardware) are first-class PEAS citizens.
+    doc = json.loads(path.read_text())
+    assert valid(peas, {"inputs": doc["inputs"], "thermalManagement": doc["thermalManagement"]})
+
+
+def test_thermal_management_examples_present():
+    # A deleted example must not turn the parametrized test above into "no cases".
+    assert len(THERMAL_EXAMPLES) >= 8
+
+
+def test_thermal_management_empty_seed_validates(peas):
+    doc = {"inputs": {"designRequirements": {"name": "TO-220 heatsink", "family": "heatsink"}},
+           "thermalManagement": {}}
+    assert valid(peas, doc)
+
+
+def test_thermal_management_design_requirements_pinned_to_tmas(peas):
+    # The allOf pin: a thermalManagement document must carry TMAS requirements (family required).
+    doc = {"inputs": {"designRequirements": {"name": "no family"}}, "thermalManagement": {}}
+    assert not valid(peas, doc)
+
+
+def _operating_conditions(registry):
+    oc = registry.get_or_retrieve("https://psma.com/peas/inputs/operatingConditions.json").value.contents
+    return Draft202012Validator(oc, registry=registry)
+
+
+def test_cooling_names_its_part_by_uri(registry):
+    v = _operating_conditions(registry)
+    heatsink = {"ambientTemperature": 50, "cooling": {
+        "thermalResistance": 24.4, "part": "TAS/data/thermal_management.ndjson?partNumber=577202B00000G",
+        "interfaceThermalResistance": 2.9,
+        "interfacePart": "TAS/data/thermal_management.ndjson?partNumber=SP900S-0.009-00-43"}}
+    fan = {"ambientTemperature": 25, "cooling": {
+        "velocity": [1.0, 0.0], "part": "TAS/data/thermal_management.ndjson?partNumber=CFM-4010-13-22"}}
+    assert valid(v, heatsink)
+    assert valid(v, fan)
+
+
+@pytest.mark.parametrize("uri", ["577202B00000G", "TAS/data/thermal_management.ndjson?partNumber=A&x=B",
+                                 "TAS/data/thermal_management.ndjson"])
+def test_cooling_part_must_be_a_catalogue_uri(registry, uri):
+    v = _operating_conditions(registry)
+    assert not valid(v, {"ambientTemperature": 50, "cooling": {"thermalResistance": 24.4, "part": uri}})
+
+
+def test_cooling_thermal_number_stays_required(registry):
+    # The URI is traceability; the number the thermal model uses cannot be dropped for it.
+    v = _operating_conditions(registry)
+    assert not valid(v, {"ambientTemperature": 50, "cooling": {
+        "part": "TAS/data/thermal_management.ndjson?partNumber=577202B00000G"}})
 
 
 def test_transmission_line_validates(peas):

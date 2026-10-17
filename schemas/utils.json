@@ -71,6 +71,10 @@
                     "description": "Name of the fluid used.",
                     "type": "string",
                     "default": "air"
+                },
+                "part": {
+                    "description": "Optional URI of the TMAS fan that produces this air flow (same grammar as heatsinkCooling.part). `velocity` stays the number the model uses: the air velocity at the operating point where the fan's pressure-airflow curve meets the system's pressure drop.",
+                    "$ref": "#/$defs/partUri"
                 }
             },
             "required": [
@@ -111,6 +115,14 @@
                         }
                     },
                     "additionalProperties": false
+                },
+                "part": {
+                    "description": "Optional URI of the TMAS part that provides this cooling (a TMAS heatsink), in the CIAS component-data grammar '<catalogue>.ndjson?<key>=<value>' (e.g. 'TAS/data/thermal_management.ndjson?partNumber=577202B00000G'). PEAS cannot $ref a module, so the link is by URI, resolved by the referential-integrity pass like a CIAS component URI. `thermalResistance` stays the number the thermal model uses: the value read off the named part's curve at this condition.",
+                    "$ref": "#/$defs/partUri"
+                },
+                "interfacePart": {
+                    "description": "Optional URI of the TMAS thermal interface material between the device and the heatsink (same grammar as `part`). `interfaceThermalResistance` stays the value the model uses, read off the material's data at the mounting pressure.",
+                    "$ref": "#/$defs/partUri"
                 }
             },
             "required": [
@@ -169,12 +181,27 @@
                         }
                     },
                     "additionalProperties": false
+                },
+                "part": {
+                    "description": "Optional URI of the cold-plate part that provides this cooling (same grammar as heatsinkCooling.part). TMAS has no coldPlate family yet (0 demand rows); the slot is added now so the cooling definitions stay symmetric. `thermalResistance` stays the number the thermal model uses.",
+                    "$ref": "#/$defs/partUri"
+                },
+                "interfacePart": {
+                    "description": "Optional URI of the TMAS thermal interface material between the device and the cold plate (same grammar as `part`).",
+                    "$ref": "#/$defs/partUri"
                 }
             },
             "required": [
                 "maximumTemperature"
             ],
             "additionalProperties": false
+        },
+        "partUri": {
+            "title": "partUri",
+            "description": "Reference to one record of a part-data file: '<catalogue>.ndjson?<key>=<value>' with exactly one key=value pair and no URL-encoding (e.g. 'TAS/data/mosfets.ndjson?partNumber=C3M0032120K'). Same grammar as the URI branch of CIAS component `data`. The schema checks only the grammar; that the file and the record exist and are unique is the referential-integrity pass's job.",
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\s?]+\\.ndjson\\?[A-Za-z][A-Za-z0-9]*=[^&=?]+$"
         },
         "dimensionWithTolerance": {
             "description": "A dimension with minimum, nominal, and maximum values.",

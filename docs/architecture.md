@@ -451,3 +451,21 @@ The block is closed. Peak and RMS are fixed by each key's name and never mixed:
 `workingVoltage`, `transientVoltage`, `impulseVoltage` and `surgeVoltage` are peak (or DC);
 `withstandVoltageRms` and `workingVoltageRms` are RMS. Distances are in m, capacitance in F,
 resistance in Ohm and CMTI in V/s. Optocouplers, when they get a family, will reuse this block unchanged.
+
+## Cooling parts by URI (TMAS, 2026-10)
+
+Heatsinks, thermal interface materials, fans and heatsink mounting hardware are TMAS parts
+(`thermalManagement` discriminator, `https://psma.com/tmas/`). The PEAS cooling conditions
+(`heatsinkCooling`, `coldPlateCooling`, `forcedConvectionCooling`) describe the cooling a
+component sees; they can now NAME the part that provides it through the optional `part`
+(heatsink, cold plate, fan) and `interfacePart` (the interface material under a heatsink or a
+cold plate). PEAS may not `$ref` a module, so the link is a string in the new
+`utils.json#/$defs/partUri` grammar, `'<catalogue>.ndjson?<key>=<value>'` (exactly one
+key=value pair, e.g. `TAS/data/thermal_management.ndjson?partNumber=577202B00000G`), the same
+grammar as the URI branch of a CIAS component's `data`. The schema checks the grammar only;
+that the record exists is the referential-integrity pass's job.
+
+The thermal numbers stay required and stay the numbers the thermal model uses:
+`thermalResistance` on a heatsink is the value read off the named part's curve at the design
+condition, `velocity` on forced convection is the air velocity where the named fan's P-Q curve
+meets the system's pressure drop. The URI is traceability, not a substitute for the number.

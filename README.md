@@ -83,6 +83,7 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 | `relay` | EMAS (`https://psma.com/emas/relay.json`) | Electromechanical, reed, solid-state, hybrid relays |
 | `switch` | EMAS (`https://psma.com/emas/switch.json`) | Push-button, toggle, rocker, DIP, rotary switches; circuit breakers (technology `circuitBreaker`, IEC curve letter in `trip.curveClass`) |
 | `protection` | EMAS (`https://psma.com/emas/protection.json`) | Fuses, resettable PPTC fuses, gas discharge tubes, spark gaps, surge protective devices, fuse holders, thermal cut-offs (`part.family` pins the family) |
+| `thermalManagement` | TMAS (`https://psma.com/tmas/thermalManagement.json`) | Heatsinks, thermal interface materials, fans, heatsink mounting hardware (`family` pins the family) |
 | `behavioral` | PEAS-native (`#/$defs/behavioral`) | Analytic Ψ(i)/Q(v), Chan saturable-core, controlled/source/switch/frequency-response atoms, N-winding coupled-inductor matrices |
 | `transmissionLine` | PEAS-native (`#/$defs/transmissionLine`) | Distributed RLGC lines |
 

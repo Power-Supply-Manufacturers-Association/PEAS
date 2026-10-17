@@ -1002,6 +1002,136 @@
                 "PD4"
             ]
         },
+        "isolationRating": {
+            "title": "isolationRating",
+            "description": "Galvanic-isolation barrier rating of a part that carries a signal, a measurement or power across an insulation barrier (digital isolators, isolated amplifiers and delta-sigma modulators, isolated gate drivers, current sensors and transducers, opto feedback). Hoisted from CTAS controller.json $defs/isolationRating (2026-10) KEEPING its key names, so the 147 controller rows that already carry it and the Blade Runner checks that read it need no change. Absent on non-isolated parts: a non-isolated part omits the block rather than stating 'none'. Every voltage is in V, every distance in m, capacitance in F, resistance in Ohm, CMTI in V/s, durations in s. A datasheet distance printed as a guaranteed minimum ('>8 mm', '>=8.5 mm') is written as that minimum (0.008). Peak vs RMS is part of each key's meaning and never mixed: workingVoltage / transientVoltage / impulseVoltage / surgeVoltage are peak (or DC), withstandVoltageRms / workingVoltageRms are RMS.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "isolationType": {
+                    "description": "Insulation class the barrier is certified to (IEC 60664-1 / IEC 62368-1 / DIN EN IEC 60747-17 vocabulary). Uses the PEAS isolationClass enum; the old CTAS-local value 'none' is dropped (no catalogue row uses it; a non-isolated part omits the whole block). A part certified to more than one class in different packages or for different standards is catalogued per orderable code, with the class of that code.",
+                    "$ref": "#/$defs/isolationClass"
+                },
+                "withstandVoltageRms": {
+                    "description": "Withstand isolation voltage V_ISO (UL 1577 / IEC 60747-17 type test), in V RMS, for the duration in withstandVoltageDuration (60 s when the datasheet follows UL 1577).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "withstandVoltageDuration": {
+                    "description": "Duration of the withstandVoltageRms qualification test, in s (60 for the UL 1577 one-minute test).",
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "workingVoltage": {
+                    "description": "Maximum repetitive peak isolation voltage V_IORM (IEC 60747-17), in V peak; for parts rated to UL 60950-1 / IEC 62368-1 instead, the maximum working voltage in V peak or V DC (Allegro V_WVBI 'Vpk or VDC').",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "workingVoltageRms": {
+                    "description": "Maximum working isolation voltage V_IOWM as an AC RMS value (IEC 60747-17, time-dependent dielectric breakdown basis), in V RMS; or the RMS working voltage of a UL 60950-1 rating (Allegro V_WVBI in Vrms).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "transientVoltage": {
+                    "description": "Maximum transient isolation voltage V_IOTM (IEC 60747-17; 60 s qualification), in V peak.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "impulseVoltage": {
+                    "description": "Maximum impulse voltage V_IMP / impulse withstand voltage U_Ni, 1.2/50 us waveform tested in air (IEC 62368-1 / IEC 60664-1), in V peak.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "surgeVoltage": {
+                    "description": "Surge isolation voltage V_IOSM (IEC 60747-17, tested in oil) or the dielectric surge strength of a non-60747 part (Allegro V_SURGE, IEC 61000-4-5 1.2/50 us), in V peak.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "cmti": {
+                    "description": "Common-mode transient immunity, in V/s (the datasheet's guaranteed minimum where one is printed; UCC21520 125e9 = 125 V/ns).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "barrierCapacitance": {
+                    "description": "Barrier capacitance C_IO, input to output (all pins of each side tied together), in F.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "barrierResistance": {
+                    "description": "Isolation resistance R_IO, input to output, at 25 C ambient, in Ohm (the datasheet's guaranteed minimum).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "creepage": {
+                    "description": "External creepage across the package surface, side to side, in m.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "clearance": {
+                    "description": "External clearance through air, side to side, in m.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "distanceThroughInsulation": {
+                    "description": "Distance through insulation DTI (minimum internal gap), in m.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "comparativeTrackingIndex": {
+                    "description": "Comparative tracking index CTI of the package material (IEC 60112), in V. The guaranteed lower bound of the stated range ('>600' is 600; '400 to 599' is 400).",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "materialGroup": {
+                    "description": "IEC 60664-1 material group of the package (I: CTI >= 600, II: 400 <= CTI < 600, IIIa: 175 <= CTI < 400, IIIb: 100 <= CTI < 175).",
+                    "type": "string",
+                    "enum": [
+                        "I",
+                        "II",
+                        "IIIa",
+                        "IIIb"
+                    ]
+                },
+                "pollutionDegree": {
+                    "description": "Pollution degree the insulation specification is stated for (IEC 60664-1).",
+                    "$ref": "#/$defs/pollutionDegree"
+                },
+                "ratedInsulationVoltage": {
+                    "description": "Rated insulation / rated mains voltages the barrier supports, one entry per row of the datasheet's insulation-coordination table: TI 'rated mains voltage <= 600 Vrms: overvoltage category I-IV' is {voltage 600, overvoltageCategory IV}; LEM 'EN 50178, reinforced insulation, 150 V, OV 3, PD2' is {standard 'EN 50178', insulationClass reinforced, voltage 150, overvoltageCategory III, pollutionDegree PD2}. overvoltageCategory is the HIGHEST category the row allows.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "voltage": {
+                                "description": "Rated insulation voltage or rated mains voltage, in V RMS.",
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                            },
+                            "insulationClass": {
+                                "description": "Insulation class this voltage applies to, where the row names one.",
+                                "$ref": "#/$defs/isolationClass"
+                            },
+                            "overvoltageCategory": {
+                                "$ref": "#/$defs/overvoltageCategory"
+                            },
+                            "pollutionDegree": {
+                                "$ref": "#/$defs/pollutionDegree"
+                            },
+                            "standard": {
+                                "description": "Equipment standard the row is stated under, as printed (e.g. 'EN 50178', 'IEC 61010-1', 'IEC 60664-1').",
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "voltage"
+                        ]
+                    }
+                }
+            }
+        },
         "surgeWaveform": {
             "title": "surgeWaveform",
             "description": "Standardised test impulse at which a surge/pulse rating or a clamping measurement is stated. The labels are identifiers as datasheets print them, not quantities. A double-exponential label is 'T1/T2' in microseconds (front time / time to half-value, IEC 61000-4-5 / IEC 60060-1), and each label names ONE wave of its standard, which is not always the current (the one exception is '10/700', below): '8/20' current wave, IEC 61000-4-5 combination-wave short-circuit current (the usual rating of ESD/PTVS diodes and varistors); '10/1000' current wave, IEC 61643-321 / Telcordia GR-1089 (the classic TVS P_PPM rating); '10/350' current wave, IEC 62305-1 / IEC 61643-11 Class I (lightning current); '2/10' current wave, Telcordia GR-1089; '5/320' current wave, ITU-T K.20/K.21/K.44 (the short-circuit current of the 10/700 generator, named by its own shape); '10/700' the ITU-T K.20/K.21/K.44 10/700 generator, which names TWO waves: on a voltage condition it is the open-circuit VOLTAGE wave, and on a CURRENT rating it is the current that generator drives, as GDT and thyristor-protector datasheets print it ('200 A, 10/700 us'). Such a current line is recorded as printed, with '10/700'; '5/320' stays the label for a datasheet that prints the current wave by its own shape. The two labels are never converted into each other, so a current rating at '10/700' is compared only with other '10/700' current ratings; '10/560' current wave, FCC Part 68 / GR-1089; '9/720' VOLTAGE wave (open circuit), FCC Part 68; '10/160' current wave, GR-1089. 'TLP 100 ns' is the rectangular 100 ns transmission-line pulse of ANSI/ESD STM5.5.1, at which ESD-diode clamping is often printed. ISO 7637 / ISO 16750 pulses and IEC 61000-4-2 ESD discharges are NOT members (ESD ratings live in the esdVoltage* fields). A waveform outside this list cannot be recorded: leave the condition absent rather than approximating it. Absent never means a default.",

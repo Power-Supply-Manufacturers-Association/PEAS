@@ -395,3 +395,54 @@ def test_resistive_element_pin_roles_accepted(pinout):
 @pytest.mark.parametrize("bad", ["terminalC", "end", "Wiper", "W"])
 def test_resistive_element_pin_role_unknown_rejected(pinout, bad):
     assert not valid(pinout, [{"pin": "1", "function": bad}])
+
+
+# --- isolationRating (hoisted from CTAS 2026-10) ------------------------------
+
+
+@pytest.fixture(scope="session")
+def isolation(registry):
+    return Draft202012Validator({"$ref": "https://psma.com/peas/utils.json#/$defs/isolationRating"},
+                                registry=registry)
+
+
+CTAS_ISOLATION_KEYS = {"isolationType", "withstandVoltageRms", "workingVoltage", "surgeVoltage",
+                       "cmti", "barrierCapacitance", "creepage", "clearance"}
+
+
+def test_isolation_rating_keeps_ctas_key_names():
+    """The hoist kept every CTAS key name, so the controller rows and Blade Runner need no change."""
+    props = set(json.loads((REPO / "schemas/utils.json").read_text())["$defs"]["isolationRating"]["properties"])
+    assert CTAS_ISOLATION_KEYS <= props
+
+
+def test_isolation_rating_full_block_accepted(isolation):
+    doc = {"isolationType": "reinforced", "withstandVoltageRms": 5000, "withstandVoltageDuration": 60,
+           "workingVoltage": 2121, "workingVoltageRms": 1500, "transientVoltage": 8000, "impulseVoltage": 7692,
+           "surgeVoltage": 10000, "cmti": 100e9, "barrierCapacitance": 1e-12, "barrierResistance": 1e12,
+           "creepage": 0.008, "clearance": 0.008, "distanceThroughInsulation": 21e-6,
+           "comparativeTrackingIndex": 600, "materialGroup": "I", "pollutionDegree": "PD2",
+           "ratedInsulationVoltage": [{"voltage": 150, "insulationClass": "reinforced", "overvoltageCategory": "III",
+                                       "pollutionDegree": "PD2", "standard": "EN 50178"}]}
+    assert valid(isolation, doc)
+
+
+def test_isolation_rating_supplementary_accepted(isolation):
+    assert valid(isolation, {"isolationType": "supplementary"})
+
+
+def test_isolation_rating_none_rejected(isolation):
+    """A non-isolated part omits the block; the old CTAS value 'none' is gone."""
+    assert not valid(isolation, {"isolationType": "none"})
+
+
+def test_isolation_rating_unknown_key_rejected(isolation):
+    assert not valid(isolation, {"isolationType": "basic", "workingVoltageDc": 600})
+
+
+def test_isolation_rating_rated_voltage_needs_voltage(isolation):
+    assert not valid(isolation, {"ratedInsulationVoltage": [{"overvoltageCategory": "III"}]})
+
+
+def test_isolation_rating_material_group_closed(isolation):
+    assert not valid(isolation, {"materialGroup": "III"})

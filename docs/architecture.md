@@ -421,3 +421,29 @@ default** — it means the record does not state the waveform.
 "10/700" is stored as `10/700`, and a datasheet that prints the current wave by its own shape
 keeps `5/320`. Consumers that compare ratings (Blade Runner cohorts, the TVS pulse-product
 check) compare only equal labels, so the two labels form separate cohorts.
+
+## Isolation rating (hoisted 2026-10)
+
+`utils.json#/$defs/isolationRating` is the galvanic-isolation barrier rating of any part that
+carries a signal, a measurement or power across an insulation barrier. It moved here from CTAS
+`controller.json` because three modules now use it: CTAS isolated controllers / gate drivers,
+and AAS `digitalIsolator`, `currentSensor`, `adc` and `differenceAmplifier` (isolated converters
+and amplifiers). Every family places it at `datasheetInfo.electrical.isolation`, so one checker
+(Blade Runner) reads all of them. CTAS keeps `#/$defs/isolationRating` as a pure `$ref` alias.
+
+The CTAS key names were kept unchanged, so the controller rows that already carry the block
+needed no migration: `isolationType`, `withstandVoltageRms`, `workingVoltage`, `surgeVoltage`,
+`cmti`, `barrierCapacitance`, `creepage`, `clearance`. `isolationType` now uses the PEAS
+`isolationClass` enum (functional / basic / supplementary / double / reinforced). The old
+CTAS value `none` was dropped: no row used it, and a non-isolated part omits the block.
+
+New optional keys: `withstandVoltageDuration` (s), `workingVoltageRms` (V_IOWM), `transientVoltage`
+(V_IOTM), `impulseVoltage` (V_IMP / U_Ni), `barrierResistance` (R_IO), `distanceThroughInsulation`,
+`comparativeTrackingIndex` (V, lower bound of the stated range), `materialGroup` (I / II / IIIa / IIIb),
+`pollutionDegree`, and `ratedInsulationVoltage[]` (`{voltage (req, V RMS), insulationClass,
+overvoltageCategory, pollutionDegree, standard}`, one entry per insulation-coordination row).
+
+The block is closed. Peak and RMS are fixed by each key's name and never mixed:
+`workingVoltage`, `transientVoltage`, `impulseVoltage` and `surgeVoltage` are peak (or DC);
+`withstandVoltageRms` and `workingVoltageRms` are RMS. Distances are in m, capacitance in F,
+resistance in Ohm and CMTI in V/s. Optocouplers, when they get a family, will reuse this block unchanged.

@@ -33,7 +33,7 @@ classDiagram
     }
     class SAS {
         +semiconductor
-        MOSFET, diode, IGBT, BJT
+        MOSFET, diode, IGBT, BJT, thyristor, JFET, optocoupler, module
     }
     class CAS {
         +capacitor

@@ -74,6 +74,18 @@ equality: `DIO_TVS_PULSE_PRODUCT` needs all three labels equal, `DIO_TVS_WAVEFOR
 `8/20` and `10/1000`, and the corpus screens split cohorts by label. So a `10/700` current rating
 is only ever judged against other `10/700` ratings.
 
+## Amendment 2026-10-18: four telecom current waves
+
+Approved by Alf on 2026-10-18 (decision 3 of the SAS thyristor / JFET / optocoupler proposal).
+Four labels are appended exactly as thyristor surge-protector datasheets print them: `5/310`
+(current wave of the ITU-T K.20/K.21 and FTZ R12 10/700 generator as older editions and Bourns /
+Littelfuse print it; the generator `5/320` also names, kept as printed rather than rewritten),
+`5/200` (VDE 0433 10/700 generator), `0.2/310` (I3124 0.5/700 generator) and `10/360` (Eaton SMCP
+and Littelfuse SIDACtor surge tables). Without them a Bourns TISP4350H3BJ keeps only five of its
+eight impulse ratings and an Eaton SMCP loses its 10/360 rating. New user: SAS thyristor
+(`peakPulseCurrents[].waveform`, required on every entry). Enum appends only; no existing value
+changes meaning.
+
 ## Data impact
 
 None. All 4,086 live varistor rows and 34,746 live diode rows validate before and after

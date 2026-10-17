@@ -126,7 +126,7 @@
             ]
         },
         {
-            "description": "Semiconductor (MOSFET, diode, IGBT, BJT) — defined by SAS.",
+            "description": "Semiconductor — discrete power and signal semiconductors, defined by SAS. The list of device kinds is SAS.json's own top-level oneOf (one discriminating field per kind); it is deliberately not repeated here, so a new SAS kind needs no PEAS edit.",
             "properties": {
                 "semiconductor": {
                     "$ref": "https://psma.com/sas/SAS.json"

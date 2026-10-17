@@ -335,7 +335,9 @@ def test_no_module_local_pin_function_vocabulary():
 # --- surgeWaveform (PEAS-RFC 0003) ----------------------------------------------
 
 SURGE_WAVEFORMS = ["8/20", "10/1000", "10/350", "2/10", "5/320", "10/700",
-                   "10/560", "9/720", "10/160", "TLP 100 ns"]
+                   "10/560", "9/720", "10/160", "TLP 100 ns",
+                   # 2026-10 telecom current waves, as thyristor-protector datasheets print them
+                   "5/310", "5/200", "0.2/310", "10/360"]
 
 
 @pytest.fixture(scope="session")
@@ -394,6 +396,19 @@ def test_resistive_element_pin_roles_accepted(pinout):
 
 @pytest.mark.parametrize("bad", ["terminalC", "end", "Wiper", "W"])
 def test_resistive_element_pin_role_unknown_rejected(pinout, bad):
+    assert not valid(pinout, [{"pin": "1", "function": bad}])
+
+
+def test_triac_main_terminal_pin_roles_accepted(pinout):
+    """A triac pinout names its main terminals MT1/MT2 (WeEn BTA16: T1, T2, G)."""
+    doc = [{"pin": "1", "name": "T1", "function": "mainTerminal1"},
+           {"pin": "2", "name": "T2", "function": "mainTerminal2"},
+           {"pin": "3", "name": "G", "function": "gate"}]
+    assert valid(pinout, doc)
+
+
+@pytest.mark.parametrize("bad", ["MT1", "mainTerminal", "mainTerminal3", "T2"])
+def test_triac_main_terminal_unknown_rejected(pinout, bad):
     assert not valid(pinout, [{"pin": "1", "function": bad}])
 
 

@@ -142,7 +142,7 @@ The three-section pattern (`inputs` + `magnetic` + `outputs`) that MAS establish
 
 **Repository**: `OpenConverters/SAS/`
 **Schema**: `schemas/SAS.json`
-**Role**: MOSFETs, diodes, IGBTs, BJTs
+**Role**: MOSFETs, diodes, IGBTs, BJTs, thyristors (SCR, triac, sidac, diac, surge protector), JFETs, optocouplers, power modules
 
 SAS describes semiconductor devices used in power converters:
 - Device identification (part number, technology, package)
@@ -376,7 +376,7 @@ for finished magnetics is proposed via MAS-RFC 0010):
 
 | def | what |
 |---|---|
-| `pinFunction` | THE single 103-value role vocabulary (generic + differential + amplifier + supply + control + digital + power-semiconductor + magnetics + resistive-element terminals `terminalA`/`terminalB`/`wiper` (2026-10, for potentiometers and digital potentiometers) + the merged CTAS power-controller group). Missing values are ADDED here — never forked locally. |
+| `pinFunction` | THE single 105-value role vocabulary (generic + differential + amplifier + supply + control + digital + power-semiconductor (incl. triac `mainTerminal1`/`mainTerminal2`, 2026-10) + magnetics + resistive-element terminals `terminalA`/`terminalB`/`wiper` (2026-10, for potentiometers and digital potentiometers) + the merged CTAS power-controller group). Missing values are ADDED here — never forked locally. |
 | `pin` | `(pin, name, function, polarity)` — an OPEN mixin base (like `datasheetInfoPartBase`); consumers seal with `unevaluatedProperties: false`, and may extend via `allOf` (AAS adds `outputStage`). |
 | `pinout` | pre-sealed array of `pin`, for direct unextended use. |
 | `landPatternPad` | one pad/hole: `id` (joins `pinout[].pin`), `x`/`y` (m), `rotation` (degrees — documented SI exception matching MAS coil), `shape` (pure geometry), `width`/`height`, `drill`/`slotLength`/`plated` (through-board character kept separate from shape). |
@@ -393,7 +393,7 @@ the telltale role values).
 `utils.json#/$defs/surgeWaveform` is the shared string enum naming the standardised test
 impulse a surge/pulse rating or a clamping measurement is stated at. It is in PEAS because
 three modules use it: SAS diode (`peakPulseCurrentWaveform`, `peakPulsePowerWaveform`,
-`clampingWaveform`), RAS varistor (`surgeWaveform`) and EMAS protection (`pulseRating.waveform`,
+`clampingWaveform`) and thyristor (`peakPulseCurrents[].waveform`), RAS varistor (`surgeWaveform`) and EMAS protection (`pulseRating.waveform`,
 the GDT/spark-gap/SPD surge ratings). The values are identifiers as
 datasheets print them, not quantities, so the SI rule does not apply (same reasoning as the
 `pollutionDegree` strings). Each label names ONE wave of its standard — not always the current —
@@ -411,6 +411,10 @@ with one exception, `10/700` (amended 2026-10-18, see the RFC):
 | `9/720` | **voltage** (open circuit) | FCC Part 68 |
 | `10/160` | current | GR-1089 |
 | `TLP 100 ns` | rectangular 100 ns transmission-line pulse | ANSI/ESD STM5.5.1 |
+| `5/310` | current (of the 10/700 generator, as older ITU-T editions and Bourns/Littelfuse print it; the same generator `5/320` names, kept as printed) | ITU-T K.20 / K.21, FTZ R12 |
+| `5/200` | current (of the VDE 0433 10/700 generator) | VDE 0433 |
+| `0.2/310` | current (of the I3124 0.5/700 generator) | I3124 |
+| `10/360` | current, as SIDACtor-class protector surge tables print it (Eaton SMCP, Littelfuse) | -- |
 
 ISO 7637 / ISO 16750 pulses and IEC 61000-4-2 ESD discharges are not members (ESD ratings
 live in SAS `esdVoltageContact`/`esdVoltageAir`). A waveform outside the list cannot be

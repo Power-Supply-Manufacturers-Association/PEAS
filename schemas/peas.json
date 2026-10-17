@@ -189,7 +189,7 @@
             ]
         },
         {
-            "description": "Analog IC (op amp, comparator, instrumentation/difference amp, PGA, buffer/line driver, sample-and-hold, analog switch, multiplexer, ADC, DAC) — generic analog/linear parts, defined by AAS. Distinct from CTAS (power-control ICs) and SAS (discrete power semiconductors).",
+            "description": "Analog IC — generic analog/linear signal-path parts, defined by AAS. The list of analog families is AAS.json's own top-level oneOf (one discriminating field per family); it is deliberately not repeated here, so a new AAS family needs no PEAS edit. Distinct from CTAS (power-control ICs) and SAS (discrete power semiconductors).",
             "properties": {
                 "analog": {
                     "$ref": "https://psma.com/aas/AAS.json"

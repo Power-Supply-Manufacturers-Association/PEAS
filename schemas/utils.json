@@ -1314,7 +1314,7 @@
         },
         "pinFunction": {
             "title": "pinFunction",
-            "description": "Normalized electrical ROLE of one physical terminal — the family-wide controlled vocabulary, hoisted to PEAS (2026-08) from the previously divergent module-local copies (AAS pinout.function 25-value enum, CONAS contactSystem signalRole 7-value enum, CTAS pins.function free string). One vocabulary so a controller's 'ground' and an op-amp's 'ground' are machine-comparable. This is the ROLE axis only: electrical direction is implied by the role (dataIn/dataOut), active level lives in pin.polarity, output topology in family extensions (AAS outputStage), and pad geometry in landPattern. Values are grouped: generic (signal/power/ground/shield/mechanical/noConnect/doNotConnect/other), differential pair halves, analog amplifier roles, supply rails, control, digital data/bus, power-semiconductor terminals, magnetic winding ends, and the power-controller vocabulary merged from CTAS controllerPinFunction (2026-08; normalized on merge: gnd->ground, and the duplicate feedback/compensation/enable/address/noConnect/gate entries deduplicated). 'mechanical' is a terminal with no electrical function (mounting post, board-lock). 'doNotConnect' is a datasheet DNC (internally bonded — must stay open), distinct from 'noConnect' (not bonded).",
+            "description": "Normalized electrical ROLE of one physical terminal — the family-wide controlled vocabulary, hoisted to PEAS (2026-08) from the previously divergent module-local copies (AAS pinout.function 25-value enum, CONAS contactSystem signalRole 7-value enum, CTAS pins.function free string). One vocabulary so a controller's 'ground' and an op-amp's 'ground' are machine-comparable. This is the ROLE axis only: electrical direction is implied by the role (dataIn/dataOut), active level lives in pin.polarity, output topology in family extensions (AAS outputStage), and pad geometry in landPattern. Values are grouped: generic (signal/power/ground/shield/mechanical/noConnect/doNotConnect/other), differential pair halves, analog amplifier roles, supply rails, control, digital data/bus, power-semiconductor terminals, magnetic winding ends, resistive-element terminals, and the power-controller vocabulary merged from CTAS controllerPinFunction (2026-08; normalized on merge: gnd->ground, and the duplicate feedback/compensation/enable/address/noConnect/gate entries deduplicated). 'mechanical' is a terminal with no electrical function (mounting post, board-lock). 'doNotConnect' is a datasheet DNC (internally bonded — must stay open), distinct from 'noConnect' (not bonded). Resistive-element terminals (potentiometers, trimmers, digital potentiometers): 'terminalA' / 'terminalB' = the two ends of the resistive element (datasheet A / B, or the numbered end terminals), 'wiper' = the movable tap (W); a rheostat that brings out only one end and the wiper uses that end's role plus 'wiper'. 'tap' stays the magnetic winding tap.",
             "type": "string",
             "enum": [
                 "signal",
@@ -1361,6 +1361,9 @@
                 "windingStart",
                 "windingEnd",
                 "tap",
+                "terminalA",
+                "terminalB",
+                "wiper",
                 "vcc",
                 "vdd",
                 "vddLow",

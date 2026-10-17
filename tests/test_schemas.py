@@ -334,3 +334,25 @@ def test_surge_waveform_unknown_rejected(surge, w):
 def test_surge_waveform_description_has_no_automotive_claim():
     d = json.loads((REPO / "schemas/utils.json").read_text())["$defs"]["surgeWaveform"]
     assert "automotive" not in d["description"].lower()
+
+
+# --- resistive-element pin roles (2026-10, AAS digitalPotentiometer) -------------
+
+
+@pytest.fixture(scope="session")
+def pinout(registry):
+    return Draft202012Validator({"$ref": "https://psma.com/peas/utils.json#/$defs/pinout"},
+                                registry=registry)
+
+
+def test_resistive_element_pin_roles_accepted(pinout):
+    """A potentiometer pinout can say which pin is the wiper and which are the ends."""
+    doc = [{"pin": "8", "name": "A", "function": "terminalA"},
+           {"pin": "7", "name": "B", "function": "terminalB"},
+           {"pin": "1", "name": "W", "function": "wiper"}]
+    assert valid(pinout, doc)
+
+
+@pytest.mark.parametrize("bad", ["terminalC", "end", "Wiper", "W"])
+def test_resistive_element_pin_role_unknown_rejected(pinout, bad):
+    assert not valid(pinout, [{"pin": "1", "function": bad}])

@@ -79,7 +79,7 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 | `thermistor` | RAS (`https://psma.com/ras/thermistor.json`) | NTC / PTC thermistors (inrush limiting, temperature sensing/compensation) |
 | `controller` | CTAS (`https://psma.com/ctas/controller.json`) | PWM / LLC / PFC / sync-rectifier / gate-driver / reference control ICs |
 | `connector` | CONAS (`https://psma.com/conas/connector.json`) | Terminals, headers, edge-card, wire-to-board, power |
-| `analog` | AAS (`https://psma.com/aas/AAS.json`) | Op amps, comparators, ADC/DAC, analog switches |
+| `analog` | AAS (`https://psma.com/aas/AAS.json`) | Generic analog/linear ICs: op amps, comparators, ADC/DAC, analog switches, digital potentiometers, … (the family list is `AAS.json`'s own `oneOf`) |
 | `behavioral` | PEAS-native (`#/$defs/behavioral`) | Analytic Ψ(i)/Q(v), Chan saturable-core, controlled/source/switch/frequency-response atoms, N-winding coupled-inductor matrices |
 | `transmissionLine` | PEAS-native (`#/$defs/transmissionLine`) | Distributed RLGC lines |
 

@@ -376,7 +376,7 @@ for finished magnetics is proposed via MAS-RFC 0010):
 
 | def | what |
 |---|---|
-| `pinFunction` | THE single 100-value role vocabulary (generic + differential + amplifier + supply + control + digital + power-semiconductor + magnetics + the merged CTAS power-controller group). Missing values are ADDED here — never forked locally. |
+| `pinFunction` | THE single 103-value role vocabulary (generic + differential + amplifier + supply + control + digital + power-semiconductor + magnetics + resistive-element terminals `terminalA`/`terminalB`/`wiper` (2026-10, for potentiometers and digital potentiometers) + the merged CTAS power-controller group). Missing values are ADDED here — never forked locally. |
 | `pin` | `(pin, name, function, polarity)` — an OPEN mixin base (like `datasheetInfoPartBase`); consumers seal with `unevaluatedProperties: false`, and may extend via `allOf` (AAS adds `outputStage`). |
 | `pinout` | pre-sealed array of `pin`, for direct unextended use. |
 | `landPatternPad` | one pad/hole: `id` (joins `pinout[].pin`), `x`/`y` (m), `rotation` (degrees — documented SI exception matching MAS coil), `shape` (pure geometry), `width`/`height`, `drill`/`slotLength`/`plated` (through-board character kept separate from shape). |

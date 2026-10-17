@@ -80,6 +80,9 @@ PEAS uses JSON Schema's `oneOf` keyword to enforce that exactly one component ty
 | `controller` | CTAS (`https://psma.com/ctas/controller.json`) | PWM / LLC / PFC / sync-rectifier / gate-driver / reference control ICs |
 | `connector` | CONAS (`https://psma.com/conas/connector.json`) | Terminals, headers, edge-card, wire-to-board, power |
 | `analog` | AAS (`https://psma.com/aas/AAS.json`) | Generic analog/linear ICs: op amps, comparators, ADC/DAC, analog switches, digital potentiometers, … (the family list is `AAS.json`'s own `oneOf`) |
+| `relay` | EMAS (`https://psma.com/emas/relay.json`) | Electromechanical, reed, solid-state, hybrid relays |
+| `switch` | EMAS (`https://psma.com/emas/switch.json`) | Push-button, toggle, rocker, DIP, rotary switches; circuit breakers (technology `circuitBreaker`, IEC curve letter in `trip.curveClass`) |
+| `protection` | EMAS (`https://psma.com/emas/protection.json`) | Fuses, resettable PPTC fuses, gas discharge tubes, spark gaps, surge protective devices, fuse holders, thermal cut-offs (`part.family` pins the family) |
 | `behavioral` | PEAS-native (`#/$defs/behavioral`) | Analytic Ψ(i)/Q(v), Chan saturable-core, controlled/source/switch/frequency-response atoms, N-winding coupled-inductor matrices |
 | `transmissionLine` | PEAS-native (`#/$defs/transmissionLine`) | Distributed RLGC lines |
 

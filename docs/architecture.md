@@ -392,8 +392,9 @@ the telltale role values).
 
 `utils.json#/$defs/surgeWaveform` is the shared string enum naming the standardised test
 impulse a surge/pulse rating or a clamping measurement is stated at. It is in PEAS because
-two modules use it: SAS diode (`peakPulseCurrentWaveform`, `peakPulsePowerWaveform`,
-`clampingWaveform`) and RAS varistor (`surgeWaveform`). The values are identifiers as
+three modules use it: SAS diode (`peakPulseCurrentWaveform`, `peakPulsePowerWaveform`,
+`clampingWaveform`), RAS varistor (`surgeWaveform`) and EMAS protection (`pulseRating.waveform`,
+the GDT/spark-gap/SPD surge ratings). The values are identifiers as
 datasheets print them, not quantities, so the SI rule does not apply (same reasoning as the
 `pollutionDegree` strings). Each label names ONE wave of its standard — not always the current —
 with one exception, `10/700` (amended 2026-10-18, see the RFC):

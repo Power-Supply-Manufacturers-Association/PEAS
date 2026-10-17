@@ -151,6 +151,35 @@ def test_thermistor_empty_seed_validates(peas):
     assert valid(peas, doc)
 
 
+PROTECTION_EXAMPLES = sorted((WORKSPACE / "EMAS/examples").glob("*_protection_*.json"))
+
+
+@pytest.mark.parametrize("path", PROTECTION_EXAMPLES, ids=lambda p: p.name)
+def test_protection_validates_as_peas(peas, path):
+    # EMAS protection (fuse, PPTC, GDT, fuse holder, thermal cut-off) is a first-class PEAS citizen.
+    doc = json.loads(path.read_text())
+    assert valid(peas, {"inputs": doc["inputs"], "protection": doc["protection"]})
+
+
+def test_protection_examples_present():
+    # A deleted example must not turn the parametrized test above into "no cases".
+    assert len(PROTECTION_EXAMPLES) >= 5
+
+
+def test_protection_empty_seed_validates(peas):
+    doc = {"inputs": {"designRequirements": {"deviceType": "protection", "allowedFamilies": ["fuse"]}},
+           "protection": {}}
+    assert valid(peas, doc)
+
+
+def test_protection_design_requirements_pinned_to_emas(peas):
+    # The allOf pin: a protection document cannot carry another family's requirements.
+    doc = {"inputs": {"designRequirements": {"deviceType": "varistor", "ratedContinuousVoltage": 275.0,
+                                              "minimumPeakSurgeCurrent": 100.0}},
+           "protection": {}}
+    assert not valid(peas, doc)
+
+
 def test_transmission_line_validates(peas):
     doc = {
         "inputs": {"designRequirements": {}},
